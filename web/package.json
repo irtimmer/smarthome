@@ -1,0 +1,21 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "nuxt": "3.0.0-rc.11"
+  },
+  "dependencies": {
+    "@nuxtjs-alt/proxy": "^2.0.4",
+    "@pinia/nuxt": "^0.4.3",
+    "@quasar/extras": "^1.15.4",
+    "nuxt-quasar-vite": "^1.0.7",
+    "quasar": "^2.9.1",
+    "sass": "^1.32.0"
+  }
+}
