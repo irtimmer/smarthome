@@ -59,6 +59,9 @@ export default class HueProvider extends Provider<HueService> {
                 if (serviceData.owner)
                     service.registerIdentifier('uuid', serviceData.owner.rid)
 
+                if (serviceData.script_id)
+                    service.registerIdentifier('uuid', serviceData.script_id)
+
                 if (serviceData.group)
                     service.registerIdentifier('uuid', serviceData.group.rid)
 

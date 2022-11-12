@@ -9,6 +9,11 @@ export const HUE_SERVICE_TYPE: { [type: string]: string | string[] } = {
     motion: ["motion", "presence"],
     temperature: ["temperatureSensor"],
     light_level: ["lightSensor"],
+    behavior_script: "controller",
+    bridge: "gateway",
+    homekit: "api",
+    geolocation: "api",
+    entertainment_configuration: "zone"
 }
 
 export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
@@ -35,6 +40,16 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
             definition: {
                 type: "string",
                 label: "Name",
+            }
+        }
+    },
+    behavior_script: {
+        name: {
+            parse: (data: any) => data.metadata?.name,
+            definition: {
+                '@type': 'name',
+                type: "string",
+                label: "Name"
             }
         }
     },
@@ -146,5 +161,25 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
                 label: "Event"
             }
         }
+    },
+    geofence_client: {
+        name: {
+            parse: (data: any) => data.name,
+            definition: {
+                '@type': 'name',
+                type: "string",
+                label: "Name"
+            }
+        },
+    },
+    entertainment_configuration: {
+        name: {
+            parse: (data: any) => data.metadata?.name,
+            definition: {
+                '@type': 'name',
+                type: "string",
+                label: "Name"
+            }
+        },
     }
 }
