@@ -31,10 +31,14 @@ export default class HueProvider extends Provider<HueService> {
         this.#agent = new Agent({
             rejectUnauthorized: false
         })
-        this.fetch(`/clip/v2/resource/light`).then(async (json: any) => {
+        this.fetch(`/clip/v2/resource`).then(async (json: any) => {
             for (let serviceData of json.data) {
                 const service = new HueService(this, serviceData.id, serviceData.type)
                 this.registerService(service)
+
+                if (serviceData.owner)
+                    service.registerIdentifier('uuid', serviceData.owner.rid)
+
                 service.registerIdentifier('uuid', serviceData.id)
                 service.update(serviceData)
             }
@@ -76,6 +80,9 @@ class HueService extends Service {
     }
 
     update(data: any) {
+        if (!this.#typeDefinition)
+            return
+
         for (const [key, value] of Object.entries(this.#typeDefinition)) {
             const parsed = value.parse(data)
             if (parsed !== undefined)
