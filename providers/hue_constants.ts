@@ -3,8 +3,12 @@ import { HueServiceType } from "./hue";
 export const HUE_SERVICE_TYPE: { [type: string]: string | string[] } = {
     light: "light",
     grouped_light: ["group", "light"],
+    button: "remote",
     room: ["room", "group"],
     zone: ["zone", "group"],
+    motion: ["motion", "presence"],
+    temperature: ["temperatureSensor"],
+    light_level: ["lightSensor"],
 }
 
 export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
@@ -75,6 +79,16 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
             }
         }
     },
+    temperature: {
+        temperature: {
+            parse: (data: any) => data.temperature?.temperature,
+            definition: {
+                '@type': "temperature",
+                type: "number",
+                label: "Temperature"
+            }
+        }
+    },
     light: {
         on: {
             parse: (data: any) => data.on?.on,
@@ -102,6 +116,34 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
                 '@type': "onoff",
                 type: "boolean",
                 label: "On/off"
+            }
+        }
+    },    
+    motion: {
+        motion: {
+            parse: (data: any) => data.motion?.motion,
+            definition: {
+                '@type': "presence",
+                type: "boolean",
+                label: "Motion"
+            }
+        }
+    },
+    light_level: {
+        lightlevel: {
+            parse: (data: any) => data.light?.light_level,
+            definition: {
+                type: "number",
+                label: "Lightlevel"
+            }
+        }
+    },
+    button: {
+        event: {
+            parse: (data: any) => data.button?.last_event,
+            definition: {
+                type: "string",
+                label: "Event"
             }
         }
     }
