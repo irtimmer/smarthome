@@ -38,7 +38,11 @@ export default abstract class Service extends EventEmitter {
     }
 
     updateValue(key: string, value: any) {
-        this.#values.set(key, value)
+        const oldValue = this.#values.get(key)
+        if (value != oldValue) {
+            this.#values.set(key, value)
+            this.emit("update", this, key, value, oldValue)
+        }
     }
 
     abstract setValue(key: string, value: any): Promise<void>;

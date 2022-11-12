@@ -5,9 +5,17 @@ import Providers from '../providers'
 import Server from '../server'
 
 import Service from '../../shared/service'
+import Provider from '../../shared/provider'
 
 export default class {
+    #eventListeners: {
+        response: any
+        close: any
+    }[]
+
     constructor(server: Server, providers: Providers, devices: Devices) {
+        this.#eventListeners = []
+
         const api = createRouter()
         api.get('/services', eventHandler(_ => {
             return Object.fromEntries(Array.from(providers.services, ([id, service]) => [
@@ -48,6 +56,32 @@ export default class {
             ]))
         }))
 
+        api.get('/events', eventHandler(event => {
+            return new Promise((resolve, _) => {
+                event.res.writeHead(200, {
+                    'Content-Type': 'text/event-stream'
+                })
+
+                this.#eventListeners.push({
+                    response: event.res,
+                    close: resolve
+                })
+            })
+        }))
+        
         server.use('/api', api.handler)
+
+        providers.on("update", (_: Provider<Service>, service: Service, key: string, value: any, oldValue: any) => {
+            for (const listener of this.#eventListeners) {
+                listener.response.write("data: ");
+                listener.response.write(JSON.stringify({
+                    action: "update",
+                    id: service.id,
+                    key,
+                    value
+                }));
+                listener.response.write("\n\n");
+            }
+        })
     }
 }

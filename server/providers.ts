@@ -25,6 +25,9 @@ export default class Providers extends EventEmitter {
             service.on("identifier", (service: Service, type: string, id: string) => {
                 this.emit("identifier", provider, service, type, id)
             })
+            service.on("update", (service: Service, key: string, value: any, oldValue: any) => {
+                this.emit("update", provider, service, key, value, oldValue)
+            })
         })
     }
 
