@@ -13,7 +13,7 @@ interface HueOptions {
 
 interface HueServiceTypeProperty {
     parse: (data: any) => any
-    definition: Property
+    definition: Omit<Property, 'read_only'>
 }
 
 export type HueServiceType = { [property: string]: HueServiceTypeProperty }
@@ -83,7 +83,9 @@ class HueService extends Service {
         this.#typeDefinition = HUE_SERVICE_TYPES[type]
         if (this.#typeDefinition)
             for (const [key, property] of Object.entries(this.#typeDefinition))
-                this.registerProperty(key, property.definition)
+                this.registerProperty(key, { ...property.definition, ...{
+                    read_only: true
+                }});
     }
 
     update(data: any) {

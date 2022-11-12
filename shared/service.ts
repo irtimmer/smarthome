@@ -4,6 +4,7 @@ export interface Property {
     '@type'?: string
     type: string
     label: string
+    read_only: boolean
 }
 
 export default abstract class Service extends EventEmitter {
@@ -39,6 +40,8 @@ export default abstract class Service extends EventEmitter {
     updateValue(key: string, value: any) {
         this.#values.set(key, value)
     }
+
+    abstract setValue(key: string, value: any): Promise<void>;
 
     get name(): string {
         return this.#name!

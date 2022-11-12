@@ -1,4 +1,4 @@
-import { createRouter, eventHandler } from 'h3'
+import { createRouter, eventHandler, readBody } from 'h3'
 
 import Devices from '../devices'
 import Providers from '../providers'
@@ -19,6 +19,24 @@ export default class {
                     types: Array.from(service.types)
                 }
             ]))
+        }))
+
+        api.post('/service/:id', eventHandler(async event => {
+            try {
+                const service = providers.services.get(event.context.params.id)!
+                const json = await readBody(event)
+                for (const [key, value] of Object.entries(json))
+                    await service.setValue(key, value)
+
+                return {
+                    'success': true
+                }
+            } catch (e) {
+                return {
+                    'error': e,
+                    'success': false
+                }
+            }
         }))
 
         api.get('/devices', eventHandler(_ => {
