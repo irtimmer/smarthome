@@ -33,6 +33,26 @@ export const useStore = defineStore('main', {
                     this.services = new Map(Object.entries(data))
                 })
             ])
+        },
+
+        update(id: string, key: string, value: any) {
+            const service = this.services.get(id)!
+            const oldValue = service.values[key]
+            service.values[key] = value
+            $fetch(`/api/service/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    [key]: value
+                }),
+            }).then(async (json: any) => {
+                if (!json.success)
+                    service.values[key] = oldValue
+            }).catch(() => {
+                service.values[key] = oldValue
+            })
         }
     }
 })

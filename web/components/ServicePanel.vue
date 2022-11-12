@@ -5,7 +5,7 @@
       <q-item v-for="(prop, key) in service.properties">
         <q-item-section>{{ prop.label }}</q-item-section>
         <q-item-section side>
-          <PropertyValue :property="prop" :value="service.values[key]" />
+          <PropertyInput :property="prop" :modelValue="service.values[key]" @update:modelValue="store.update(id, key, $event)"/>
         </q-item-section>
       </q-item>
     </q-list>
