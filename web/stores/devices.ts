@@ -25,6 +25,19 @@ export const useStore = defineStore('main', {
     }),
     actions: {
         init() {
+            if (!process.server) {
+                const events = new EventSource("/api/events")
+                events.onmessage = e => {
+                    const data = JSON.parse(e.data)
+                    switch (data.action) {
+                        case "update":
+                            const service = this.services.get(data.id)
+                            if (service)
+                                service.values[data.key] = data.value
+                    }
+                }
+            }
+
             return Promise.all([
                 $fetch("/api/devices").then(async (data: any) => {
                     this.devices = new Map(Object.entries(data))
