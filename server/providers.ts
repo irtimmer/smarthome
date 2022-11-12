@@ -5,9 +5,11 @@ import EventEmitter from "events";
 
 export default class Providers extends EventEmitter {
     #providers: Map<string, Provider<Service>>
+    #services: Map<string, Service>
 
     constructor(config: { [key: string]: any }) {
         super()
+        this.#services = new Map
         this.#providers = new Map
         for (const [key, providerConfig] of Object.entries(config)) {
             import(`../providers/${key}`).then((providerClass) => {
@@ -19,6 +21,7 @@ export default class Providers extends EventEmitter {
     registerProvider(provider: Provider<Service>) {
         this.#providers.set(provider.id, provider)
         provider.on("register", (provider: Provider<Service>, service: Service) => {
+            this.#services.set(service.id, service)
             service.on("identifier", (service: Service, type: string, id: string) => {
                 this.emit("identifier", provider, service, type, id)
             })
@@ -27,5 +30,9 @@ export default class Providers extends EventEmitter {
 
     get providers(): ReadonlyMap<string, Provider<Service>> {
         return this.#providers
+    }
+
+    get services(): ReadonlyMap<string, Service> {
+        return this.#services
     }
 }

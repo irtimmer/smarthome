@@ -9,9 +9,8 @@ import Service from '../../shared/service'
 export default class {
     constructor(server: Server, providers: Providers, devices: Devices) {
         const api = createRouter()
-        api.get('/services/:id', eventHandler(event => {
-            const provider = providers.providers.get(event.context.params.id)!
-            return Object.fromEntries(Array.from(provider.services, ([id, service]) => [
+        api.get('/services', eventHandler(_ => {
+            return Object.fromEntries(Array.from(providers.services, ([id, service]) => [
                 id, {
                     name: service.name || id,
                     identifiers: Array.from(service.identifiers),
