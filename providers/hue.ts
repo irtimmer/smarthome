@@ -13,6 +13,7 @@ interface HueOptions {
 
 interface HueServiceTypeProperty {
     parse: (data: any) => any
+    set?: (value: any) => any
     definition: Omit<Property, 'read_only'>
 }
 
@@ -54,9 +55,9 @@ export default class HueProvider extends Provider<HueService> {
         })
     }
 
-    fetch(path: string, options = {}) {
+    fetch(path: string, options: any = {}) {
         return new Promise((resolve, reject) => {
-            request(`${this.#url}${path}`, {...options, ...{
+            let req = request(`${this.#url}${path}`, {...options, ...{
                 agent: this.#agent,
                 headers: {
                     'hue-application-key': this.#key
@@ -65,7 +66,12 @@ export default class HueProvider extends Provider<HueService> {
                 resolve(consumers.json(response))
             }).on('error', (e) => {
                 reject(e)
-            }).end()
+            })
+
+            if (options.body)
+                req.write(options.body)
+
+            req.end()
         })
     }
 }
@@ -84,7 +90,7 @@ class HueService extends Service {
         if (this.#typeDefinition)
             for (const [key, property] of Object.entries(this.#typeDefinition))
                 this.registerProperty(key, { ...property.definition, ...{
-                    read_only: true
+                    read_only: !('set' in property)
                 }});
     }
 
@@ -97,5 +103,18 @@ class HueService extends Service {
             if (parsed !== undefined)
                 this.updateValue(key, parsed)
         }
+    }
+
+    setValue(key: string, value: any) {
+        if (this.#typeDefinition[key].set) {
+            return this.#provider.fetch(`/clip/v2/resource/${this.#type}/${this.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(this.#typeDefinition[key].set!(value))
+            }) as Promise<void>
+        } else
+            return Promise.reject()
     }
 }

@@ -18,6 +18,7 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
     light: {
         on: {
             parse: (data: any) => data.on?.on,
+            set: (value: any) => ({ on: { on: value }}),
             definition: {
                 '@type': "onoff",
                 type: "boolean",
