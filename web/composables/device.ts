@@ -20,6 +20,42 @@ export const useDevice = (device: Device) => {
     }
 
     function icon() {
+        let types = new Set
+        for (const serviceId of device.services)
+            if (store.services.has(serviceId))
+                for (const type of store.services.get(serviceId)!.types)
+                    types.add(type)
+
+        if (types.has("zone"))
+            return "mdi-select-group"
+
+        if (types.has("light")) {
+            if (types.has("group"))
+                return "mdi-lightbulb-group"
+
+            return "mdi-lightbulb"
+        }
+
+        if (types.has("remote"))
+            return "mdi-remote"
+
+        if (types.has("motion"))
+            return "mdi-motion-sensor"
+
+        if (types.has("multilevel"))
+            return "mdi-knob"
+
+        if (types.has("switch"))
+            return "mdi-toggle-switch"
+
+        if (types.has("gateway"))
+            return "mdi-lan"
+
+        if (types.has("controller"))
+            return "mdi-cog-box"
+
+        if (types.has("api"))
+            return "mdi-api"
 
         return 'mdi-gauge'
     }
