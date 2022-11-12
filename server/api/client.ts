@@ -17,6 +17,7 @@ export default class {
                     identifiers: Array.from(service.identifiers),
                     properties: Object.fromEntries(service.properties),
                     values: Object.fromEntries(service.values),
+                    types: Array.from(service.types)
                 }
             ]))
         }))

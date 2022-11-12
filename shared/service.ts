@@ -1,6 +1,7 @@
 import { EventEmitter } from "stream"
 
 export interface Property {
+    '@type'?: string
     type: string
     label: string
 }
@@ -10,6 +11,7 @@ export default abstract class Service extends EventEmitter {
     #values: Map<string, any>
     #properties: Map<string, Property>
     #identifiers: Set<string>
+    #types: Set<string>
     #name?: string
 
     constructor(id: string) {
@@ -18,10 +20,15 @@ export default abstract class Service extends EventEmitter {
         this.#values = new Map
         this.#properties = new Map
         this.#identifiers = new Set
+        this.#types = new Set
     }
 
     registerProperty(key: string, prop: Property) {
         this.#properties.set(key, prop)
+    }
+
+    registerType(type: string) {
+        this.#types.add(type)
     }
 
     registerIdentifier(type: string, id: string) {
@@ -51,5 +58,9 @@ export default abstract class Service extends EventEmitter {
 
     get identifiers(): ReadonlySet<string> {
         return this.#identifiers
+    }
+
+    get types(): ReadonlySet<string> {
+        return this.#types
     }
 }
