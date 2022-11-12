@@ -10,6 +10,7 @@ export default class {
             const provider = providers.providers.get(event.context.params.id)!
             return Object.fromEntries(Array.from(provider.services, ([id, service]) => [
                 id, {
+                    name: service.name || id,
                     identifiers: Array.from(service.identifiers),
                     properties: Object.fromEntries(service.properties),
                     values: Object.fromEntries(service.values),

@@ -8,6 +8,7 @@ export default abstract class Service {
     #values: Map<string, any>
     #properties: Map<string, Property>
     #identifiers: Set<string>
+    #name?: string
 
     constructor(id: string) {
         this.id = id
@@ -26,6 +27,14 @@ export default abstract class Service {
 
     updateValue(key: string, value: any) {
         this.#values.set(key, value)
+    }
+
+    get name(): string {
+        return this.#name!
+    }
+
+    set name(value: string) {
+        this.#name = value
     }
 
     get values(): ReadonlyMap<string, any> {
