@@ -1,3 +1,4 @@
+import EventSource from "eventsource"
 import consumers from 'stream/consumers'
 import { Agent, request } from "https"
 
@@ -29,9 +30,20 @@ export default class HueProvider extends Provider<HueService> {
         this.#url = options.url
         this.#key = options.key
 
-        this.#agent = new Agent({
+        const agentOptions = {
             rejectUnauthorized: false
-        })
+        }
+
+        this.#agent = new Agent(agentOptions)
+        const events = new EventSource(`${this.#url}/eventstream/clip/v2`, {
+            https: agentOptions,
+            headers: {
+                'hue-application-key': this.#key
+            }
+        });
+
+        events.onmessage = this.#onmessage.bind(this)
+
         this.fetch(`/clip/v2/resource`).then(async (json: any) => {
             for (let serviceData of json.data) {
                 const service = new HueService(this, serviceData.id, serviceData.type)
@@ -73,6 +85,17 @@ export default class HueProvider extends Provider<HueService> {
 
             req.end()
         })
+    }
+
+    #onmessage(e: MessageEvent) {
+        const jsonData = JSON.parse(e.data)
+        for (let event of jsonData) {
+            for (let update of event.data) {
+                const service = this.services.get(update.id)
+                if (service)
+                    service.update(update)
+            }
+        }
     }
 }
 
