@@ -4,7 +4,7 @@ import { Agent, request } from "https"
 import Provider from "../shared/provider"
 import Service, { Property } from "../shared/service"
 
-import { HUE_SERVICE_TYPES } from "./hue_constants"
+import { HUE_SERVICE_TYPE, HUE_SERVICE_TYPES } from "./hue_constants"
 
 interface HueOptions {
     url: string
@@ -35,6 +35,13 @@ export default class HueProvider extends Provider<HueService> {
             for (let serviceData of json.data) {
                 const service = new HueService(this, serviceData.id, serviceData.type)
                 this.registerService(service)
+
+                if (serviceData.type in HUE_SERVICE_TYPE)
+                    if (Array.isArray(HUE_SERVICE_TYPE[serviceData.type]))
+                        for (const type of HUE_SERVICE_TYPE[serviceData.type])
+                            service.registerType(type) 
+                    else
+                        service.registerType(HUE_SERVICE_TYPE[serviceData.type] as string)
 
                 if (serviceData.owner)
                     service.registerIdentifier('uuid', serviceData.owner.rid)
