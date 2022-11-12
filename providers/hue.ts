@@ -35,6 +35,7 @@ export default class HueProvider extends Provider<HueService> {
             for (let serviceData of json.data) {
                 const service = new HueService(this, serviceData.id, serviceData.type)
                 this.registerService(service)
+                service.registerIdentifier('uuid', serviceData.id)
                 service.update(serviceData)
             }
         }).catch((err: any) => {
@@ -67,6 +68,7 @@ class HueService extends Service {
         super(id)
         this.#provider = provider
         this.#type = type
+        this.name = type
         this.#typeDefinition = HUE_SERVICE_TYPES[type]
         if (this.#typeDefinition)
             for (const [key, property] of Object.entries(this.#typeDefinition))
