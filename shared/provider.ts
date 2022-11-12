@@ -1,15 +1,19 @@
 import Service from "./service";
 
-export default class Provider<T extends Service> {
+import { EventEmitter } from "stream";
+
+export default class Provider<T extends Service> extends EventEmitter {
     readonly id: string
     #services: Map<string, T>
 
     constructor(id: string) {
+        super()
         this.id = id
         this.#services = new Map
     }
 
     registerService(service: T) {
+        this.emit("register", this, service)
         this.#services.set(service.id, service)
     }
 

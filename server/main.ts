@@ -4,10 +4,12 @@ import fs from 'fs'
 import Server from './server'
 import Providers from './providers'
 import ClientApi from './api/client'
+import Devices from './devices'
 
 const file = fs.readFileSync('./config.yml', 'utf8')
 const config = yaml.parse(file)
 
 const providers = new Providers(config.providers)
+const devices = new Devices(providers)
 const server = new Server()
-new ClientApi(server, providers)
+new ClientApi(server, providers, devices)

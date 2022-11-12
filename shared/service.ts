@@ -1,9 +1,11 @@
+import { EventEmitter } from "stream"
+
 export interface Property {
     type: string
     label: string
 }
 
-export default abstract class Service {
+export default abstract class Service extends EventEmitter {
     readonly id: string
     #values: Map<string, any>
     #properties: Map<string, Property>
@@ -11,6 +13,7 @@ export default abstract class Service {
     #name?: string
 
     constructor(id: string) {
+        super()
         this.id = id
         this.#values = new Map
         this.#properties = new Map
@@ -23,6 +26,7 @@ export default abstract class Service {
 
     registerIdentifier(type: string, id: string) {
         this.#identifiers.add(`${type}:${id}`)
+        this.emit("identifier", this, type, id)
     }
 
     updateValue(key: string, value: any) {
