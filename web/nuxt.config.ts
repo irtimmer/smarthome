@@ -16,7 +16,10 @@ export default defineNuxtConfig({
         }
     },
     quasar: {
-        css: ['@quasar/extras/material-icons/material-icons.css', '@quasar/extras/mdi-v7/mdi-v7.css']
+        css: ['@quasar/extras/material-icons/material-icons.css', '@quasar/extras/mdi-v7/mdi-v7.css'],
+        plugins: [
+            'Dialog'
+        ]
     },
     typescript: {
         strict: true

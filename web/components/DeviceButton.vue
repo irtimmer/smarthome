@@ -1,5 +1,5 @@
 <template>
-  <q-card flat class="sh-button-card cursor-pointer q-hoverable">
+  <q-card flat class="sh-button-card cursor-pointer q-hoverable" v-ripple @click="openDialog()">
     <q-card-section class="text-center q-pa-sm">
       <q-icon :name="icon" size="3em" />
     </q-card-section>
@@ -16,9 +16,22 @@
 </style>
 
 <script setup>
+import { DeviceDialog } from '#components'
+
 const props = defineProps(["device"])
 
 const { value, icon: getIcon } = useDevice(props.device)
+const $q = useQuasar()
+
 const name = computed(() => value("name"))
 const icon = computed(() => getIcon())
+
+function openDialog() {
+  $q.dialog({
+    component: DeviceDialog,
+    componentProps: {
+      device: props.device
+    }
+  })
+}
 </script>
