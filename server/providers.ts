@@ -4,8 +4,8 @@ import Service from "../shared/service";
 import EventEmitter from "events";
 
 export default class Providers extends EventEmitter {
-    #providers: Map<string, Provider<Service>>
-    #services: Map<string, Service>
+    #providers: Map<string, Provider<any>>
+    #services: Map<string, Service<any>>
 
     constructor(config: { [key: string]: any }) {
         super()
@@ -18,24 +18,24 @@ export default class Providers extends EventEmitter {
         }
     }
 
-    registerProvider(provider: Provider<Service>) {
+    registerProvider(provider: Provider<any>) {
         this.#providers.set(provider.id, provider)
-        provider.on("register", (provider: Provider<Service>, service: Service) => {
-            this.#services.set(service.id, service)
-            service.on("identifier", (service: Service, type: string, id: string) => {
+        provider.on("register", (provider: Provider<any>, service: Service<any>) => {
+            this.#services.set(`${provider.id}:${service.id}`, service)
+            service.on("identifier", (service: Service<any>, type: string, id: string) => {
                 this.emit("identifier", provider, service, type, id)
             })
-            service.on("update", (service: Service, key: string, value: any, oldValue: any) => {
+            service.on("update", (service: Service<any>, key: string, value: any, oldValue: any) => {
                 this.emit("update", provider, service, key, value, oldValue)
             })
         })
     }
 
-    get providers(): ReadonlyMap<string, Provider<Service>> {
+    get providers(): ReadonlyMap<string, Provider<any>> {
         return this.#providers
     }
 
-    get services(): ReadonlyMap<string, Service> {
+    get services(): ReadonlyMap<string, Service<any>> {
         return this.#services
     }
 }

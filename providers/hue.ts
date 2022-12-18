@@ -105,14 +105,12 @@ export default class HueProvider extends Provider<HueService> {
     }
 }
 
-class HueService extends Service {
+class HueService extends Service<HueProvider> {
     #type: string
     #typeDefinition: HueServiceType
-    #provider: HueProvider
 
     constructor(provider: HueProvider, id: string, type: string) {
-        super(id)
-        this.#provider = provider
+        super(provider, id)
         this.#type = type
         this.name = type
         this.#typeDefinition = HUE_SERVICE_TYPES[type]
@@ -136,7 +134,7 @@ class HueService extends Service {
 
     setValue(key: string, value: any) {
         if (this.#typeDefinition[key].set) {
-            return this.#provider.fetch(`/clip/v2/resource/${this.#type}/${this.id}`, {
+            return this.provider.fetch(`/clip/v2/resource/${this.#type}/${this.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'

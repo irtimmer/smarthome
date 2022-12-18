@@ -2,7 +2,7 @@ import Service from "./service";
 
 import { EventEmitter } from "stream";
 
-export default class Provider<T extends Service> extends EventEmitter {
+export default class Provider<T extends Service<any>> extends EventEmitter {
     readonly id: string
     #services: Map<string, T>
 

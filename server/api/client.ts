@@ -50,7 +50,7 @@ export default class {
         api.get('/devices', eventHandler(_ => {
             return Object.fromEntries(Array.from(devices.devices, ([id, device]) => [
                 id, {
-                    services: Array.from(device.services).map((service: Service) => service.id),
+                    services: Array.from(device.services).map((service: Service<any>) => `${service.provider.id}:${service.id}`),
                     identifiers: Array.from(device.identifiers)
                 }
             ]))
@@ -71,12 +71,12 @@ export default class {
         
         server.use('/api', api.handler)
 
-        providers.on("update", (_: Provider<Service>, service: Service, key: string, value: any, oldValue: any) => {
+        providers.on("update", (provider: Provider<any>, service: Service<any>, key: string, value: any, oldValue: any) => {
             for (const listener of this.#eventListeners) {
                 listener.response.write("data: ");
                 listener.response.write(JSON.stringify({
                     action: "update",
-                    id: service.id,
+                    id: `${provider.id}:${service.id}`,
                     key,
                     value
                 }));

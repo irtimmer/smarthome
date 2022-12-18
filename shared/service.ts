@@ -1,5 +1,7 @@
 import { EventEmitter } from "stream"
 
+import Provider from "./provider"
+
 export interface Property {
     '@type'?: string
     type: string
@@ -7,17 +9,19 @@ export interface Property {
     read_only: boolean
 }
 
-export default abstract class Service extends EventEmitter {
+export default abstract class Service<T extends Provider<any>> extends EventEmitter {
     readonly id: string
+    readonly provider: T
     #values: Map<string, any>
     #properties: Map<string, Property>
     #identifiers: Set<string>
     #types: Set<string>
     #name?: string
 
-    constructor(id: string) {
+    constructor(provider: T, id: string) {
         super()
         this.id = id
+        this.provider = provider
         this.#values = new Map
         this.#properties = new Map
         this.#identifiers = new Set
