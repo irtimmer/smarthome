@@ -1,15 +1,7 @@
 <template>
-  <div>
-    <div class="text-h6">{{ service.name }}</div>
-    <q-list>
-      <q-item v-for="(prop, key) in service.properties">
-        <q-item-section>{{ prop.label }}</q-item-section>
-        <q-item-section side>
-          <PropertyInput :property="prop" :modelValue="service.values[key]" @update:modelValue="store.update(id, key, $event)"/>
-        </q-item-section>
-      </q-item>
-    </q-list>
-  </div>
+  <q-list dense>
+    <PropertyItem v-for="(prop, key) in service.properties" :property="prop" :modelValue="service.values[key]" @update:modelValue="store.update(id, key, $event)" />
+  </q-list>
 </template>
 
 <script setup>
