@@ -9,11 +9,16 @@ export interface Property {
     read_only: boolean
 }
 
+export interface Action {
+    label: string
+}
+
 export default abstract class Service<T extends Provider<any>> extends EventEmitter {
     readonly id: string
     readonly provider: T
     #values: Map<string, any>
     #properties: Map<string, Property>
+    #actions: Map<string, Action> 
     #identifiers: Set<string>
     #types: Set<string>
     #name?: string
@@ -24,6 +29,7 @@ export default abstract class Service<T extends Provider<any>> extends EventEmit
         this.provider = provider
         this.#values = new Map
         this.#properties = new Map
+        this.#actions = new Map
         this.#identifiers = new Set
         this.#types = new Set
     }
@@ -41,6 +47,10 @@ export default abstract class Service<T extends Provider<any>> extends EventEmit
         this.emit("identifier", this, type, id)
     }
 
+    registerAction(key: string, action: Action) {
+        this.#actions.set(key, action)
+    }
+
     updateValue(key: string, value: any) {
         const oldValue = this.#values.get(key)
         if (value != oldValue) {
@@ -50,6 +60,7 @@ export default abstract class Service<T extends Provider<any>> extends EventEmit
     }
 
     abstract setValue(key: string, value: any): Promise<void>;
+    abstract triggerAction(key: string, props: any): Promise<void>;
 
     get name(): string {
         return this.#name!
@@ -69,6 +80,10 @@ export default abstract class Service<T extends Provider<any>> extends EventEmit
 
     get identifiers(): ReadonlySet<string> {
         return this.#identifiers
+    }
+
+    get actions(): ReadonlyMap<string, Action> {
+        return this.#actions
     }
 
     get types(): ReadonlySet<string> {

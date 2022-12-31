@@ -24,6 +24,7 @@ export default class {
                     identifiers: Array.from(service.identifiers),
                     properties: Object.fromEntries(service.properties),
                     values: Object.fromEntries(service.values),
+                    actions: Object.fromEntries(service.actions),
                     types: Array.from(service.types)
                 }
             ]))
@@ -35,6 +36,23 @@ export default class {
                 const json = await readBody(event)
                 for (const [key, value] of Object.entries(json))
                     await service.setValue(key, value)
+
+                return {
+                    'success': true
+                }
+            } catch (e) {
+                return {
+                    'error': e,
+                    'success': false
+                }
+            }
+        }))
+
+        api.post('/service/:id/action/:actionId', eventHandler(async event => {
+            try {
+                const service = providers.services.get(event.context.params.id)!
+                const json = await readBody(event)
+                await service.triggerAction(event.context.params.actionId, json)
 
                 return {
                     'success': true

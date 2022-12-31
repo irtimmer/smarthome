@@ -132,6 +132,10 @@ class HueService extends Service<HueProvider> {
         }
     }
 
+    triggerAction(key: string, props: any) {
+        return Promise.reject()
+    }
+
     setValue(key: string, value: any) {
         if (this.#typeDefinition[key].set) {
             return this.provider.fetch(`/clip/v2/resource/${this.#type}/${this.id}`, {
