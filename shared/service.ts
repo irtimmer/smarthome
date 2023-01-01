@@ -13,12 +13,28 @@ export interface Action {
     label: string
 }
 
-export default abstract class Service<T extends Provider<any>> extends EventEmitter {
+export interface Service extends EventEmitter {
+    readonly id: string
+    readonly name: string
+
+    readonly identifiers: ReadonlySet<string>
+    readonly provider: Provider<Service>
+    readonly types: ReadonlySet<string>
+
+    readonly properties: ReadonlyMap<string, Property>
+    readonly values: ReadonlyMap<string, any>
+    readonly actions: ReadonlyMap<string, Action>
+
+    setValue(key: string, value: any): Promise<void>;
+    triggerAction(key: string, props: any): Promise<void>;
+}
+
+export default abstract class AbstractService<T extends Provider<Service>> extends EventEmitter implements Service {
     readonly id: string
     readonly provider: T
     #values: Map<string, any>
     #properties: Map<string, Property>
-    #actions: Map<string, Action> 
+    #actions: Map<string, Action>
     #identifiers: Set<string>
     #types: Set<string>
     #name?: string

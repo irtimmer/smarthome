@@ -1,8 +1,8 @@
-import Service from "../shared/service";
+import { Service } from "../shared/service";
 import Providers from "./providers";
 
 interface Device {
-    services: Set<Service<any>>
+    services: Set<Service>
     identifiers: Set<string>
 }
 
@@ -10,13 +10,13 @@ export default class Devices {
     #counter = 0
     #devices: Map<String, Device>
     #identifiers: Map<String, String>
-    #services: WeakMap<Service<any>, String>
+    #services: WeakMap<Service, String>
 
     constructor(providers: Providers) {
         this.#devices = new Map
         this.#identifiers = new Map
         this.#services = new WeakMap
-        providers.on("identifier", (service: Service<any>, type: string, id: string) => {
+        providers.on("identifier", (service: Service, type: string, id: string) => {
             const key = `${type}:${id}`
             if (this.#services.has(service)) {
                 if (this.#identifiers.has(key)) {

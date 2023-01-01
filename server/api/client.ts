@@ -4,7 +4,7 @@ import Devices from '../devices'
 import Providers from '../providers'
 import Server from '../server'
 
-import Service from '../../shared/service'
+import { Service } from '../../shared/service'
 
 export default class {
     #eventListeners: {
@@ -67,7 +67,7 @@ export default class {
         api.get('/devices', eventHandler(_ => {
             return Object.fromEntries(Array.from(devices.devices, ([id, device]) => [
                 id, {
-                    services: Array.from(device.services).map((service: Service<any>) => `${service.provider.id}:${service.id}`),
+                    services: Array.from(device.services).map((service: Service) => `${service.provider.id}:${service.id}`),
                     identifiers: Array.from(device.identifiers)
                 }
             ]))
@@ -88,7 +88,7 @@ export default class {
         
         server.use('/api', api.handler)
 
-        providers.on("update", (service: Service<any>, key: string, value: any, oldValue: any) => {
+        providers.on("update", (service: Service, key: string, value: any, oldValue: any) => {
             for (const listener of this.#eventListeners) {
                 listener.response.write("data: ");
                 listener.response.write(JSON.stringify({
