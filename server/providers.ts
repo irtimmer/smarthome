@@ -21,7 +21,7 @@ export default class Providers extends EventEmitter {
     registerProvider(provider: Provider<Service>) {
         this.#providers.set(provider.id, provider)
         provider.on("register", (service: Service) => {
-            this.#services.set(`${provider.id}:${service.id}`, service)
+            this.#services.set(service.uniqueId, service)
             service.on("identifier", (type: string, id: string) => {
                 this.emit("identifier", service, type, id)
             })

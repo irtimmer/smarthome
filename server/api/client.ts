@@ -67,7 +67,7 @@ export default class {
         api.get('/devices', eventHandler(_ => {
             return Object.fromEntries(Array.from(devices.devices, ([id, device]) => [
                 id, {
-                    services: Array.from(device.services).map((service: Service) => `${service.provider.id}:${service.id}`),
+                    services: Array.from(device.services).map((service: Service) => service.uniqueId),
                     identifiers: Array.from(device.identifiers)
                 }
             ]))
@@ -93,7 +93,7 @@ export default class {
                 listener.response.write("data: ");
                 listener.response.write(JSON.stringify({
                     action: "update",
-                    id: `${service.provider.id}:${service.id}`,
+                    id: service.uniqueId,
                     key,
                     value
                 }));

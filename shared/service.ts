@@ -17,6 +17,7 @@ export interface Action {
 
 export interface Service extends EventEmitter {
     readonly id: string
+    readonly uniqueId: string
     readonly name: string
 
     readonly identifiers: ReadonlySet<string>
@@ -106,5 +107,9 @@ export default abstract class AbstractService<T extends Provider<Service>> exten
 
     get types(): ReadonlySet<string> {
         return this.#types
+    }
+
+    get uniqueId(): string {
+        return `${this.provider.id}:${this.id}`
     }
 }
