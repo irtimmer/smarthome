@@ -119,7 +119,9 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
             set: (value: any) => ({ dimming: { brightness: value }}),
             definition: {
                 type: "number",
-                label: "Brightness"
+                label: "Brightness",
+                min: 0,
+                max: 100
             }
         }
     },
