@@ -12,9 +12,14 @@ export interface Property {
     read_only: boolean
 }
 
+export interface Action {
+    label: string
+}
+
 export interface Service {
     properties: { [key: string]: any }
     values: { [key: string]: any }
+    actions: { [key: string]: any }
     types: [string]
 }
 
@@ -65,6 +70,16 @@ export const useStore = defineStore('main', {
                     service.values[key] = oldValue
             }).catch(() => {
                 service.values[key] = oldValue
+            })
+        },
+
+        triggerAction(id: string, key: string, props: any) {
+            $fetch(`/api/service/${id}/action/${key}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(props),
             })
         }
     }

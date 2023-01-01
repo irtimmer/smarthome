@@ -1,6 +1,7 @@
 <template>
   <q-list dense>
     <PropertyItem v-for="(prop, key) in service.properties" :property="prop" :modelValue="service.values[key]" @update:modelValue="store.update(id, key, $event)" />
+    <ActionItem v-for="(action, key) in service.actions" :action="action" @click="store.triggerAction(id, key)" />
   </q-list>
 </template>
 
