@@ -1,4 +1,3 @@
-import Provider from "../shared/provider";
 import Service from "../shared/service";
 import Providers from "./providers";
 
@@ -17,7 +16,7 @@ export default class Devices {
         this.#devices = new Map
         this.#identifiers = new Map
         this.#services = new WeakMap
-        providers.on("identifier", (provider: Provider<any>, service: Service<any>, type: string, id: string) => {
+        providers.on("identifier", (service: Service<any>, type: string, id: string) => {
             const key = `${type}:${id}`
             if (this.#services.has(service)) {
                 if (this.#identifiers.has(key)) {

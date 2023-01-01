@@ -13,7 +13,7 @@ export default class Provider<T extends Service<any>> extends EventEmitter {
     }
 
     registerService(service: T) {
-        this.emit("register", this, service)
+        this.emit("register", service)
         this.#services.set(service.id, service)
     }
 

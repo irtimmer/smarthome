@@ -44,7 +44,7 @@ export default abstract class Service<T extends Provider<any>> extends EventEmit
 
     registerIdentifier(type: string, id: string) {
         this.#identifiers.add(`${type}:${id}`)
-        this.emit("identifier", this, type, id)
+        this.emit("identifier", type, id)
     }
 
     registerAction(key: string, action: Action) {
@@ -55,7 +55,7 @@ export default abstract class Service<T extends Provider<any>> extends EventEmit
         const oldValue = this.#values.get(key)
         if (value != oldValue) {
             this.#values.set(key, value)
-            this.emit("update", this, key, value, oldValue)
+            this.emit("update", key, value, oldValue)
         }
     }
 

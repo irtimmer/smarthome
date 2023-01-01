@@ -5,7 +5,6 @@ import Providers from '../providers'
 import Server from '../server'
 
 import Service from '../../shared/service'
-import Provider from '../../shared/provider'
 
 export default class {
     #eventListeners: {
@@ -89,12 +88,12 @@ export default class {
         
         server.use('/api', api.handler)
 
-        providers.on("update", (provider: Provider<any>, service: Service<any>, key: string, value: any, oldValue: any) => {
+        providers.on("update", (service: Service<any>, key: string, value: any, oldValue: any) => {
             for (const listener of this.#eventListeners) {
                 listener.response.write("data: ");
                 listener.response.write(JSON.stringify({
                     action: "update",
-                    id: `${provider.id}:${service.id}`,
+                    id: `${service.provider.id}:${service.id}`,
                     key,
                     value
                 }));
