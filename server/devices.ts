@@ -7,7 +7,6 @@ interface Device {
 }
 
 export default class Devices {
-    #counter = 0
     #devices: Map<String, Device>
     #identifiers: Map<String, String>
     #services: WeakMap<Service, String>
@@ -36,14 +35,12 @@ export default class Devices {
 
                 this.#services.set(service, deviceKey)
             } else {
-                const deviceKey = `device-${this.#counter}`
-                this.#devices.set(deviceKey, {
+                this.#devices.set(key, {
                     services: new Set([service]),
                     identifiers: new Set(service.identifiers)
                 })
-                this.#identifiers.set(key, deviceKey)
-                this.#services.set(service, deviceKey)
-                this.#counter += 1
+                this.#identifiers.set(key, key)
+                this.#services.set(service, key)
             }
         })
     }
