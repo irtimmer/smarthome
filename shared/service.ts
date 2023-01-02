@@ -66,8 +66,13 @@ export default abstract class AbstractService<T extends Provider<Service>> exten
         }
     }
 
-    abstract setValue(key: string, value: any): Promise<void>;
-    abstract triggerAction(key: string, props: any): Promise<void>;
+    setValue(key: string, value: any): Promise<void> {
+        throw new Error("Method not implemented.");
+    }
+
+    triggerAction(key: string, props: any): Promise<void> {
+        throw new Error("Method not implemented.");
+    }
 
     get name(): string {
         return this.#name!
