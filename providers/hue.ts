@@ -2,8 +2,9 @@ import EventSource from "eventsource"
 import consumers from 'stream/consumers'
 import { Agent, request } from "https"
 
+import { Action, Property } from "../shared/definitions"
 import Provider from "../shared/provider"
-import Service, { Property } from "../shared/service"
+import Service from "../shared/service"
 
 import { HUE_SERVICE_TYPE, HUE_SERVICE_TYPES } from "./hue_constants"
 

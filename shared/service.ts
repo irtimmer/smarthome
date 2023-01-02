@@ -1,19 +1,7 @@
 import { EventEmitter } from "stream"
 
+import { Action, Property } from "./definitions"
 import Provider from "./provider"
-
-export interface Property {
-    '@type'?: string
-    type: string
-    label: string
-    read_only: boolean
-    min?: number
-    max?: number
-}
-
-export interface Action {
-    label: string
-}
 
 export interface Service extends EventEmitter {
     readonly id: string
