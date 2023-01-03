@@ -5,6 +5,7 @@ export interface Property {
     read_only: boolean
     min?: number
     max?: number
+    unit?: string
 }
 
 export interface Action {
