@@ -1,4 +1,4 @@
-import { createRouter, eventHandler, readBody } from 'h3'
+import express, { Router } from 'express'
 
 import Devices from '../devices'
 import Providers from '../providers'
@@ -15,9 +15,11 @@ export default class {
     constructor(server: Server, providers: Providers, devices: Devices) {
         this.#eventListeners = []
 
-        const api = createRouter()
-        api.get('/services', eventHandler(_ => {
-            return Object.fromEntries(Array.from(providers.services, ([id, service]) => [
+        const api = Router()
+
+        api.use(express.json())
+        api.get('/services', (req, res) => {
+            res.json(Object.fromEntries(Array.from(providers.services, ([id, service]) => [
                 id, {
                     name: service.name || id,
                     identifiers: Array.from(service.identifiers),
@@ -26,67 +28,58 @@ export default class {
                     actions: Object.fromEntries(service.actions),
                     types: Array.from(service.types)
                 }
-            ]))
-        }))
+            ])))
+        })
 
-        api.post('/service/:id', eventHandler(async event => {
-            try {
-                const service = providers.services.get(event.context.params.id)!
-                const json = await readBody(event)
-                for (const [key, value] of Object.entries(json))
-                    await service.setValue(key, value)
-
-                return {
+        api.post('/service/:id', (req, res) => {
+            const service = providers.services.get(req.params.id)!
+            Promise.all(Object.entries(req.body).map(([key, value]) => service.setValue(key, value))).then(() => {
+                res.json({
                     'success': true
-                }
-            } catch (e) {
-                return {
+                })
+            }).catch(e => {
+                res.json({
                     'error': e,
                     'success': false
-                }
-            }
-        }))
+                })
+            })
+        })
 
-        api.post('/service/:id/action/:actionId', eventHandler(async event => {
-            try {
-                const service = providers.services.get(event.context.params.id)!
-                const json = await readBody(event)
-                await service.triggerAction(event.context.params.actionId, json)
-
-                return {
+        api.post('/service/:id/action/:actionId', (req, res) => {
+            const service = providers.services.get(req.params.id)!
+            service.triggerAction(req.params.actionId, req.body).then(() => {
+                res.json({
                     'success': true
-                }
-            } catch (e) {
-                return {
+                })
+            }).catch(e => {
+                res.json({
                     'error': e,
                     'success': false
-                }
-            }
-        }))
+                })
+            })
+        })
 
-        api.get('/devices', eventHandler(_ => {
-            return Object.fromEntries(Array.from(devices.devices, ([id, device]) => [
+        api.get('/devices', (_, res) => {
+            res.json(Object.fromEntries(Array.from(devices.devices, ([id, device]) => [
                 id, {
                     services: Array.from(device.services).map((service: Service) => service.uniqueId),
                     identifiers: Array.from(device.identifiers)
                 }
-            ]))
-        }))
+            ])))
+        })
 
-        api.get('/events', eventHandler(event => {
-            return new Promise((resolve, _) => {
-                event.res.writeHead(200, {
-                    'Content-Type': 'text/event-stream'
-                })
-
-                this.#eventListeners.push({
-                    response: event.res,
-                    close: resolve
-                })
+        api.get('/events', (_, res, next) => {
+            res.writeHead(200, {
+                'Content-Type': 'text/event-stream'
             })
-        }))
-        
-        server.use('/api', api.handler)
+
+            this.#eventListeners.push({
+                response: res,
+                close: next
+            })
+        })
+
+        server.app.use('/api', api)
 
         providers.on("update", (service: Service, key: string, value: any, oldValue: any) => {
             for (const listener of this.#eventListeners) {

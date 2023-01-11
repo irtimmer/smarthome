@@ -1,19 +1,11 @@
 import { createServer } from 'http'
-import { App, EventHandler, createApp, toNodeListener } from 'h3'
+import express, { Express } from 'express'
 
 export default class Server {
-    #app: App
+    readonly app: Express
 
     constructor() {
-        this.#app = createApp()
-        createServer(toNodeListener(this.#app)).listen(process.env.PORT || 3000)
-    }
-
-    use(route: string, handler: EventHandler) {
-        this.#app.use(route, handler)
-    }
-
-    get app() {
-        return this.#app
+        this.app = express()
+        createServer(this.app).listen(process.env.PORT || 3000)
     }
 }
