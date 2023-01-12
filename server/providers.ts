@@ -11,11 +11,14 @@ export default class Providers extends EventEmitter {
         super()
         this.#services = new Map
         this.#providers = new Map
-        for (const [key, providerConfig] of Object.entries(config)) {
-            import(`../providers/${key}`).then((providerClass) => {
-                this.registerProvider(new providerClass.default(key, providerConfig))
-            })
-        }
+
+        setImmediate(() => {
+            for (const [key, providerConfig] of Object.entries(config)) {
+                import(`../providers/${key}.js`).then((providerClass) => {
+                    this.registerProvider(new providerClass.default(key, providerConfig))
+                })
+            }
+        })
     }
 
     registerProvider(provider: Provider<Service>) {
@@ -28,7 +31,11 @@ export default class Providers extends EventEmitter {
             service.on("update", (key: string, value: any, oldValue: any) => {
                 this.emit("update", service, key, value, oldValue)
             })
+
+            service.identifiers.forEach(id => service.emit("identifier", ...id.split(':')))
         })
+
+        provider.services.forEach(service => provider.emit("register", service))
     }
 
     get providers(): ReadonlyMap<string, Provider<Service>> {
