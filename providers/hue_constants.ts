@@ -16,6 +16,27 @@ export const HUE_SERVICE_TYPE: { [type: string]: string | string[] } = {
     entertainment_configuration: "zone"
 }
 
+export const HUE_SERVICE_PRIORITIES: { [type: string]: number } = {
+    motion: 70,
+    temperature: 65,
+    light_level: 60,
+    light: 50,
+    grouped_light: 50,
+    smart_scene: 45,
+    scene: 40,
+    button: 30,
+    device_power: 20,
+    entertainment_configucation: 10,
+    geofence_client: 10,
+    behaviour_script: 10,
+    bridge: 10,
+    homekit: 10,
+    matter: 10,
+    geolocation: 10,
+    room: 10,
+    zone: 10
+}
+
 export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
     room: {
         name: {

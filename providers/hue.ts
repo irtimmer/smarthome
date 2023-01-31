@@ -6,7 +6,7 @@ import { Action, Property } from "../shared/definitions"
 import Provider from "../shared/provider"
 import Service from "../shared/service"
 
-import { HUE_SERVICE_TYPE, HUE_SERVICE_TYPES } from "./hue_constants"
+import { HUE_SERVICE_TYPE, HUE_SERVICE_TYPES, HUE_SERVICE_PRIORITIES } from "./hue_constants"
 
 interface HueOptions {
     url: string
@@ -47,7 +47,7 @@ export default class HueProvider extends Provider<HueService> {
 
         this.fetch(`/clip/v2/resource`).then(async (json: any) => {
             for (let serviceData of json.data) {
-                const service = new HueService(this, serviceData.id, serviceData.type)
+                const service = new HueService(this, serviceData)
                 this.registerService(service)
 
                 if (serviceData.type in HUE_SERVICE_TYPE)
@@ -110,11 +110,12 @@ class HueService extends Service<HueProvider> {
     #type: string
     #typeDefinition: HueServiceType
 
-    constructor(provider: HueProvider, id: string, type: string) {
-        super(provider, id)
-        this.#type = type
-        this.name = type
-        this.#typeDefinition = HUE_SERVICE_TYPES[type]
+    constructor(provider: HueProvider, data: any) {
+        super(provider, data.id)
+        this.#type = data.type
+        this.name = data.type
+        this.priority = HUE_SERVICE_PRIORITIES[this.#type] ?? 0
+        this.#typeDefinition = HUE_SERVICE_TYPES[this.#type]
         if (this.#typeDefinition)
             for (const [key, property] of Object.entries(this.#typeDefinition))
                 this.registerProperty(key, { ...property.definition, ...{
