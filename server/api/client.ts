@@ -62,7 +62,7 @@ export default class {
         api.get('/devices', (_, res) => {
             res.json(Object.fromEntries(Array.from(devices.devices, ([id, device]) => [
                 id, {
-                    services: Array.from(device.services).map((service: Service) => service.uniqueId),
+                    services: Array.from(device.services).sort((a, b) => b.priority - a.priority).map((service: Service) => service.uniqueId),
                     identifiers: Array.from(device.identifiers)
                 }
             ])))

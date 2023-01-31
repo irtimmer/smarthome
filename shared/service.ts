@@ -7,6 +7,7 @@ export interface Service extends EventEmitter {
     readonly id: string
     readonly uniqueId: string
     readonly name: string
+    readonly priority: number
 
     readonly identifiers: ReadonlySet<string>
     readonly provider: Provider<Service>
@@ -23,6 +24,7 @@ export interface Service extends EventEmitter {
 export default abstract class AbstractService<T extends Provider<Service>> extends EventEmitter implements Service {
     readonly id: string
     readonly provider: T
+    priority: number
     #values: Map<string, any>
     #properties: Map<string, Property>
     #actions: Map<string, Action>
@@ -34,6 +36,7 @@ export default abstract class AbstractService<T extends Provider<Service>> exten
         super()
         this.id = id
         this.provider = provider
+        this.priority = 0
         this.#values = new Map
         this.#properties = new Map
         this.#actions = new Map
