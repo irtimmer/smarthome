@@ -41,11 +41,7 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
     room: {
         name: {
             parse: (data: any) => data.metadata?.name,
-            definition: {
-                '@type': 'name',
-                type: "string",
-                label: "Name"
-            }
+            definition: "name"
         },
         archetype: {
             parse: (data: any) => data.metadata?.archetype,
@@ -77,11 +73,7 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
     zone: {
         name: {
             parse: (data: any) => data.metadata?.name,
-            definition: {
-                '@type': 'name',
-                type: "string",
-                label: "Name"
-            }
+            definition: "name"
         },
         archetype: {
             parse: (data: any) => data.metadata?.archetype,
@@ -94,11 +86,7 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
     device: {
         name: {
             parse: (data: any) => data.metadata?.name,
-            definition: {
-                '@type': 'name',
-                type: "string",
-                label: "Name"
-            }
+            definition: "name"
         },
         productname: {
             parse: (data: any) => data.product_data?.product_name,
@@ -188,21 +176,13 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
     geofence_client: {
         name: {
             parse: (data: any) => data.name,
-            definition: {
-                '@type': 'name',
-                type: "string",
-                label: "Name"
-            }
+            definition: "name"
         },
     },
     entertainment_configuration: {
         name: {
             parse: (data: any) => data.metadata?.name,
-            definition: {
-                '@type': 'name',
-                type: "string",
-                label: "Name"
-            }
+            definition: "name"
         },
     }
 }
