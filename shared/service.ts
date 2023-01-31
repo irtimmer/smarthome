@@ -2,6 +2,7 @@ import { EventEmitter } from "stream"
 
 import { Action, Property } from "./definitions"
 import Provider from "./provider"
+import { SERVICE_PROPERTIES } from "./service_constants"
 
 export interface Service extends EventEmitter {
     readonly id: string
@@ -44,8 +45,16 @@ export default abstract class AbstractService<T extends Provider<Service>> exten
         this.#types = new Set
     }
 
-    registerProperty(key: string, prop: Property) {
-        this.#properties.set(key, prop)
+    registerProperty(key: string, prop: Property | string, value?: any) {
+        if (typeof prop === "string")
+            this.#properties.set(key, { ...SERVICE_PROPERTIES[prop], ...{
+                '@type': prop
+            }})
+        else
+            this.#properties.set(key, prop)
+
+        if (value !== undefined)
+            this.updateValue(key, value)
     }
 
     registerType(type: string) {
