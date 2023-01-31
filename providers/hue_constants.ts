@@ -88,18 +88,60 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
             parse: (data: any) => data.metadata?.name,
             definition: "name"
         },
+        modelid: {
+            parse: (data: any) => data.product_data?.model_id,
+            definition: {
+                type: "string",
+                label: "Model Id",
+                group: "meta"
+            }
+        },
+        manufacturername: {
+            parse: (data: any) => data.product_data?.manufacturer_name,
+            definition: {
+                type: "string",
+                label: "Manufacturer Name",
+                group: "meta"
+            }
+        },
         productname: {
             parse: (data: any) => data.product_data?.product_name,
             definition: {
                 type: "string",
-                label: "Product Name"
+                label: "Product Name",
+                group: "meta"
             }
         },
         archetype: {
             parse: (data: any) => data.product_data?.product_archetype,
             definition: {
                 type: "string",
-                label: "Archetype"
+                label: "Archetype",
+                group: "meta"
+            }
+        },
+        softwareversion: {
+            parse: (data: any) => data.product_data?.software_version,
+            definition: {
+                type: "string",
+                label: "Software Version",
+                group: "meta"
+            }
+        },
+        hardwareplatformtype: {
+            parse: (data: any) => data.product_data?.hardware_platform_type,
+            definition: {
+                type: "string",
+                label: "Hardware Type",
+                group: "meta"
+            }
+        },
+        certified: {
+            parse: (data: any) => data.product_data?.certified,
+            definition: {
+                type: "boolean",
+                label: "Certified",
+                group: "meta"
             }
         }
     },
