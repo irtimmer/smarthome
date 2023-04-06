@@ -7,9 +7,9 @@ interface Device {
 }
 
 export default class Devices {
-    #devices: Map<String, Device>
-    #identifiers: Map<String, String>
-    #services: WeakMap<Service, String>
+    #devices: Map<string, Device>
+    #identifiers: Map<string, string>
+    #services: WeakMap<Service, string>
 
     constructor(providers: Providers) {
         this.#devices = new Map
@@ -45,7 +45,7 @@ export default class Devices {
         })
     }
 
-    get devices(): ReadonlyMap<String, Device> {
+    get devices(): ReadonlyMap<string, Device> {
         return this.#devices
     }
 }
