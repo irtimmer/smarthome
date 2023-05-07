@@ -38,10 +38,23 @@ export const useStore = defineStore('main', {
                 events.onmessage = e => {
                     const data = JSON.parse(e.data)
                     switch (data.action) {
+                        case "register":
+                            this.services.set(data.id, data.service)
+                            break
+                        case "unregister":
+                            this.services.delete(data.id)
+                            break
                         case "update":
                             const service = this.services.get(data.id)
                             if (service)
                                 service.values[data.key] = data.value
+
+                            break
+                        case "deviceUpdate":
+                            this.devices.set(data.id, data.device)
+                            break
+                        case "deviceDelete":
+                            this.devices.delete(data.id)
                     }
                 }
             }
