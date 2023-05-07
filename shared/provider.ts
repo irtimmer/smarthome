@@ -17,6 +17,12 @@ export default class Provider<T extends Service> extends EventEmitter {
         this.emit("register", service)
     }
 
+    unregisterService(service: T) {
+        service.removeAllListeners()
+        this.emit("unregister", service)
+        this.#services.delete(service.id)
+    }
+
     get services(): ReadonlyMap<string, T> {
         return this.#services
     }

@@ -71,12 +71,42 @@ export default class {
 
         server.app.use('/api', api)
 
+        providers.on("register", (service: Service) => {
+            this.#notify({
+                action: "register",
+                id: service.uniqueId,
+                service: this.#serviceToJSON(service)
+            })
+        })
+
+        providers.on("unregister", (service: Service) => {
+            this.#notify({
+                action: "unregister",
+                id: service.uniqueId
+            })
+        })
+
         providers.on("update", (service: Service, key: string, value: any, oldValue: any) => {
             this.#notify({
                 action: "update",
                 id: service.uniqueId,
                 key,
                 value
+            })
+        })
+
+        devices.on("update", (id: string) => {
+            this.#notify({
+                action: "deviceUpdate",
+                id,
+                device: this.#deviceToJSON(devices.devices.get(id)!)
+            })
+        })
+
+        devices.on("delete", (id: string) => {
+            this.#notify({
+                action: "deviceDelete",
+                id
             })
         })
     }
