@@ -1,6 +1,6 @@
 import express, { Router } from 'express'
 
-import Devices from '../devices'
+import Devices, { Device } from '../devices'
 import Providers from '../providers'
 import Server from '../server'
 
@@ -20,14 +20,7 @@ export default class {
         api.use(express.json())
         api.get('/services', (req, res) => {
             res.json(Object.fromEntries(Array.from(providers.services, ([id, service]) => [
-                id, {
-                    name: service.name || id,
-                    identifiers: Array.from(service.identifiers),
-                    properties: Object.fromEntries(service.properties),
-                    values: Object.fromEntries(service.values),
-                    actions: Object.fromEntries(service.actions),
-                    types: Array.from(service.types)
-                }
+                id, this.#serviceToJSON(service)
             ])))
         })
 
@@ -61,10 +54,7 @@ export default class {
 
         api.get('/devices', (_, res) => {
             res.json(Object.fromEntries(Array.from(devices.devices, ([id, device]) => [
-                id, {
-                    services: Array.from(device.services).sort((a, b) => b.priority - a.priority).map((service: Service) => service.uniqueId),
-                    identifiers: Array.from(device.identifiers)
-                }
+                id, this.#deviceToJSON(device)
             ])))
         })
 
@@ -82,16 +72,38 @@ export default class {
         server.app.use('/api', api)
 
         providers.on("update", (service: Service, key: string, value: any, oldValue: any) => {
-            for (const listener of this.#eventListeners) {
-                listener.response.write("data: ");
-                listener.response.write(JSON.stringify({
-                    action: "update",
-                    id: service.uniqueId,
-                    key,
-                    value
-                }));
-                listener.response.write("\n\n");
-            }
+            this.#notify({
+                action: "update",
+                id: service.uniqueId,
+                key,
+                value
+            })
         })
+    }
+
+    #notify(data: any) {
+        for (const listener of this.#eventListeners) {
+            listener.response.write("data: ");
+            listener.response.write(JSON.stringify(data));
+            listener.response.write("\n\n");
+        }
+    }
+
+    #serviceToJSON(service: Service): any {
+        return {
+            name: service.name,
+            identifiers: Array.from(service.identifiers),
+            properties: Object.fromEntries(service.properties),
+            values: Object.fromEntries(service.values),
+            actions: Object.fromEntries(service.actions),
+            types: Array.from(service.types)
+        }
+    }
+
+    #deviceToJSON(device: Device): any {
+        return {
+            services: Array.from(device.services).sort((a, b) => b.priority - a.priority).map((service: Service) => service.uniqueId),
+            identifiers: Array.from(device.identifiers)
+        }
     }
 }
