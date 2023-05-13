@@ -117,6 +117,10 @@ class RuleDevice {
         if (!service)
             return
 
-        service.setValue(key, value).catch(e => console.error(e))
+        if (typeof options !== "undefined") {
+            this.#rule.rules.constraints.set(service, key, value, options.priority, options.handle)
+            this.#rule.constraints.push(`${service.uniqueId}/${key}/${options.handle}`)
+        } else
+            service.setValue(key, value).catch(e => console.error(e))
     }
 }
