@@ -2,6 +2,7 @@ import type Rules from "./rules"
 
 export abstract class Rule {
     readonly rules: Rules
+    abstract readonly loading: Promise<void>
     watchServices: string[]
     watchDevices: string[]
     watchProperties: string[]

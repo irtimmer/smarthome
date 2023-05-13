@@ -32,7 +32,10 @@ export default class Rules {
     }
 
     setConfig(config: Config) {
-        this.#rules = config.map((r) => new JSRule(r, this))
-        setImmediate(() => this.#rules.forEach(r => r.execute()))
+        this.#rules = config.map(r => {
+            const rule = new JSRule(r, this)
+            rule.loading.then(() => rule.execute())
+            return rule
+        })
     }
 }

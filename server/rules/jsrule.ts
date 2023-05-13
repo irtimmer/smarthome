@@ -12,19 +12,28 @@ export type JSRuleConfig = {
 
 export default class JSRule extends Rule {
     #script?: vm.Script
-    #context: vm.Context
+    readonly #scriptFile
+    #loading: Promise<any>
 
     constructor(config: JSRuleConfig, rules: Rules) {
         super(rules)
-        fs.promises.readFile(config.script, {
-            encoding: 'utf-8'
-        }).then(data => {
-            this.#script = new vm.Script(data)
-        }).catch(e => console.error(e))
-        this.#context = vm.createContext({
+        this.#scriptFile = config.script
+
+        this.#loading = this.#load()
+        fs.watch(this.#scriptFile, (_, filename) => {
+            if (!filename)
+                return
+
+            this.#loading = this.#load()
+            this.#loading.then(_ => this.execute())
+        });
+    }
+
+    get #context() {
+        return vm.createContext({
             getService: (key: string) => {
                 this.watchServices.push(key)
-                const service = rules.providers.services.get(key)
+                const service = this.rules.providers.services.get(key)
                 return service ? new RuleService(this, service) : null
             },
             getDevice: (key: string) => {
@@ -33,6 +42,18 @@ export default class JSRule extends Rule {
                 return device ? new RuleDevice(this, device) : null
             }
         })
+    }
+
+    #load() : Promise<void> {
+        return fs.promises.readFile(this.#scriptFile, {
+            encoding: 'utf-8'
+        }).then(data => {
+            this.#script = new vm.Script(data)
+        }).catch(e => console.error(e))
+    }
+
+    get loading() : Promise<void> {
+        return this.#loading
     }
 
     run() {
