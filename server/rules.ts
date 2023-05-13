@@ -28,7 +28,11 @@ export default class Rules {
             this.#rules.filter(r => r.watchDevices.includes(key)).forEach(r => r.execute())
         })
 
-        config.forEach((r) => this.#rules.push(new JSRule(r, this)))
+        this.setConfig(config)
+    }
+
+    setConfig(config: Config) {
+        this.#rules = config.map((r) => new JSRule(r, this))
         setImmediate(() => this.#rules.forEach(r => r.execute()))
     }
 }
