@@ -8,15 +8,18 @@ import { Service } from "../../shared/service";
 
 export type JSRuleConfig = {
     script: string
+    aliases: { [key: string]: string }
 }
 
 export default class JSRule extends Rule {
-    #script?: vm.Script
     readonly #scriptFile
+    #script?: vm.Script
     #loading: Promise<any>
+    #config: JSRuleConfig
 
     constructor(config: JSRuleConfig, rules: Rules) {
         super(rules)
+        this.#config = config
         this.#scriptFile = config.script
 
         this.#loading = this.#load()
@@ -32,11 +35,15 @@ export default class JSRule extends Rule {
     get #context() {
         return vm.createContext({
             getService: (key: string) => {
+                key = this.#config.aliases[key] ?? key
+
                 this.watchServices.push(key)
                 const service = this.rules.providers.services.get(key)
                 return service ? new RuleService(this, service) : null
             },
             getDevice: (key: string) => {
+                key = this.#config.aliases[key] ?? key
+
                 this.watchDevices.push(key)
                 const device = this.rules.devices.devices.get(key)
                 return device ? new RuleDevice(this, device) : null
