@@ -3,11 +3,13 @@ import type Rules from "./rules"
 export abstract class Rule {
     readonly rules: Rules
     watchServices: string[]
+    watchDevices: string[]
     watchProperties: string[]
 
     constructor(rules: Rules) {
         this.rules = rules
         this.watchServices = []
+        this.watchDevices = []
         this.watchProperties = []
     }
 
@@ -15,6 +17,7 @@ export abstract class Rule {
 
     execute() {
         this.watchServices = []
+        this.watchDevices = []
         this.watchProperties = []
 
         try {

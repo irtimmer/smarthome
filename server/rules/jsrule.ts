@@ -3,6 +3,7 @@ import vm from "vm";
 
 import type Rules from "../rules";
 import { Rule } from "../rule";
+import { Device } from "../devices";
 import { Service } from "../../shared/service";
 
 export type JSRuleConfig = {
@@ -25,6 +26,11 @@ export default class JSRule extends Rule {
                 this.watchServices.push(key)
                 const service = rules.providers.services.get(key)
                 return service ? new RuleService(this, service) : null
+            },
+            getDevice: (key: string) => {
+                this.watchDevices.push(key)
+                const device = this.rules.devices.devices.get(key)
+                return device ? new RuleDevice(this, device) : null
             }
         })
     }
@@ -50,5 +56,46 @@ export class RuleService {
 
     set(key: string, value: any) {
         this.#service.setValue(key, value).catch(e => console.error(e))
+    }
+}
+
+class RuleDevice {
+    #rule: Rule
+    #device: Device
+
+    constructor(rule: Rule, device: Device) {
+        this.#rule = rule
+        this.#device = device
+    }
+
+    #property(type: string): [Service, string] | [null, null] {
+        for (const service of this.#device.services)
+            for (const [key, property] of service.properties)
+                if (property['@type'] == type)
+                    return [service, key]
+
+        for (const service of this.#device.services)
+            for (const [key, _] of service.properties)
+                if (key == type)
+                    return [service, key]
+
+        return [null, null]
+    }
+
+    get(type: string): any {
+        const [service, key] = this.#property(type)
+        if (!service)
+            return
+
+        this.#rule.watchProperties.push(`${service.uniqueId}/${key}`)
+        return service.values.get(key)
+    }
+
+    set(type: string, value: any, options?: any) {
+        const [service, key] = this.#property(type)
+        if (!service)
+            return
+
+        service.setValue(key, value).catch(e => console.error(e))
     }
 }
