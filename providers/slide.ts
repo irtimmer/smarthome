@@ -1,6 +1,7 @@
 import { Property } from "../shared/definitions"
 import Provider from "../shared/provider";
 import Service from "../shared/service";
+import Poll from "../shared/utils/poll";
 
 import { SLIDE_PROPERTIES } from "./slide_constants";
 
@@ -33,11 +34,25 @@ export default class SlideProvider extends Provider<Slide> {
         this.#config = config
         this.#token_expiration = 0
 
-        setInterval(() => {
-            this.#scan().catch(e => {
-                console.log(e)
+        new Poll(async () => {
+            const token = await this.getToken()
+            const req = await fetch(`${SLIDE_URL}/slides/overview`, {
+                headers: {
+                    'Authorization': `${token.token_type} ${token.access_token}`
+                }
             })
-        }, 60000);
+            const data = await req.json()
+            for (const slide of data.slides) {
+                const id = slide.device_id.substring(6)
+                let device = this.services.get(id)
+                if (!device) {
+                    device = new Slide(this, id, slide.id)
+                    this.registerService(device)
+                    device.registerIdentifier('slide', id)
+                }
+                device.refresh(slide)
+            }
+        })
     }
 
     async getToken() {
@@ -54,27 +69,6 @@ export default class SlideProvider extends Provider<Slide> {
         }
 
         return this.#token!
-    }
-
-    async #scan() {
-        const token = await this.getToken()
-        const req = await fetch(`${SLIDE_URL}/slides/overview`, {
-            headers: {
-                'Authorization': `${token.token_type} ${token.access_token}`
-            }
-        })
-        const data = await req.json()
-        //console.log(JSON.stringify(data))
-        for (const slide of data.slides) {
-            const id = slide.device_id.substring(6)
-            let device = this.services.get(id)
-            if (!device) {
-                device = new Slide(this, id, slide.id)
-                this.registerService(device)
-                device.registerIdentifier('slide', id)
-            }
-            device.refresh(slide)
-        }
     }
 }
 
