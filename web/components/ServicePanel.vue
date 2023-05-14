@@ -1,7 +1,13 @@
 <template>
   <q-list dense>
     <PropertyItem v-for="(prop, key) in visibleProperties" :property="prop" :modelValue="service.values[key]" @update:modelValue="store.update(id, key, $event)" />
-    <ActionItem v-for="(action, key) in visibleActions" :action="action" @click="store.triggerAction(id, key)" />
+    <q-item v-if="Object.keys(visibleActions).length">
+      <q-item-section>
+        <q-btn-group flat dense spread>
+          <q-btn v-for="(action, key) in visibleActions" size="12px" flat dense @click="store.triggerAction(id, key)">{{ action.label }}</q-btn>
+        </q-btn-group>
+      </q-item-section>
+    </q-item>
   </q-list>
 </template>
 
