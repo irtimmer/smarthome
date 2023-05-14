@@ -9,6 +9,7 @@ export interface Property {
     min?: number
     max?: number
     unit?: string
+    options?: { [key: string]: string | number }
 }
 
 export interface Action {
