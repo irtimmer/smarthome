@@ -20,10 +20,10 @@ import { DeviceDialog } from '#components'
 
 const props = defineProps(["device"])
 
-const { value, icon: getIcon } = useDevice(props.device)
+const { value, name: getName, icon: getIcon } = useDevice(props.device)
 const $q = useQuasar()
 
-const name = computed(() => value("name"))
+const name = computed(() => getName())
 const icon = computed(() => getIcon())
 
 function openDialog() {

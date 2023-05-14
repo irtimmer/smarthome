@@ -2,7 +2,7 @@
   <q-dialog>
     <q-card>
       <q-card-section>
-        <div class="text-h6">{{ deviceHelper.value("name") }}</div>
+        <div class="text-h6">{{ deviceHelper.name() }}</div>
       </q-card-section>
       <q-tab-panels v-model="tab" animated>
         <q-tab-panel name="status">

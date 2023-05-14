@@ -21,6 +21,10 @@ export const useDevice = (device: Device) => {
         return store.services.get(serviceId!)?.values[key!]
     }
 
+    function name() {
+        return value("name") ?? device.services.map(id => store.services.get(id)).find(s => s !== undefined && s.name)?.name
+    }
+
     function icon() {
         const icon = value("icon")
         if (icon)
@@ -38,6 +42,7 @@ export const useDevice = (device: Device) => {
     return {
         property,
         value,
+        name,
         icon
     }
 }
