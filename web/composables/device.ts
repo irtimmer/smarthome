@@ -1,5 +1,7 @@
 import { Device, useStore } from "~~/stores/devices"
 
+import { TypeIconMapping, TYPE_ICONS } from "./device_constants"
+
 export const useDevice = (device: Device) => {
     const store = useStore()
 
@@ -20,44 +22,17 @@ export const useDevice = (device: Device) => {
     }
 
     function icon() {
-        let types = new Set
-        for (const serviceId of device.services)
-            if (store.services.has(serviceId))
-                for (const type of store.services.get(serviceId)!.types)
-                    types.add(type)
+        const icon = value("icon")
+        if (icon)
+            return icon
 
-        if (types.has("zone"))
-            return "mdi-select-group"
-
-        if (types.has("light")) {
-            if (types.has("group"))
-                return "mdi-lightbulb-group"
-
-            return "mdi-lightbulb"
+        const types = new Set(device.services.flatMap(id => store.services.get(id)?.types ?? []))
+        const findIcon = (mapping: TypeIconMapping): string => {
+            const icon = Object.entries(mapping).find(([type, _]) => types.has(type))
+            return icon ? (typeof icon[1] === "object" ? findIcon(icon[1]) : icon[1]) : mapping['_default']
         }
 
-        if (types.has("remote"))
-            return "mdi-remote"
-
-        if (types.has("motion"))
-            return "mdi-motion-sensor"
-
-        if (types.has("multilevel"))
-            return "mdi-knob"
-
-        if (types.has("switch"))
-            return "mdi-toggle-switch"
-
-        if (types.has("gateway"))
-            return "mdi-lan"
-
-        if (types.has("controller"))
-            return "mdi-cog-box"
-
-        if (types.has("api"))
-            return "mdi-api"
-
-        return 'mdi-gauge'
+        return findIcon(TYPE_ICONS)
     }
 
     return {
