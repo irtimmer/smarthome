@@ -11,6 +11,11 @@
       {{ modelValue }}
     </q-item-section>
   </q-item>
+  <q-item v-else-if="property.type == 'enum'">
+    <q-item-section>
+      <q-select dense emit-value map-options borderless :label="property.label" :options="options" :modelValue="modelValue" @update:modelValue="$emit('update:modelValue', $event)" />
+    </q-item-section>
+  </q-item>
   <q-item v-else>
     <q-item-section>{{ property.label }}</q-item-section>
     <q-item-section side>
@@ -18,8 +23,13 @@
     </q-item-section>
   </q-item>
 </template>
-  
+
 <script setup>
-defineProps(['modelValue', 'property'])
+const props = defineProps(['modelValue', 'property'])
 defineEmits(['update:modelValue'])
+
+const options = computed(() => Object.entries(props.property.options).map(([value, label]) => ({
+  label,
+  value
+})))
 </script>
