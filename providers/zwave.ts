@@ -1,4 +1,4 @@
-import { Driver, ZWaveNode, ZWaveNodeValueAddedArgs, ZWaveNodeValueUpdatedArgs, TranslatedValueID, ValueID, ZWaveController } from "zwave-js";
+import { Driver, ZWaveNode, ZWaveNodeValueAddedArgs, ZWaveNodeValueUpdatedArgs, TranslatedValueID, ValueID, NodeStatus, ZWaveController } from "zwave-js";
 
 import Provider from "../shared/provider";
 import Service from "../shared/service";
@@ -44,8 +44,21 @@ export default class ZWaveProvider extends Provider<ZWaveService> {
     #addNode(node: ZWaveNode) {
         node.on("value added", this.#addValue.bind(this))
         node.on("value updated", this.#addValue.bind(this))
+        node.on("alive", () => this.#setNodeStatus(node, NodeStatus.Alive))
+        node.on("dead", () => this.#setNodeStatus(node, NodeStatus.Dead))
+        node.on("sleep", () => this.#setNodeStatus(node, NodeStatus.Asleep))
+        node.on("wake up", () => this.#setNodeStatus(node, NodeStatus.Awake))
 
         node.getDefinedValueIDs().forEach((args) => this.#addValue(node, args))
+    }
+
+    #setNodeStatus(node: ZWaveNode, status: NodeStatus) {
+        let service = this.services.get(node.id.toString())
+        if (typeof service == "undefined")
+            return
+
+        service.updateValue("status", status)
+        service.updateValue("alive", ![NodeStatus.Dead, NodeStatus.Unknown].includes(status))
     }
 
     #addValue(node: ZWaveNode, args: TranslatedValueID | ZWaveNodeValueUpdatedArgs | ZWaveNodeValueAddedArgs) {
@@ -54,6 +67,7 @@ export default class ZWaveProvider extends Provider<ZWaveService> {
         if (!service) {
             service = new ZWaveDeviceService(this, nodeKey, node, "Device")
             this.registerService(service)
+            this.#setNodeStatus(node, node.status)
         }
 
         const serviceKey = ZWaveCommandClassService.serviceId(node, args)
@@ -102,6 +116,18 @@ class ZWaveDeviceService extends ZWaveService {
             label: "Name",
             read_only: false,
             group: "config"
+        })
+        this.registerProperty("status", {
+            type: "string",
+            label: "Status",
+            read_only: true
+        })
+        this.registerProperty("alive", {
+            "@type": "connected",
+            type: "boolean",
+            label: "Alive",
+            read_only: true,
+            group: "internal"
         })
         this.updateValue("name", node.name ?? `${node.deviceConfig?.manufacturer} ${node.deviceConfig?.label}`)
     }
