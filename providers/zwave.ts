@@ -1,4 +1,4 @@
-import { Driver, ZWaveNode, ZWaveNodeValueAddedArgs, ZWaveNodeValueUpdatedArgs, TranslatedValueID, ValueID } from "zwave-js";
+import { Driver, ZWaveNode, ZWaveNodeValueAddedArgs, ZWaveNodeValueUpdatedArgs, TranslatedValueID, ValueID, ZWaveController } from "zwave-js";
 
 import Provider from "../shared/provider";
 import Service from "../shared/service";
@@ -30,6 +30,9 @@ export default class ZWaveProvider extends Provider<ZWaveService> {
             }
         })
         this.#driver.once("driver ready", () => {
+            const service = new ZWaveControllerService(this, "controller", this.#driver.controller, "Controller")
+            this.registerService(service)
+
             this.#driver.controller.nodes.forEach(this.#addNode.bind(this))
             this.#driver.controller.on("node added", this.#addNode.bind(this))
         })
@@ -107,5 +110,73 @@ class ZWaveCommandClassService extends ZWaveService {
 
     static serviceId(node: ZWaveNode, args: Omit<ValueID, 'property'>) {
         return `${node.id}-${args.endpoint}-${args.commandClass}`
+    }
+}
+
+class ZWaveControllerService extends ZWaveService {
+    #controller: ZWaveController
+
+    constructor(provider: ZWaveProvider, id: string, controller: ZWaveController, name: string) {
+        super(provider, id, controller.nodes.get(controller.ownNodeId!)!, name)
+        this.#controller = controller
+
+        this.registerIdentifier("zwave", "controller")
+
+        this.registerProperty("rfRegion", {
+            type: 'string',
+            label: 'RF Region',
+            read_only: true
+        })
+        controller.getRFRegion().then(region => this.updateValue("rfRegion", region)).catch(_ => {})
+
+        this.registerProperty("homeId", {
+            type: 'string',
+            label: 'Home Id',
+            read_only: true
+        }, controller.homeId)
+
+        this.registerProperty("inclusionState", {
+            type: 'string',
+            label: 'Inclusion State',
+            read_only: true
+        })
+
+        const updateInclusion = () => this.updateValue("inclusionState", controller.inclusionState)
+        controller.on("inclusion started", updateInclusion)
+        controller.on("inclusion stopped", updateInclusion)
+        controller.on("inclusion failed", updateInclusion)
+        controller.on("exclusion started", updateInclusion)
+        controller.on("inclusion stopped", updateInclusion)
+        controller.on("inclusion failed", updateInclusion)
+        updateInclusion()
+
+        this.registerAction("beginInclusion", {
+            label: "Begin Inclusion"
+        })
+        this.registerAction("stopInclusion", {
+            label: "Stop Inclusion"
+        })
+
+        this.registerAction("beginExclusion", {
+            label: "Begin Exclusion"
+        })
+        this.registerAction("stopExclusion", {
+            label: "Stop Exclusion"
+        })
+    }
+
+    triggerAction(key: string, _props: any): Promise<void> {
+        switch (key) {
+            case "beginInclusion":
+                return this.#controller.beginInclusion().then((_) => {})
+            case "stopInclusion":
+                return this.#controller.stopInclusion().then((_) => {})
+            case "beginExclusion":
+                return this.#controller.beginExclusion().then((_) => {})
+            case "stopExclusion":
+                return this.#controller.stopExclusion().then((_) => {})
+            default:
+                return Promise.reject()
+        }
     }
 }
