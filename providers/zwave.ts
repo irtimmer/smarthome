@@ -52,17 +52,8 @@ export default class ZWaveProvider extends Provider<ZWaveService> {
         const nodeKey = node.id.toString()
         let service = this.services.get(nodeKey)
         if (!service) {
-            service = new ZWaveService(this, nodeKey, node, "Device")
+            service = new ZWaveDeviceService(this, nodeKey, node, "Device")
             this.registerService(service)
-            service.registerIdentifier("zwave", node.id.toString())
-
-            service.registerProperty("name", {
-                "@type": "name",
-                type: "string",
-                label: "Name",
-                read_only: true
-            })
-            service.updateValue("name", node.name ?? `${node.deviceConfig?.manufacturer} ${node.deviceConfig?.label}`)
         }
 
         const serviceKey = ZWaveCommandClassService.serviceId(node, args)
@@ -97,6 +88,32 @@ class ZWaveService extends Service<ZWaveProvider> {
         super(provider, id)
         this.node = node
         this.name = name
+    }
+}
+
+class ZWaveDeviceService extends ZWaveService {
+    constructor(provider: ZWaveProvider, id: string, node: ZWaveNode, name: string) {
+        super(provider, id, node, name)
+
+        this.registerIdentifier("zwave", node.id.toString())
+        this.registerProperty("name", {
+            "@type": "name",
+            type: "string",
+            label: "Name",
+            read_only: false,
+            group: "config"
+        })
+        this.updateValue("name", node.name ?? `${node.deviceConfig?.manufacturer} ${node.deviceConfig?.label}`)
+    }
+
+    setValue(key: string, value: any): Promise<void> {
+        switch (key) {
+            case 'name':
+                this.node.name = value
+                this.updateValue('name', value)
+                return Promise.resolve()
+        }
+        return Promise.reject()
     }
 }
 
