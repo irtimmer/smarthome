@@ -60,6 +60,15 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
             }
         }
     },
+    smart_scene: {
+        name: {
+            parse: (data: any) => data.metadata?.name,
+            definition: {
+                type: "string",
+                label: "Name",
+            }
+        }
+    },
     behavior_script: {
         name: {
             parse: (data: any) => data.metadata?.name,
@@ -235,6 +244,18 @@ export const HUE_SERVICE_ACTIONS: { [type: string]: HueServiceActionType } = {
             trigger: props => ({
                 recall: {
                     action: "active"
+                }
+            }),
+            definition: {
+                label: "Activate"
+            }
+        }
+    },
+    smart_scene: {
+        activate: {
+            trigger: props => ({
+                recall: {
+                    action: "activate"
                 }
             }),
             definition: {
