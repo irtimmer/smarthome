@@ -142,6 +142,24 @@ class ZWaveDeviceService extends ZWaveService {
             group: "internal"
         })
         this.updateValue("name", node.name ?? `${node.deviceConfig?.manufacturer} ${node.deviceConfig?.label}`)
+
+        this.registerAction("refreshInfo", {
+            label: 'Refresh Info'
+        })
+        this.registerAction("refreshValues", {
+            label: 'Refresh Values'
+        })
+    }
+
+    triggerAction(key: string, props: any): Promise<void> {
+        switch (key) {
+            case 'refreshInfo':
+                return this.node.refreshInfo()
+            case 'refreshValues':
+                return this.node.refreshValues()
+            default:
+                return super.triggerAction(key, props);
+        }
     }
 
     setValue(key: string, value: any): Promise<void> {
