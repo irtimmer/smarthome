@@ -1,5 +1,6 @@
-import { Driver, ZWaveNode, ZWaveNodeValueAddedArgs, ZWaveNodeValueUpdatedArgs, TranslatedValueID, ValueID, NodeStatus, ZWaveController } from "zwave-js";
+import { Driver, ZWaveNode, ZWaveNodeValueAddedArgs, ZWaveNodeValueUpdatedArgs, TranslatedValueID, ValueID, ValueMetadataNumeric, NodeStatus, ZWaveController } from "zwave-js";
 
+import { Property } from "../shared/definitions";
 import Provider from "../shared/provider";
 import Service from "../shared/service";
 
@@ -84,11 +85,22 @@ export default class ZWaveProvider extends Provider<ZWaveService> {
 
         if (!service.properties.has(propertyKey)) {
             const metadata = node.getValueMetadata(args)
-            service.registerProperty(propertyKey, {
+            let options: Property = {
                 type: metadata.type,
                 label: metadata.label ?? args.propertyName ?? args.property.toString(),
                 read_only: !metadata.writeable
-            })
+            }
+
+            if (metadata.type == "number") {
+                const numericMeta = metadata as ValueMetadataNumeric
+                options = {...options, ...{
+                    min: numericMeta.min,
+                    max: numericMeta.max,
+                    unit: numericMeta.unit
+                }}
+            }
+
+            service.registerProperty(propertyKey, options)
             service.updateValue(propertyKey, node.getValue(args))
         } else if ('newValue' in args)
             service.updateValue(propertyKey, args.newValue)

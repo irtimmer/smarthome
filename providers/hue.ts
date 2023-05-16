@@ -19,6 +19,11 @@ interface HueServiceTypeProperty {
     definition: Omit<Property, 'read_only'> | string
 }
 
+interface HueServiceTypeAction {
+    trigger: (props: any) => any
+    definition: Action
+}
+
 export type HueServiceType = { [property: string]: HueServiceTypeProperty }
 export type HueServiceActionType = { [action: string]: HueServiceTypeAction }
 
