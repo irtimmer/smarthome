@@ -6,7 +6,7 @@ import { Action, Property } from "../shared/definitions"
 import Provider from "../shared/provider"
 import Service from "../shared/service"
 
-import { HUE_SERVICE_TYPE, HUE_SERVICE_TYPES, HUE_SERVICE_PRIORITIES } from "./hue_constants"
+import { HUE_SERVICE_TYPE, HUE_SERVICE_TYPES, HUE_SERVICE_ACTIONS, HUE_SERVICE_PRIORITIES } from "./hue_constants"
 
 interface HueOptions {
     url: string
@@ -20,6 +20,7 @@ interface HueServiceTypeProperty {
 }
 
 export type HueServiceType = { [property: string]: HueServiceTypeProperty }
+export type HueServiceActionType = { [action: string]: HueServiceTypeAction }
 
 export default class HueProvider extends Provider<HueService> {
     #url: string
@@ -109,6 +110,7 @@ export default class HueProvider extends Provider<HueService> {
 class HueService extends Service<HueProvider> {
     #type: string
     #typeDefinition: HueServiceType
+    #typeActionDefinitions: HueServiceActionType
 
     constructor(provider: HueProvider, data: any) {
         super(provider, data.id)
@@ -121,6 +123,10 @@ class HueService extends Service<HueProvider> {
                 this.registerProperty(key, typeof property.definition === "string" ? property.definition : { ...property.definition, ...{
                     read_only: !('set' in property)
                 }})
+
+        this.#typeActionDefinitions = HUE_SERVICE_ACTIONS[this.#type]
+        if (this.#typeActionDefinitions)
+            Object.entries(this.#typeActionDefinitions).forEach(([key, action]) => this.registerAction(key, action.definition))
     }
 
     update(data: any) {
@@ -135,7 +141,16 @@ class HueService extends Service<HueProvider> {
     }
 
     triggerAction(key: string, props: any) {
-        return Promise.reject()
+        if (this.#typeActionDefinitions && this.#typeActionDefinitions[key]) {
+            return this.provider.fetch(`/clip/v2/resource/${this.#type}/${this.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(this.#typeActionDefinitions[key].trigger!(props))
+            }) as Promise<void>
+        } else
+            return Promise.reject()
     }
 
     setValue(key: string, value: any) {

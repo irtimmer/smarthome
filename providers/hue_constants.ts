@@ -1,4 +1,4 @@
-import { HueServiceType } from "./hue";
+import { HueServiceActionType, HueServiceType } from "./hue";
 
 export const HUE_SERVICE_TYPE: { [type: string]: string | string[] } = {
     light: "light",
@@ -226,5 +226,20 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
             parse: (data: any) => data.metadata?.name,
             definition: "name"
         },
+    }
+}
+
+export const HUE_SERVICE_ACTIONS: { [type: string]: HueServiceActionType } = {
+    scene: {
+        activate: {
+            trigger: props => ({
+                recall: {
+                    action: "active"
+                }
+            }),
+            definition: {
+                label: "Activate"
+            }
+        }
     }
 }
