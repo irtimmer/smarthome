@@ -1,6 +1,6 @@
 <template>
   <q-dialog>
-    <q-card>
+    <q-card class="full-width">
       <q-card-section>
         <div class="text-h6">{{ deviceHelper.name() }}</div>
       </q-card-section>

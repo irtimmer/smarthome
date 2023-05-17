@@ -17,6 +17,9 @@ export default defineNuxtConfig({
     },
     quasar: {
         css: ['@quasar/extras/material-icons/material-icons.css', '@quasar/extras/mdi-v7/mdi-v7.css'],
+        config: {
+            dark: false
+        },
         plugins: [
             'Dialog'
         ]

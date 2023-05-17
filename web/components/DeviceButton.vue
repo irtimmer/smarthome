@@ -1,5 +1,6 @@
 <template>
-  <q-card flat class="sh-button-card cursor-pointer q-hoverable" v-ripple @click="openDialog()">
+  <q-card flat class="cursor-pointer q-hoverable" v-ripple @click="openDialog()">
+    <span class="q-focus-helper"></span>
     <q-card-section class="text-center q-pa-sm">
       <q-icon :name="icon" size="3em" />
     </q-card-section>
@@ -8,12 +9,6 @@
     </q-card-section>
   </q-card>
 </template>
-
-<style lang="sass" scoped>
-.sh-button-card
-  width: 100%
-  max-width: 150px
-</style>
 
 <script setup>
 import { DeviceDialog } from '#components'
