@@ -25,6 +25,17 @@ export const useDevice = (device: Device) => {
         return value("name") ?? device.services.map(id => store.services.get(id)).find(s => s !== undefined && s.name)?.name
     }
 
+    function main() {
+        const types = new Set(device.services.flatMap(id => store.services.get(id)?.types ?? []))
+
+        for (const {type, property: prop} of MAIN_PROPERTIES) {
+            if (types.has(type))
+                return property(prop)
+        }
+
+        return [null, null]
+    }
+
     function icon() {
         const icon = value("icon")
         if (icon)
@@ -43,6 +54,7 @@ export const useDevice = (device: Device) => {
         property,
         value,
         name,
+        main,
         icon
     }
 }
