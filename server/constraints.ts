@@ -1,9 +1,17 @@
 import { Service } from "../shared/service"
 import Providers from "./providers"
 
+enum Action {
+    MINIMUM,
+    MAXIMUM,
+    ADDITION,
+    MULTIPLY
+}
+
 type Constraint = {
     priority: number,
     handle: string,
+    action?: Action,
     value: any
 }
 
@@ -20,7 +28,7 @@ export default class Constraints {
         })
     }
 
-    set(service: Service, key: string, value: any, handle: string, priority: number) {
+    set(service: Service, key: string, value: any, handle: string, priority: number, opts: any | undefined) {
         let serviceConstraints = this.#constraints.get(service)
         if (!serviceConstraints) {
             serviceConstraints = new Map
@@ -33,11 +41,11 @@ export default class Constraints {
             serviceConstraints.set(key, propertyConstraints)
         }
 
-        const options = {
+        const options = {...opts, ...{
             value,
             handle,
             priority
-        }
+        }}
 
         let index = propertyConstraints.findIndex(x => x.handle == handle)
         if (index >= 0)
@@ -79,7 +87,19 @@ export default class Constraints {
 
     #solve(constraints: Constraint[]): any {
         return constraints.reduce((current, constraint) => {
-            return constraint.value
+            if (typeof current == 'undefined' || typeof constraint.action == 'undefined')
+                return constraint.value
+
+            switch(constraint.action) {
+                case Action.MINIMUM:
+                    return Math.max(current as number, constraint.value)
+                case Action.MAXIMUM:
+                    return Math.min(current as number, constraint.value)
+                case Action.ADDITION:
+                    return current + constraint.value
+                case Action.MULTIPLY:
+                    return (current as number) * constraint.value
+            }
         }, undefined as unknown)
     }
 

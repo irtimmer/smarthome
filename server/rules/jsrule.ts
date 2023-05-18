@@ -82,8 +82,12 @@ export class RuleService {
         return this.#service.values.get(key)
     }
 
-    set(key: string, value: any) {
-        this.#service.setValue(key, value).catch(e => console.error(e))
+    set(key: string, value: any, options?: any) {
+        if (typeof options !== "undefined") {
+            this.#rule.rules.constraints.set(this.#service, key, value, options.handle, options.priority, options)
+            this.#rule.constraints.push(`${this.#service.uniqueId}/${key}/${options.handle}`)
+        } else
+            this.#service.setValue(key, value).catch(e => console.error(e))
     }
 }
 
@@ -125,7 +129,7 @@ class RuleDevice {
             return
 
         if (typeof options !== "undefined") {
-            this.#rule.rules.constraints.set(service, key, value, options.priority, options.handle)
+            this.#rule.rules.constraints.set(service, key, value, options.priority, options.handle, options)
             this.#rule.constraints.push(`${service.uniqueId}/${key}/${options.handle}`)
         } else
             service.setValue(key, value).catch(e => console.error(e))
