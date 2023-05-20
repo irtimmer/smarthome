@@ -17,15 +17,34 @@ type Constraint = {
 
 export default class Constraints {
     #constraints: Map<Service, Map<string, Constraint[]>>
+    #modified: Map<Service, Set<string>>
     readonly providers: Providers
 
     constructor(providers: Providers) {
         this.providers = providers
         this.#constraints = new Map
+        this.#modified = new Map
 
         providers.on("update", (service: Service, key: string) => {
             this.#solveAndSet(service, key)
         })
+    }
+
+    #markModified(service: Service, key: string) {
+        let modifiedProperties = this.#modified.get(service)
+        if (!modifiedProperties) {
+            modifiedProperties = new Set
+            this.#modified.set(service, modifiedProperties)
+        }
+
+        modifiedProperties.add(key)
+    }
+
+    update() {
+        for (const [service, keys] of this.#modified.entries())
+            keys.forEach(key => this.#solveAndSet(service, key))
+
+        this.#modified.clear()
     }
 
     set(service: Service, key: string, value: any, handle: string, priority: number, opts: any | undefined) {
@@ -59,7 +78,7 @@ export default class Constraints {
                 propertyConstraints.push(options)
         }
 
-        service.setValue(key, this.#solve(propertyConstraints)).catch(e => console.error(e))
+        this.#markModified(service, key)
     }
 
     unset(service: Service, key: string, handle: string) {
@@ -72,7 +91,7 @@ export default class Constraints {
             return
 
         constraints.splice(index, 1)
-        service.setValue(key, this.#solve(constraints)).catch(e => console.error(e))
+        this.#markModified(service, key)
     }
 
     #solveAndSet(service: Service, key: string) {

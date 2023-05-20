@@ -38,6 +38,7 @@ export abstract class Rule {
         } catch (e) {
             console.error(e)
         } finally {
+            this.rules.constraints.update()
             for (let constraint of currentConstraints) {
                 if (!this.constraints.includes(constraint))
                     continue
