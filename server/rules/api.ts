@@ -9,14 +9,24 @@ export function setActiveRule(rule?: Rule) {
     activeRule = rule
 }
 
-export class RuleService {
+export interface Item {
+    has(key: string): boolean
+    get(key: string): any
+    set(key: string, value: any): void
+}
+
+export class RuleService implements Item {
     #service: Service
 
     constructor(service: Service) {
         this.#service = service
     }
 
-    get(key: string): any {
+    has(key: string) {
+        return this.#service.values.has(key)
+    }
+
+    get(key: string) {
         activeRule?.watchProperties.add(`${this.#service.uniqueId}/${key}`)
         return this.#service.values.get(key)
     }
@@ -30,7 +40,7 @@ export class RuleService {
     }
 }
 
-export class RuleDevice {
+export class RuleDevice implements Item {
     #device: Device
 
     constructor(device: Device) {
@@ -51,7 +61,12 @@ export class RuleDevice {
         return [null, null]
     }
 
-    get(type: string): any {
+    has(type: string) {
+        const [service] = this.#property(type)
+        return service != null
+    }
+
+    get(type: string) {
         const [service, key] = this.#property(type)
         if (!service)
             return
