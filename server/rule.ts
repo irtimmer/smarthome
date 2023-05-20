@@ -3,16 +3,16 @@ import type Rules from "./rules"
 export abstract class Rule {
     readonly rules: Rules
     abstract readonly loading: Promise<void>
-    watchServices: string[]
-    watchDevices: string[]
-    watchProperties: string[]
+    watchServices: Set<string>
+    watchDevices: Set<string>
+    watchProperties: Set<string>
     constraints: string[]
 
     constructor(rules: Rules) {
         this.rules = rules
-        this.watchServices = []
-        this.watchDevices = []
-        this.watchProperties = []
+        this.watchServices = new Set()
+        this.watchDevices = new Set()
+        this.watchProperties = new Set()
         this.constraints = []
     }
 
@@ -26,9 +26,9 @@ export abstract class Rule {
     }
 
     execute() {
-        this.watchServices = []
-        this.watchDevices = []
-        this.watchProperties = []
+        this.watchServices = new Set()
+        this.watchDevices = new Set()
+        this.watchProperties = new Set()
 
         let currentConstraints = this.constraints
         this.constraints = []

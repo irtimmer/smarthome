@@ -20,15 +20,15 @@ export default class Rules {
         this.constraints = constraints
 
         providers.on("register", (service: Service) => {
-            this.#rules.filter(r => r.watchServices.includes(service.uniqueId)).forEach(r => r.execute())
+            this.#rules.filter(r => r.watchServices.has(service.uniqueId)).forEach(r => r.execute())
         })
 
         providers.on("update", (service: Service, key: string) => {
-            this.#rules.filter(r => r.watchProperties.includes(`${service.uniqueId}/${key}`)).forEach(r => r.execute())
+            this.#rules.filter(r => r.watchProperties.has(`${service.uniqueId}/${key}`)).forEach(r => r.execute())
         })
 
         devices.on("update", (key: string) => {
-            this.#rules.filter(r => r.watchDevices.includes(key)).forEach(r => r.execute())
+            this.#rules.filter(r => r.watchDevices.has(key)).forEach(r => r.execute())
         })
 
         this.setConfig(config)

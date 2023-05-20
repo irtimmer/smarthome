@@ -36,14 +36,14 @@ export default class JSRule extends Rule {
             getService: (key: string) => {
                 key = this.#config.aliases[key] ?? key
 
-                this.watchServices.push(key)
+                this.watchServices.add(key)
                 const service = this.rules.providers.services.get(key)
                 return service ? new RuleService(service) : null
             },
             getDevice: (key: string) => {
                 key = this.#config.aliases[key] ?? key
 
-                this.watchDevices.push(key)
+                this.watchDevices.add(key)
                 const device = this.rules.devices.devices.get(key)
                 return device ? new RuleDevice(device) : null
             }

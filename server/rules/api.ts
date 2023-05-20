@@ -17,7 +17,7 @@ export class RuleService {
     }
 
     get(key: string): any {
-        activeRule?.watchProperties.push(`${this.#service.uniqueId}/${key}`)
+        activeRule?.watchProperties.add(`${this.#service.uniqueId}/${key}`)
         return this.#service.values.get(key)
     }
 
@@ -56,7 +56,7 @@ export class RuleDevice {
         if (!service)
             return
 
-        activeRule?.watchProperties.push(`${service.uniqueId}/${key}`)
+        activeRule?.watchProperties.add(`${service.uniqueId}/${key}`)
         return service.values.get(key)
     }
 
