@@ -2,7 +2,7 @@ import Provider from "../shared/provider";
 import Service from "../shared/service";
 import Poll from "../shared/utils/poll";
 
-import { SPOTIFY_DEVICE_PROPERTIES, SPOTIFY_PLAYER_PROPERTIES } from "./spotify_constants";
+import { SPOTIFY_DEVICE_ICONS, SPOTIFY_DEVICE_PROPERTIES, SPOTIFY_PLAYER_PROPERTIES } from "./spotify_constants";
 
 const SPOTIFY_AUTH_URL = 'https://accounts.spotify.com';
 const SPOTIFY_API_URL = 'https://api.spotify.com';
@@ -60,7 +60,7 @@ export default class SpotifyProvider extends Provider<SpotifyService> {
                     for (const d of data.devices) {
                         let device = this.services.get(d.id) as SpotifyDevice | undefined
                         if (!device) {
-                            device = new SpotifyDevice(this, d.id)
+                            device = new SpotifyDevice(this, d)
                             this.registerService(device)
                             device.registerIdentifier("spotify", d.id)
                         }
@@ -94,8 +94,10 @@ export default class SpotifyProvider extends Provider<SpotifyService> {
 abstract class SpotifyService extends Service<SpotifyProvider> {}
 
 class SpotifyDevice extends SpotifyService {
-    constructor(provider: SpotifyProvider, id: string) {
-        super(provider, id)
+    constructor(provider: SpotifyProvider, data: any) {
+        super(provider, data.id)
+        this.registerProperty("icon", "icon", SPOTIFY_DEVICE_ICONS[data.type])
+
         for (const [key, property] of Object.entries(SPOTIFY_DEVICE_PROPERTIES))
             this.registerProperty(key, { ...property.definition, ...{
                 read_only: !('set' in property)

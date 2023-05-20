@@ -5,6 +5,13 @@ interface SpotifyServiceProperty {
     definition: Omit<Property, 'read_only'>
 }
 
+export const SPOTIFY_DEVICE_ICONS: Record<string, string> = {
+    AVR: "mdi-audio-video",
+    Smartphone: "mdi-cellphone",
+    Computer: "mdi-desktop-tower-monitor",
+    Speaker: "mdi-speaker"
+}
+
 export const SPOTIFY_PLAYER_PROPERTIES: Record<string, SpotifyServiceProperty> = {
     is_playing: {
         parse: (data: any) => data.is_playing,
