@@ -73,7 +73,7 @@ export default class HueProvider extends Provider<HueService> {
                     service.registerIdentifier('uuid', serviceData.group.rid)
 
                 service.registerIdentifier('uuid', serviceData.id)
-                service.update(serviceData)
+                service.update(serviceData, false)
             }
         }).catch((err: any) => {
             console.error(err)
@@ -103,11 +103,8 @@ export default class HueProvider extends Provider<HueService> {
     #onmessage(e: MessageEvent) {
         const jsonData = JSON.parse(e.data)
         for (let event of jsonData) {
-            for (let update of event.data) {
-                const service = this.services.get(update.id)
-                if (service)
-                    service.update(update)
-            }
+            for (let update of event.data)
+                this.services.get(update.id)?.update(update, true)
         }
     }
 }
@@ -132,11 +129,29 @@ class HueService extends Service<HueProvider> {
         this.#typeActionDefinitions = HUE_SERVICE_ACTIONS[this.#type]
         if (this.#typeActionDefinitions)
             Object.entries(this.#typeActionDefinitions).forEach(([key, action]) => this.registerAction(key, action.definition))
+
+        if (this.#type == 'button')
+            this.registerEvent("key", {
+                label: "Key pressed",
+                properties: {
+                    event: {
+                        label: "Event",
+                        type: "string"
+                    }
+                }
+            })
     }
 
-    update(data: any) {
+    update(data: any, fireEvents: boolean) {
         if (!this.#typeDefinition)
             return
+
+        if (fireEvents && this.#type == 'button') {
+            if (data.button?.last_event != this.values.get("event"))
+                this.emitEvent("key", {
+                    event: data.button.last_event
+                })
+        }
 
         for (const [key, value] of Object.entries(this.#typeDefinition)) {
             const parsed = value.parse(data)
