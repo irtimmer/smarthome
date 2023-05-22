@@ -12,6 +12,8 @@ type Constraint = {
     priority: number,
     handle: string,
     action?: Action,
+    keep?: number,
+    timer?: NodeJS.Timeout,
     value: any
 }
 
@@ -67,9 +69,13 @@ export default class Constraints {
         }}
 
         let index = propertyConstraints.findIndex(x => x.handle == handle)
-        if (index >= 0)
+        if (index >= 0) {
+            const constraint = propertyConstraints[index]
+            if (constraint.timer)
+                clearTimeout(constraint.timer)
+
             propertyConstraints[index] = options
-        else {
+        } else {
             index = propertyConstraints.findIndex((x => x.priority > priority))
 
             if (index >= 0)
@@ -89,6 +95,17 @@ export default class Constraints {
         const index = constraints.findIndex((x: any) => x.handle == handle)
         if (index < 0)
             return
+
+        const constraint = constraints[index]
+
+        if (constraint.timer)
+            clearTimeout(constraint.timer)
+
+        if (constraint.keep) {
+            constraint.timer = setTimeout(() => this.unset(service, key, handle), constraint.keep)
+            delete constraint.keep
+            return
+        }
 
         constraints.splice(index, 1)
         this.#markModified(service, key)
