@@ -38,6 +38,12 @@ export const ZWAVE_COMMAND_CLASS_PROPERTIES: Record<number, Record<string, ZWAVE
     }
 }
 
+export const ZWAVE_SERVICE_PRIORITIES: {[commandClass: number]: number} = {
+    128: 20, // Battery
+    114: 15, // Manufacturer Specific
+    134: 10 // Version
+}
+
 export const ZWAVE_SERVICE_GROUP: {[commandClass: number]: PropertyGroup} = {
     108: "internal", // Supervision
     112: "config", // Configuration

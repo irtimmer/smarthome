@@ -4,7 +4,7 @@ import { Property } from "../shared/definitions";
 import Provider from "../shared/provider";
 import Service from "../shared/service";
 
-import { ZWAVE_COMMAND_CLASS_PROPERTIES, ZWAVE_DEVICE_CLASS_TYPES, ZWAVE_SERVICE_GROUP } from "./zwave_constants";
+import { ZWAVE_COMMAND_CLASS_PROPERTIES, ZWAVE_DEVICE_CLASS_TYPES, ZWAVE_SERVICE_GROUP, ZWAVE_SERVICE_PRIORITIES } from "./zwave_constants";
 
 interface ZWaveConfig {
     port: string,
@@ -170,6 +170,13 @@ class ZWaveCommandClassService extends ZWaveService {
         }), node, name)
         this.#endpoint = endpoint
         this.#commandClass = commandClass
+
+        if (commandClass in ZWAVE_SERVICE_PRIORITIES)
+            this.priority = ZWAVE_SERVICE_PRIORITIES[commandClass]
+        else {
+            let supportedCC = node.deviceClass?.specific.supportedCCs.indexOf(commandClass) ?? -1;
+            this.priority = supportedCC >= 0 ? 60 - supportedCC : (commandClass < 64 ? 30 : 10)
+        }
     }
 
     addOrUpdateValue(args: TranslatedValueID | ZWaveNodeValueUpdatedArgs | ZWaveNodeValueAddedArgs) {
