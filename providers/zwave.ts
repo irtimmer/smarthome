@@ -146,11 +146,16 @@ class ZWaveDeviceService extends ZWaveService {
 }
 
 class ZWaveCommandClassService extends ZWaveService {
+    readonly #endpoint?: number
+    readonly #commandClass: number
+
     constructor(provider: ZWaveProvider, node: ZWaveNode, endpoint: number | undefined, commandClass: number, name: string) {
         super(provider, ZWaveCommandClassService.serviceId(node, {
             endpoint,
             commandClass
         }), node, name)
+        this.#endpoint = endpoint
+        this.#commandClass = commandClass
     }
 
     addOrUpdateValue(args: TranslatedValueID | ZWaveNodeValueUpdatedArgs | ZWaveNodeValueAddedArgs) {
@@ -177,6 +182,24 @@ class ZWaveCommandClassService extends ZWaveService {
             this.updateValue(propertyKey, this.node.getValue(args))
         } else if ('newValue' in args)
             this.updateValue(propertyKey, args.newValue)
+    }
+
+    setValue(key: string, value: any): Promise<void> {
+        let [property, propertyKey]: (string | number)[] = key.split('/')
+        if (/^\d+$/.test(property))
+            property = parseInt(property)
+
+        if (/^\d+$/.test(propertyKey))
+            propertyKey = parseInt(propertyKey)
+
+        return this.node.setValue({
+            endpoint: this.#endpoint,
+            commandClass: this.#commandClass,
+            property,
+            propertyKey
+        }, value).then(success => {
+            return success ? Promise.resolve() : Promise.reject()
+        })
     }
 
     static serviceId(node: ZWaveNode, args: Omit<ValueID, 'property'>) {
