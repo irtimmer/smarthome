@@ -10,6 +10,10 @@ export const ZWAVE_DEVICE_CLASS_TYPES: Record<number, Record<number | '_', strin
     16: { // Binary Switch
         _: "switch",
         1: "power" // On/Off Power Switch
+    },
+    17: { //Multilevel Switch
+        _: "multilevel",
+        6: "shutter" // Window Covering - Endpoint Aware
     }
 }
 
@@ -28,6 +32,23 @@ export const ZWAVE_COMMAND_CLASS_PROPERTIES: Record<number, Record<string, ZWAVE
                 read_only: false
             }
         }
+    },
+    38: { // Multilevel Switch
+        value: {
+            set: "targetValue",
+        },
+        currentValue: {
+            alias: "value",
+            definition: {
+                '@type': "level",
+                label: "Value",
+                read_only: false
+            }
+        },
+        targetValue: null,
+        Up: null,
+        Down: null,
+        restorePrevious: null
     },
     128: { // Battery
         level: {
