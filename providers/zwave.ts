@@ -4,6 +4,8 @@ import { Property } from "../shared/definitions";
 import Provider from "../shared/provider";
 import Service from "../shared/service";
 
+import { ZWAVE_COMMAND_CLASS_PROPERTIES, ZWAVE_DEVICE_CLASS_TYPES } from "./zwave_constants";
+
 interface ZWaveConfig {
     port: string,
     keys: {
@@ -118,6 +120,16 @@ class ZWaveDeviceService extends ZWaveService {
         this.registerAction("refreshValues", {
             label: 'Refresh Values'
         })
+
+        if (node.deviceClass) {
+            const baseClass = ZWAVE_DEVICE_CLASS_TYPES[node.deviceClass.generic.key]
+            if (baseClass) {
+                if (node.deviceClass.specific.key in baseClass)
+                    this.registerType(baseClass[node.deviceClass.specific.key])
+
+                this.registerType(baseClass._)
+            }
+        }
     }
 
     setNodeStatus(status: NodeStatus) {
@@ -163,6 +175,19 @@ class ZWaveCommandClassService extends ZWaveService {
     addOrUpdateValue(args: TranslatedValueID | ZWaveNodeValueUpdatedArgs | ZWaveNodeValueAddedArgs) {
         let propertyKey = [args.property.toString(), args.propertyKey].filter(x => x).join('/')
 
+        let propertySettings = undefined
+        if (args.commandClass in ZWAVE_COMMAND_CLASS_PROPERTIES && propertyKey in ZWAVE_COMMAND_CLASS_PROPERTIES[args.commandClass]) {
+            propertySettings = ZWAVE_COMMAND_CLASS_PROPERTIES[args.commandClass][propertyKey]
+
+            // Ignore properties set to null
+            if (propertySettings == null)
+                return
+
+            // Change to alias value
+            if (propertySettings.alias)
+                propertyKey = propertySettings.alias
+        }
+
         if (!this.properties.has(propertyKey)) {
             const metadata = this.node.getValueMetadata(args)
             let options: Property = {
@@ -186,6 +211,9 @@ class ZWaveCommandClassService extends ZWaveService {
                 }
             }
 
+            if (propertySettings?.definition)
+                options = {...options, ...propertySettings.definition}
+
             if (metadata.type == "boolean" && !metadata.readable)
                 this.registerAction(propertyKey, options)
             else {
@@ -197,6 +225,14 @@ class ZWaveCommandClassService extends ZWaveService {
     }
 
     setValue(key: string, value: any): Promise<void> {
+        if (this.#commandClass in ZWAVE_COMMAND_CLASS_PROPERTIES && key in ZWAVE_COMMAND_CLASS_PROPERTIES[this.#commandClass]) {
+            const propertySettings = ZWAVE_COMMAND_CLASS_PROPERTIES[this.#commandClass][key]!
+
+            // Change to alias value
+            if (propertySettings.set)
+                key = propertySettings.set
+        }
+
         let [property, propertyKey]: (string | number)[] = key.split('/')
         if (/^\d+$/.test(property))
             property = parseInt(property)
