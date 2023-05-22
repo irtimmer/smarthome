@@ -1,4 +1,4 @@
-import { Property } from "../shared/definitions"
+import { Property, PropertyGroup } from "../shared/definitions"
 
 type ZWAVE_COMMAND_CLASS_PROPERTY = {
     alias?: string
@@ -36,4 +36,12 @@ export const ZWAVE_COMMAND_CLASS_PROPERTIES: Record<number, Record<string, ZWAVE
             }
         }
     }
+}
+
+export const ZWAVE_SERVICE_GROUP: {[commandClass: number]: PropertyGroup} = {
+    108: "internal", // Supervision
+    112: "config", // Configuration
+    114: "internal", // Manufacturer Specific
+    117: "internal", // Protection
+    134: "internal" // Version
 }

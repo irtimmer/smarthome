@@ -4,7 +4,7 @@ import { Property } from "../shared/definitions";
 import Provider from "../shared/provider";
 import Service from "../shared/service";
 
-import { ZWAVE_COMMAND_CLASS_PROPERTIES, ZWAVE_DEVICE_CLASS_TYPES } from "./zwave_constants";
+import { ZWAVE_COMMAND_CLASS_PROPERTIES, ZWAVE_DEVICE_CLASS_TYPES, ZWAVE_SERVICE_GROUP } from "./zwave_constants";
 
 interface ZWaveConfig {
     port: string,
@@ -210,6 +210,9 @@ class ZWaveCommandClassService extends ZWaveService {
                     }}
                 }
             }
+
+            if (args.commandClass in ZWAVE_SERVICE_GROUP)
+                options.group = ZWAVE_SERVICE_GROUP[args.commandClass]
 
             if (propertySettings?.definition)
                 options = {...options, ...propertySettings.definition}
