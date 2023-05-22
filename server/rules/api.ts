@@ -15,6 +15,18 @@ export interface Item {
     set(key: string, value: any): void
 }
 
+export class NullItem implements Item {
+    has(_key: string) {
+        return false
+    }
+
+    get(_key: string) {
+        return undefined
+    }
+
+    set(_key: string, _value: any) {}
+}
+
 export class RuleService implements Item {
     #service: Service
 

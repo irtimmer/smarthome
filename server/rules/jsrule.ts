@@ -3,7 +3,7 @@ import vm from "vm";
 
 import type Rules from "../rules";
 import { Rule } from "../rule";
-import { Item, RuleDevice, RuleService, setActiveRule } from "./api";
+import { Item, NullItem, RuleDevice, RuleService, setActiveRule } from "./api";
 
 export type JSRuleConfig = {
     script: string
@@ -74,7 +74,7 @@ export default class JSRule extends Rule {
                     const value = Reflect.get(target, prop, receiver)
                     return typeof value == 'function' ? value.bind(target) : value;
                 } else
-                    return target.getDevice(prop as string) ?? target.getService(prop as string)
+                    return target.getDevice(prop as string) ?? target.getService(prop as string) ?? new Proxy(new NullItem(), itemProxyHandler)
             }
         }))
     }
