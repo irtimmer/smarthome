@@ -43,67 +43,34 @@ export default class ZWaveProvider extends Provider<ZWaveService> {
     }
 
     #addNode(node: ZWaveNode) {
-        node.on("value added", this.#addValue.bind(this))
-        node.on("value updated", this.#addValue.bind(this))
-        node.on("alive", () => this.#setNodeStatus(node, NodeStatus.Alive))
-        node.on("dead", () => this.#setNodeStatus(node, NodeStatus.Dead))
-        node.on("sleep", () => this.#setNodeStatus(node, NodeStatus.Asleep))
-        node.on("wake up", () => this.#setNodeStatus(node, NodeStatus.Awake))
-
-        node.getDefinedValueIDs().forEach((args) => this.#addValue(node, args))
-    }
-
-    #setNodeStatus(node: ZWaveNode, status: NodeStatus) {
-        let service = this.services.get(node.id.toString())
-        if (typeof service == "undefined")
-            return
-
-        service.updateValue("status", status)
-        service.updateValue("alive", ![NodeStatus.Dead, NodeStatus.Unknown].includes(status))
-    }
-
-    #addValue(node: ZWaveNode, args: TranslatedValueID | ZWaveNodeValueUpdatedArgs | ZWaveNodeValueAddedArgs) {
         const nodeKey = node.id.toString()
-        let service = this.services.get(nodeKey)
-        if (!service) {
-            service = new ZWaveDeviceService(this, nodeKey, node, "Device")
-            this.registerService(service)
-            this.#setNodeStatus(node, node.status)
+        let nodeService = this.services.get(nodeKey) as ZWaveDeviceService | undefined
+        if (!nodeService) {
+            nodeService = new ZWaveDeviceService(this, nodeKey, node, "Device")
+            nodeService.setNodeStatus(node.status)
+            this.registerService(nodeService)
         }
 
+        node.on("value added", this.#addOrUpdateValue.bind(this))
+        node.on("value updated", this.#addOrUpdateValue.bind(this))
+        node.on("alive", () => nodeService!.setNodeStatus(NodeStatus.Alive))
+        node.on("dead", () => nodeService!.setNodeStatus(NodeStatus.Dead))
+        node.on("sleep", () => nodeService!.setNodeStatus(NodeStatus.Asleep))
+        node.on("wake up", () => nodeService!.setNodeStatus(NodeStatus.Awake))
+
+        node.getDefinedValueIDs().forEach((args) => this.#addOrUpdateValue(node, args))
+    }
+
+    #addOrUpdateValue(node: ZWaveNode, args: TranslatedValueID | ZWaveNodeValueUpdatedArgs | ZWaveNodeValueAddedArgs) {
         const serviceKey = ZWaveCommandClassService.serviceId(node, args)
-        service = this.services.get(serviceKey)
+        let service = this.services.get(serviceKey) as ZWaveCommandClassService | undefined
         if (!service) {
             service = new ZWaveCommandClassService(this, node, args.endpoint, args.commandClass, args.commandClassName)
             this.registerService(service)
             service.registerIdentifier("zwave", node.id.toString())
         }
 
-        let propertyKey = args.property.toString()
-        if (args.propertyKey)
-            propertyKey += `/${args.propertyKey}`
-
-        if (!service.properties.has(propertyKey)) {
-            const metadata = node.getValueMetadata(args)
-            let options: Property = {
-                type: metadata.type,
-                label: metadata.label ?? args.propertyName ?? args.property.toString(),
-                read_only: !metadata.writeable
-            }
-
-            if (metadata.type == "number") {
-                const numericMeta = metadata as ValueMetadataNumeric
-                options = {...options, ...{
-                    min: numericMeta.min,
-                    max: numericMeta.max,
-                    unit: numericMeta.unit
-                }}
-            }
-
-            service.registerProperty(propertyKey, options)
-            service.updateValue(propertyKey, node.getValue(args))
-        } else if ('newValue' in args)
-            service.updateValue(propertyKey, args.newValue)
+        service.addOrUpdateValue(args)
     }
 }
 
@@ -151,6 +118,11 @@ class ZWaveDeviceService extends ZWaveService {
         })
     }
 
+    setNodeStatus(status: NodeStatus) {
+        this.updateValue("status", status)
+        this.updateValue("alive", ![NodeStatus.Dead, NodeStatus.Unknown].includes(status))
+    }
+
     triggerAction(key: string, props: any): Promise<void> {
         switch (key) {
             case 'refreshInfo':
@@ -179,6 +151,32 @@ class ZWaveCommandClassService extends ZWaveService {
             endpoint,
             commandClass
         }), node, name)
+    }
+
+    addOrUpdateValue(args: TranslatedValueID | ZWaveNodeValueUpdatedArgs | ZWaveNodeValueAddedArgs) {
+        let propertyKey = [args.property.toString(), args.propertyKey].filter(x => x).join('/')
+
+        if (!this.properties.has(propertyKey)) {
+            const metadata = this.node.getValueMetadata(args)
+            let options: Property = {
+                type: metadata.type,
+                label: metadata.label ?? args.propertyName ?? args.property.toString(),
+                read_only: !metadata.writeable
+            }
+
+            if (metadata.type == "number") {
+                const numericMeta = metadata as ValueMetadataNumeric
+                options = {...options, ...{
+                    min: numericMeta.min,
+                    max: numericMeta.max,
+                    unit: numericMeta.unit
+                }}
+            }
+
+            this.registerProperty(propertyKey, options)
+            this.updateValue(propertyKey, this.node.getValue(args))
+        } else if ('newValue' in args)
+            this.updateValue(propertyKey, args.newValue)
     }
 
     static serviceId(node: ZWaveNode, args: Omit<ValueID, 'property'>) {
