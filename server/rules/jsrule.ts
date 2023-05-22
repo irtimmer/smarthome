@@ -65,6 +65,12 @@ export default class JSRule extends Rule {
                 this.watchDevices.add(key)
                 const device = this.rules.devices.devices.get(key)
                 return device ? new Proxy(new RuleDevice(device), itemProxyHandler) : null
+            },
+            watch: (fn: () => void) => {
+                const subRule = new SubRule(fn, this.rules)
+                this.subRules.push(subRule)
+                this.rules.scheduleRule(subRule)
+                setImmediate(subRule.execute.bind(subRule))
             }
         }, {
             get(target, prop, receiver) {
@@ -94,6 +100,25 @@ export default class JSRule extends Rule {
     run() {
         setActiveRule(this)
         this.#script?.runInContext(this.#context)
+        setActiveRule(undefined)
+    }
+}
+
+class SubRule extends Rule {
+    #fn: () => void
+
+    constructor(fn: () => void, rules: Rules) {
+        super(rules)
+        this.#fn = fn
+    }
+
+    get loading(): Promise<void> {
+        return Promise.resolve()
+    }
+
+    run(): void {
+        setActiveRule(this)
+        this.#fn()
         setActiveRule(undefined)
     }
 }

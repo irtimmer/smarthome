@@ -7,12 +7,14 @@ export abstract class Rule {
     watchDevices: Set<string>
     watchProperties: Set<string>
     constraints: string[]
+    subRules: Rule[]
 
     constructor(rules: Rules) {
         this.rules = rules
         this.watchServices = new Set()
         this.watchDevices = new Set()
         this.watchProperties = new Set()
+        this.subRules = []
         this.constraints = []
     }
 
@@ -23,6 +25,8 @@ export abstract class Rule {
             const [id, key, handle] = constraint.split('/')
             this.rules.constraints.unset(this.rules.providers.services.get(id)!, key, handle)
         }
+
+        this.subRules.forEach(r => this.rules.unscheduleRule(r))
     }
 
     execute() {
@@ -32,6 +36,9 @@ export abstract class Rule {
 
         let currentConstraints = this.constraints
         this.constraints = []
+
+        this.subRules.forEach(r => this.rules.unscheduleRule(r))
+        this.subRules = []
 
         try {
             this.run()
