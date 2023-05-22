@@ -16,3 +16,8 @@ export interface Action {
     label: string
     group?: PropertyGroup
 }
+
+export interface ServiceEvent {
+    label: string
+    properties: Record<string, Omit<Property, "read_only">>
+}

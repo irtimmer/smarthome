@@ -126,6 +126,7 @@ export default class {
             properties: Object.fromEntries(service.properties),
             values: Object.fromEntries(service.values),
             actions: Object.fromEntries(service.actions),
+            events: Object.fromEntries(service.events),
             types: Array.from(service.types)
         }
     }

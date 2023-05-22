@@ -32,6 +32,9 @@ export default class Providers extends EventEmitter {
             service.on("update", (key: string, value: any, oldValue: any) => {
                 this.emit("update", service, key, value, oldValue)
             })
+            service.on("event", (key: string, args: Record<string, any>) => {
+                this.emit("event", service, key, args)
+            })
 
             service.identifiers.forEach(id => service.emit("identifier", ...id.split(':')))
         })
