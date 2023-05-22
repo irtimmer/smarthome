@@ -178,8 +178,12 @@ class ZWaveCommandClassService extends ZWaveService {
                 }}
             }
 
-            this.registerProperty(propertyKey, options)
-            this.updateValue(propertyKey, this.node.getValue(args))
+            if (metadata.type == "boolean" && !metadata.readable)
+                this.registerAction(propertyKey, options)
+            else {
+                this.registerProperty(propertyKey, options)
+                this.updateValue(propertyKey, this.node.getValue(args))
+            }
         } else if ('newValue' in args)
             this.updateValue(propertyKey, args.newValue)
     }
@@ -200,6 +204,10 @@ class ZWaveCommandClassService extends ZWaveService {
         }, value).then(success => {
             return success ? Promise.resolve() : Promise.reject()
         })
+    }
+
+    triggerAction(key: string, _props: any): Promise<void> {
+        return this.setValue(key, true)
     }
 
     static serviceId(node: ZWaveNode, args: Omit<ValueID, 'property'>) {
