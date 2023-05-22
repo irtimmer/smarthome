@@ -8,6 +8,7 @@ import { Item, NullItem, RuleDevice, RuleService, setActiveRule } from "./api";
 export type JSRuleConfig = {
     script: string
     aliases: { [key: string]: string }
+    config?: any
 }
 
 const itemProxyHandler: ProxyHandler<Item> = {
@@ -52,6 +53,7 @@ export default class JSRule extends Rule {
 
     get #context() {
         return vm.createContext(new Proxy({
+            config: this.#config.config,
             getService: (key: string) => {
                 key = this.#config.aliases[key] ?? key
 
