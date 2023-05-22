@@ -50,6 +50,13 @@ export const ZWAVE_COMMAND_CLASS_PROPERTIES: Record<number, Record<string, ZWAVE
         Down: null,
         restorePrevious: null
     },
+    49: { // Multilevel Sensor
+        "Air temperature": {
+            definition: {
+                "@type": "temperature"
+            }
+        }
+    },
     128: { // Battery
         level: {
             definition: {
