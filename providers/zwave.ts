@@ -14,6 +14,8 @@ interface ZWaveConfig {
     }
 }
 
+const convertValue = (type: string, value: any) => type == 'enum' ? String(value) : value
+
 export default class ZWaveProvider extends Provider<ZWaveService> {
     #driver: Driver
 
@@ -176,16 +178,22 @@ class ZWaveCommandClassService extends ZWaveService {
                     max: numericMeta.max,
                     unit: numericMeta.unit
                 }}
+                if (numericMeta.states) {
+                    options = {...options, ...{
+                        type: 'enum',
+                        options: numericMeta.states
+                    }}
+                }
             }
 
             if (metadata.type == "boolean" && !metadata.readable)
                 this.registerAction(propertyKey, options)
             else {
                 this.registerProperty(propertyKey, options)
-                this.updateValue(propertyKey, this.node.getValue(args))
+                this.updateValue(propertyKey, convertValue(options.type, this.node.getValue(args)))
             }
         } else if ('newValue' in args)
-            this.updateValue(propertyKey, args.newValue)
+            this.updateValue(propertyKey, convertValue(this.properties.get(propertyKey)!.type, args.newValue))
     }
 
     setValue(key: string, value: any): Promise<void> {
@@ -195,6 +203,9 @@ class ZWaveCommandClassService extends ZWaveService {
 
         if (/^\d+$/.test(propertyKey))
             propertyKey = parseInt(propertyKey)
+
+        if (this.properties.get(key)?.type == 'enum')
+            value = parseInt(value)
 
         return this.node.setValue({
             endpoint: this.#endpoint,
