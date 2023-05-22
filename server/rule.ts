@@ -8,6 +8,7 @@ export abstract class Rule {
     watchProperties: Set<string>
     constraints: string[]
     subRules: Rule[]
+    listeners: Map<String, (args: Record<string, any>) => void>
 
     constructor(rules: Rules) {
         this.rules = rules
@@ -16,6 +17,7 @@ export abstract class Rule {
         this.watchProperties = new Set()
         this.subRules = []
         this.constraints = []
+        this.listeners = new Map
     }
 
     abstract run(): void
@@ -33,6 +35,7 @@ export abstract class Rule {
         this.watchServices = new Set()
         this.watchDevices = new Set()
         this.watchProperties = new Set()
+        this.listeners = new Map
 
         let currentConstraints = this.constraints
         this.constraints = []

@@ -43,6 +43,10 @@ export class RuleService implements Item {
         return this.#service.values.get(key)
     }
 
+    on(key: string, fn: (args: Record<string, any>) => void) {
+        activeRule?.listeners.set(`${this.#service.uniqueId}/${key}`, fn)
+    }
+
     set(key: string, value: any, options?: any) {
         if (typeof options !== "undefined") {
             activeRule?.rules.constraints.set(this.#service, key, value, options.handle, options.priority, options)

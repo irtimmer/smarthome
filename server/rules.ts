@@ -29,6 +29,16 @@ export default class Rules {
             this.#scheduled.filter(r => r.watchProperties.has(`${service.uniqueId}/${key}`)).forEach(r => r.execute())
         })
 
+        providers.on("event", (service: Service, key: string, args: Record<string, any>) => {
+            this.#scheduled.map(r => r.listeners.get(`${service.uniqueId}/${key}`)).filter(x => x).forEach(x => {
+                try {
+                    x!(args)
+                } catch (e) {
+                    console.error(e)
+                }
+            })
+        })
+
         devices.on("update", (key: string) => {
             this.#scheduled.filter(r => r.watchDevices.has(key)).forEach(r => r.execute())
         })
