@@ -57,6 +57,28 @@ export const ZWAVE_COMMAND_CLASS_PROPERTIES: Record<number, Record<string, ZWAVE
             }
         }
     },
+    50: { // Meter
+        "value/66049": {
+            definition: {
+                "@type": "power"
+            }
+        },
+        "value/65537": {
+            definition: {
+                "@type": "consumption"
+            }
+        },
+        "value/66561": {
+            definition: {
+                "@type": "voltage"
+            }
+        },
+        "value/66817": {
+            definition: {
+                "@type": "current"
+            }
+        }
+    },
     128: { // Battery
         level: {
             definition: {
