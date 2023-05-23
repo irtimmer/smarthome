@@ -2,6 +2,8 @@ import EventSource from "eventsource"
 import consumers from 'stream/consumers'
 import { Agent, request } from "https"
 
+import { Semaphore } from "../shared/utils/semaphore"
+
 import { Action, Property } from "../shared/definitions"
 import Provider from "../shared/provider"
 import Service from "../shared/service"
@@ -31,9 +33,11 @@ export default class HueProvider extends Provider<HueService> {
     #url: string
     #key: string
     #agent: Agent
+    #lock: Semaphore
 
     constructor(id: string, options: HueOptions) {
         super(id)
+        this.#lock = new Semaphore
         this.#url = options.url
         this.#key = options.key
 
@@ -81,7 +85,7 @@ export default class HueProvider extends Provider<HueService> {
     }
 
     fetch(path: string, options: any = {}) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => this.#lock.take(done => {
             let req = request(`${this.#url}${path}`, {...options, ...{
                 agent: this.#agent,
                 headers: {
@@ -89,15 +93,17 @@ export default class HueProvider extends Provider<HueService> {
                 }
             }}, response => {
                 resolve(consumers.json(response))
+                response.on("close", done)
             }).on('error', (e) => {
                 reject(e)
+                done()
             })
 
             if (options.body)
                 req.write(options.body)
 
             req.end()
-        })
+        }))
     }
 
     #onmessage(e: MessageEvent) {
