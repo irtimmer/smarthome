@@ -74,7 +74,12 @@ export default class Constraints {
             if (constraint.timer)
                 clearTimeout(constraint.timer)
 
+            const oldOptions = propertyConstraints[index]
             propertyConstraints[index] = options
+
+            //Do not mark as modified if no influence on solved value
+            if (oldOptions.value == options.value && oldOptions.action == options.action)
+                return
         } else {
             index = propertyConstraints.findIndex((x => x.priority > priority))
 
