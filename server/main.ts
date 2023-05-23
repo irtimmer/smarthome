@@ -18,7 +18,7 @@ const devices = new Devices(providers)
 const server = new Server()
 const constraints = new Constraints(providers)
 const rules = new Rules(config.rules, providers, devices, constraints)
-new ClientApi(server, providers, devices)
+new ClientApi(server, providers, devices, constraints, rules)
 
 fs.watch(CONFIG_FILE, (_, filename) => {
     if (filename) {

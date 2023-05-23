@@ -5,6 +5,9 @@ import Providers from '../providers'
 import Server from '../server'
 
 import { Service } from '../../shared/service'
+import Constraints, { Constraint } from '../constraints'
+import Rules from '../rules';
+import { Rule } from '../rule';
 
 export default class {
     #eventListeners: {
@@ -12,7 +15,7 @@ export default class {
         close: any
     }[]
 
-    constructor(server: Server, providers: Providers, devices: Devices) {
+    constructor(server: Server, providers: Providers, devices: Devices, constraints: Constraints, rules: Rules) {
         this.#eventListeners = []
 
         const api = Router()
@@ -55,6 +58,18 @@ export default class {
         api.get('/devices', (_, res) => {
             res.json(Object.fromEntries(Array.from(devices.devices, ([id, device]) => [
                 id, this.#deviceToJSON(device)
+            ])))
+        })
+
+        api.get('/rules', (_, res) => {
+            res.json(rules.rules.map(rule => this.#ruleToJSON(rule)))
+        })
+
+        api.get('/constraints', (_, res) => {
+            res.json(Object.fromEntries(Array.from(constraints.constraints.entries()).map(([service, properties]) => [
+                service.id, Object.fromEntries(Array.from(properties).map(([id, constraints]) => [
+                    id, constraints.map(c => this.#constraintToJSON(c))
+                ]))
             ])))
         })
 
@@ -135,6 +150,28 @@ export default class {
         return {
             services: Array.from(device.services).sort((a, b) => b.priority - a.priority).map((service: Service) => service.uniqueId),
             identifiers: Array.from(device.identifiers)
+        }
+    }
+
+    #ruleToJSON(rule: Rule): any {
+        return {
+            type: rule.constructor.name,
+            watchers: {
+                services: Array.from(rule.watchServices.values()),
+                devices: Array.from(rule.watchDevices.values()),
+                properties: Array.from(rule.watchProperties.values())
+            },
+            constraints: rule.constraints
+        }
+    }
+
+    #constraintToJSON(constraint: Constraint): any {
+        return {
+            handle: constraint.handle,
+            priority: constraint.priority,
+            keep: constraint.keep,
+            active_timer: Boolean(constraint.timer !== undefined),
+            value: constraint.value
         }
     }
 }

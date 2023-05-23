@@ -8,7 +8,7 @@ enum Action {
     MULTIPLY
 }
 
-type Constraint = {
+export type Constraint = {
     priority: number,
     handle: string,
     action?: Action,

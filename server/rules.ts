@@ -55,6 +55,10 @@ export default class Rules {
         this.#scheduled.splice(this.#scheduled.indexOf(rule), 1)
     }
 
+    get rules(): readonly Rule[] {
+        return this.#rules
+    }
+
     setConfig(config: Config) {
         this.#rules.forEach(r => this.unscheduleRule(r))
         this.#rules = config.map(r => {
