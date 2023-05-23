@@ -8,7 +8,7 @@ export abstract class Rule {
     watchServices: Set<string>
     watchDevices: Set<string>
     watchProperties: Set<string>
-    constraints: string[]
+    constraints: Set<string>
     subRules: Rule[]
     listeners: Map<String, (args: Record<string, any>) => void>
 
@@ -19,7 +19,7 @@ export abstract class Rule {
         this.watchDevices = new Set()
         this.watchProperties = new Set()
         this.subRules = []
-        this.constraints = []
+        this.constraints = new Set()
         this.listeners = new Map
     }
 
@@ -41,7 +41,7 @@ export abstract class Rule {
         this.listeners = new Map
 
         let currentConstraints = this.constraints
-        this.constraints = []
+        this.constraints = new Set()
 
         this.subRules.forEach(r => this.rules.unscheduleRule(r))
         this.subRules = []
@@ -51,14 +51,15 @@ export abstract class Rule {
         } catch (e) {
             console.error(e)
         } finally {
-            this.controller.constraints.update()
             for (let constraint of currentConstraints) {
-                if (!this.constraints.includes(constraint))
+                if (this.constraints.has(constraint))
                     continue
 
                 const [id, key, handle] = constraint.split('/')
                 this.controller.constraints.unset(this.controller.providers.services.get(id)!, key, handle)
             }
+
+            this.controller.constraints.update()
         }
     }
 }
