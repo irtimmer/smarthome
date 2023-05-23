@@ -12,6 +12,7 @@ export const HUE_SERVICE_TYPE: { [type: string]: string | string[] } = {
     behavior_script: "controller",
     bridge: "gateway",
     homekit: "api",
+    matter: "api",
     geolocation: "api",
     entertainment_configuration: "zone"
 }
@@ -160,7 +161,16 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
             definition: {
                 '@type': "temperature",
                 type: "number",
+                unit: "C",
                 label: "Temperature"
+            }
+        },
+        enabled: {
+            parse: (data: any) => data.enabled,
+            set: (value: any) => ({ enabled: value }),
+            definition: {
+                type: "boolean",
+                label: "Enabled"
             }
         }
     },
@@ -183,6 +193,16 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
                 min: 0,
                 max: 100
             }
+        },
+        mirek: {
+            parse: (data: any) => data.color_temperature?.mirek,
+            set: (value: any) => ({ color_temperature: { mirek: value }}),
+            definition: {
+                type: "number",
+                label: "Color Temperature",
+                min: 153,
+                max: 500
+            }
         }
     },
     grouped_light: {
@@ -194,8 +214,18 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
                 type: "boolean",
                 label: "On/off"
             }
+        },
+        brightness: {
+            parse: (data: any) => data.dimming?.brightness,
+            set: (value: any) => ({ dimming: { brightness: value }}),
+            definition: {
+                type: "number",
+                label: "Brightness",
+                min: 0,
+                max: 100
+            }
         }
-    },    
+    },
     motion: {
         motion: {
             parse: (data: any) => data.motion?.motion,
@@ -203,6 +233,14 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
                 '@type': "presence",
                 type: "boolean",
                 label: "Motion"
+            }
+        },
+        enabled: {
+            parse: (data: any) => data.enabled,
+            set: (value: any) => ({ enabled: value }),
+            definition: {
+                type: "boolean",
+                label: "Enabled"
             }
         }
     },
@@ -213,6 +251,14 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
                 type: "number",
                 label: "Lightlevel"
             }
+        },
+        enabled: {
+            parse: (data: any) => data.enabled,
+            set: (value: any) => ({ enabled: value }),
+            definition: {
+                type: "boolean",
+                label: "Enabled"
+            }
         }
     },
     button: {
@@ -222,6 +268,12 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
                 type: "string",
                 label: "Event"
             }
+        }
+    },
+    device_power: {
+        battery: {
+            parse: (data: any) => data.power_state?.battery_level,
+            definition: "battery"
         }
     },
     geofence_client: {
@@ -235,6 +287,19 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
             parse: (data: any) => data.metadata?.name,
             definition: "name"
         },
+    },
+    zigbee_connectivity: {
+        connected: {
+            parse: (data: any) => data.status == 'connected',
+            definition: "connected"
+        },
+        status: {
+            parse: (data: any) => data.status,
+            definition: {
+                type: "string",
+                label: "Status"
+            }
+        }
     }
 }
 
