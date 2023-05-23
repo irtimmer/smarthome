@@ -58,14 +58,14 @@ export default class JSRule extends Rule {
                 key = this.#config.aliases[key] ?? key
 
                 this.watchServices.add(key)
-                const service = this.rules.providers.services.get(key)
+                const service = this.controller.providers.services.get(key)
                 return service ? new Proxy(new RuleService(service), itemProxyHandler) : null
             },
             getDevice: (key: string) => {
                 key = this.#config.aliases[key] ?? key
 
                 this.watchDevices.add(key)
-                const device = this.rules.devices.devices.get(key)
+                const device = this.controller.devices.devices.get(key)
                 return device ? new Proxy(new RuleDevice(device), itemProxyHandler) : null
             },
             watch: (fn: () => void) => {

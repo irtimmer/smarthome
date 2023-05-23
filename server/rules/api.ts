@@ -49,7 +49,7 @@ export class RuleService implements Item {
 
     set(key: string, value: any, options?: any) {
         if (typeof options !== "undefined") {
-            activeRule?.rules.constraints.set(this.#service, key, value, options.handle, options.priority, options)
+            activeRule?.controller.constraints.set(this.#service, key, value, options.handle, options.priority, options)
             activeRule?.constraints.push(`${this.#service.uniqueId}/${key}/${options.handle}`)
         } else
             this.#service.setValue(key, value).catch(e => console.error(e))
@@ -97,7 +97,7 @@ export class RuleDevice implements Item {
             return
 
         if (typeof options !== "undefined") {
-            activeRule?.rules.constraints.set(service, key, value, options.priority, options.handle, options)
+            activeRule?.controller.constraints.set(service, key, value, options.priority, options.handle, options)
             activeRule?.constraints.push(`${service.uniqueId}/${key}/${options.handle}`)
         } else
             service.setValue(key, value).catch(e => console.error(e))

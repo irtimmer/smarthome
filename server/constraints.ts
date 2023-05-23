@@ -1,4 +1,5 @@
 import { Service } from "../shared/service"
+import Controller from "./controller"
 import Providers from "./providers"
 
 enum Action {
@@ -20,14 +21,14 @@ export type Constraint = {
 export default class Constraints {
     #constraints: Map<Service, Map<string, Constraint[]>>
     #modified: Map<Service, Set<string>>
-    readonly providers: Providers
+    readonly controller: Controller
 
-    constructor(providers: Providers) {
-        this.providers = providers
+    constructor(controller: Controller) {
+        this.controller = controller
         this.#constraints = new Map
         this.#modified = new Map
 
-        providers.on("update", (service: Service, key: string) => {
+        controller.providers.on("update", (service: Service, key: string) => {
             this.#solveAndSet(service, key)
         })
     }

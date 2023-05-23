@@ -1,35 +1,29 @@
 import { Service } from "../shared/service";
-import Constraints from "./constraints";
 import type { Rule } from "./rule";
 import JSRule, { JSRuleConfig } from "./rules/jsrule";
-import Providers from "./providers";
-import Devices from "./devices";
+import Controller from "./controller";
 
-type Config = JSRuleConfig[]
+export type RulesConfig = JSRuleConfig[]
 
 export default class Rules {
     #scheduled: Rule[]
     #rules: Rule[]
-    providers: Providers
-    devices: Devices
-    constraints: Constraints
+    controller: Controller
 
-    constructor(config: Config, providers: Providers, devices: Devices, constraints: Constraints) {
+    constructor(controller: Controller, config: RulesConfig) {
+        this.controller = controller
         this.#rules = []
         this.#scheduled = []
-        this.providers = providers
-        this.devices = devices
-        this.constraints = constraints
 
-        providers.on("register", (service: Service) => {
+        controller.providers.on("register", (service: Service) => {
             this.#scheduled.filter(r => r.watchServices.has(service.uniqueId)).forEach(r => r.execute())
         })
 
-        providers.on("update", (service: Service, key: string) => {
+        controller.providers.on("update", (service: Service, key: string) => {
             this.#scheduled.filter(r => r.watchProperties.has(`${service.uniqueId}/${key}`)).forEach(r => r.execute())
         })
 
-        providers.on("event", (service: Service, key: string, args: Record<string, any>) => {
+        controller.providers.on("event", (service: Service, key: string, args: Record<string, any>) => {
             this.#scheduled.map(r => r.listeners.get(`${service.uniqueId}/${key}`)).filter(x => x).forEach(x => {
                 try {
                     x!(args)
@@ -39,7 +33,7 @@ export default class Rules {
             })
         })
 
-        devices.on("update", (key: string) => {
+        controller.devices.on("update", (key: string) => {
             this.#scheduled.filter(r => r.watchDevices.has(key)).forEach(r => r.execute())
         })
 
@@ -59,7 +53,7 @@ export default class Rules {
         return this.#rules
     }
 
-    setConfig(config: Config) {
+    setConfig(config: RulesConfig) {
         this.#rules.forEach(r => this.unscheduleRule(r))
         this.#rules = config.map(r => {
             const rule = new JSRule(r, this)

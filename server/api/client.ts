@@ -1,13 +1,12 @@
 import express, { Router } from 'express'
 
-import Devices, { Device } from '../devices'
-import Providers from '../providers'
-import Server from '../server'
-
 import { Service } from '../../shared/service'
-import Constraints, { Constraint } from '../constraints'
-import Rules from '../rules';
+
+import { Device } from '../devices'
+import { Constraint } from '../constraints'
 import { Rule } from '../rule';
+import Server from '../server'
+import Controller from '../controller';
 
 export default class {
     #eventListeners: {
@@ -15,8 +14,11 @@ export default class {
         close: any
     }[]
 
-    constructor(server: Server, providers: Providers, devices: Devices, constraints: Constraints, rules: Rules) {
+    constructor(server: Server, controller: Controller) {
         this.#eventListeners = []
+
+        const devices = controller.devices
+        const providers = controller.providers
 
         const api = Router()
 
@@ -62,11 +64,11 @@ export default class {
         })
 
         api.get('/rules', (_, res) => {
-            res.json(rules.rules.map(rule => this.#ruleToJSON(rule)))
+            res.json(controller.rules.rules.map(rule => this.#ruleToJSON(rule)))
         })
 
         api.get('/constraints', (_, res) => {
-            res.json(Object.fromEntries(Array.from(constraints.constraints.entries()).map(([service, properties]) => [
+            res.json(Object.fromEntries(Array.from(controller.constraints.constraints.entries()).map(([service, properties]) => [
                 service.id, Object.fromEntries(Array.from(properties).map(([id, constraints]) => [
                     id, constraints.map(c => this.#constraintToJSON(c))
                 ]))
