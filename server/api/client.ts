@@ -161,7 +161,8 @@ export default class {
                 devices: Array.from(rule.watchDevices.values()),
                 properties: Array.from(rule.watchProperties.values())
             },
-            constraints: rule.constraints
+            constraints: rule.constraints,
+            sub_rules: rule.subRules.map(r => this.#ruleToJSON(r))
         }
     }
 
