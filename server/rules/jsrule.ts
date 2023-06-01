@@ -3,6 +3,7 @@ import vm from "vm";
 
 import type Rules from "../rules";
 import { Rule } from "../rule";
+import { Action } from "../constraints";
 import { Item, NullItem, RuleDevice, RuleService, setActiveRule } from "./api";
 
 export type JSRuleConfig = {
@@ -53,6 +54,7 @@ export default class JSRule extends Rule {
 
     get #context() {
         return vm.createContext(new Proxy({
+            Action,
             config: this.#config.config,
             getService: (key: string) => {
                 key = this.#config.aliases[key] ?? key

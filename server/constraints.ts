@@ -2,7 +2,7 @@ import { Service } from "../shared/service"
 import Controller from "./controller"
 import Providers from "./providers"
 
-enum Action {
+export enum Action {
     MINIMUM,
     MAXIMUM,
     ADDITION,
