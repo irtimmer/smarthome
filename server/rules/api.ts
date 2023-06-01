@@ -10,13 +10,13 @@ export function setActiveRule(rule?: Rule) {
     activeRule = rule
 }
 
-export interface Item {
-    has(key: string): boolean
-    get(key: string): any
-    set(key: string, value: any): void
+export abstract class Item {
+    abstract has(key: string): boolean
+    abstract get(key: string): any
+    abstract set(key: string, value: any): void
 }
 
-export class NullItem implements Item {
+export class NullItem extends Item {
     has(_key: string) {
         return false
     }
@@ -28,11 +28,12 @@ export class NullItem implements Item {
     set(_key: string, _value: any) {}
 }
 
-export class RuleService implements Item {
+export class RuleService extends Item {
     #service: Service
     #controller: Controller
 
     constructor(service: Service, controller: Controller) {
+        super()
         this.#service = service
         this.#controller = controller
     }
@@ -67,11 +68,12 @@ export class RuleService implements Item {
     }
 }
 
-export class RuleDevice implements Item {
+export class RuleDevice extends Item {
     #device: Device
     #controller: Controller
 
     constructor(device: Device, controller: Controller) {
+        super()
         this.#device = device
         this.#controller = controller
     }

@@ -18,7 +18,10 @@ const itemProxyHandler: ProxyHandler<Item> = {
             return target.get(prop.toString())
         else {
             const value = Reflect.get(target, prop, receiver)
-            return typeof value == 'function' ? value.bind(target) : value;
+            return typeof value == 'function' ? (...args: any[]) => {
+                const ret = value.bind(target)(...args)
+                return ret instanceof Item ? new Proxy(ret, itemProxyHandler) : ret
+            } : value;
         }
     },
     set(target, prop, value) {
