@@ -50,6 +50,14 @@ export class RuleService implements Item {
         activeRule?.listeners.set(`${this.#service.uniqueId}/${key}`, fn)
     }
 
+    isSet(key: string, handle: string) {
+        this.#controller.constraints.isSet(this.#service, key, handle)
+    }
+
+    unset(key: string, handle: string) {
+        this.#controller.constraints.unset(this.#service, key, handle)
+    }
+
     set(key: string, value: any, handle?: string, priority?: number, options?: any) {
         if (handle !== undefined && priority !== undefined) {
             this.#controller.constraints.set(this.#service, key, value, handle, priority, options)
@@ -94,6 +102,22 @@ export class RuleDevice implements Item {
 
         activeRule?.watchProperties.add(`${service.uniqueId}/${key}`)
         return service.values.get(key)
+    }
+
+    isSet(type: string, handle: string) {
+        const [service, key] = this.#property(type)
+        if (!service)
+            return false
+
+        return this.#controller.constraints.isSet(service, key, handle)
+    }
+
+    unset(type: string, handle: string) {
+        const [service, key] = this.#property(type)
+        if (!service)
+            return
+
+        this.#controller.constraints.unset(service, key, handle)
     }
 
     set(type: string, value: any, handle?: string, priority?: number, options?: any) {

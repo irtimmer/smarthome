@@ -93,6 +93,10 @@ export default class Constraints {
         this.#markModified(service, key)
     }
 
+    isSet(service: Service, key: string, handle: string) {
+        return Boolean(this.#constraints.get(service)?.get(key)?.some(c => c.handle == handle))
+    }
+
     unset(service: Service, key: string, handle: string) {
         let constraints = this.#constraints.get(service)?.get(key)
         if (!constraints)
