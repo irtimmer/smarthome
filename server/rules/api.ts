@@ -1,5 +1,6 @@
 import { Service } from "../../shared/service"
 
+import Controller from "../controller"
 import { Device } from "../devices"
 import { Rule } from "../rule"
 
@@ -29,9 +30,11 @@ export class NullItem implements Item {
 
 export class RuleService implements Item {
     #service: Service
+    #controller: Controller
 
-    constructor(service: Service) {
+    constructor(service: Service, controller: Controller) {
         this.#service = service
+        this.#controller = controller
     }
 
     has(key: string) {
@@ -49,7 +52,7 @@ export class RuleService implements Item {
 
     set(key: string, value: any, handle?: string, priority?: number, options?: any) {
         if (handle !== undefined && priority !== undefined) {
-            activeRule?.controller.constraints.set(this.#service, key, value, handle, priority, options)
+            this.#controller.constraints.set(this.#service, key, value, handle, priority, options)
             activeRule?.constraints.add(`${this.#service.uniqueId}/${key}/${options.handle}`)
         } else
             this.#service.setValue(key, value).catch(e => console.error(e))
@@ -58,9 +61,11 @@ export class RuleService implements Item {
 
 export class RuleDevice implements Item {
     #device: Device
+    #controller: Controller
 
-    constructor(device: Device) {
+    constructor(device: Device, controller: Controller) {
         this.#device = device
+        this.#controller = controller
     }
 
     #property(type: string): [Service, string] | [null, null] {
@@ -97,7 +102,7 @@ export class RuleDevice implements Item {
             return
 
         if (handle !== undefined && priority !== undefined) {
-            activeRule?.controller.constraints.set(service, key, value, handle, priority, options)
+            this.#controller.constraints.set(service, key, value, handle, priority, options)
             activeRule?.constraints.add(`${service.uniqueId}/${key}/${options.handle}`)
         } else
             service.setValue(key, value).catch(e => console.error(e))
