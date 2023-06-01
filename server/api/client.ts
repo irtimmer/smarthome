@@ -31,7 +31,7 @@ export default class {
 
         api.post('/service/:id', (req, res) => {
             const service = providers.services.get(req.params.id)!
-            Promise.all(Object.entries(req.body).map(([key, value]) => service.setValue(key, value))).then(() => {
+            Promise.all(Object.entries(req.body).map(([key, value]) => controller.setValue(service,key, value))).then(() => {
                 res.json({
                     'success': true
                 })

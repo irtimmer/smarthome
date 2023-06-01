@@ -65,7 +65,7 @@ export class RuleService extends Item {
             this.#controller.constraints.set(this.#service, key, value, handle, priority, options)
             activeRule?.constraints.add(`${this.#service.uniqueId}/${key}/${options.handle}`)
         } else
-            this.#service.setValue(key, value).catch(e => console.error(e))
+            this.#controller.setValue(this.#service, key, value).catch(e => console.error(e))
     }
 }
 
@@ -111,7 +111,7 @@ export class RuleServices extends Item {
                     activeRule?.constraints.add(`${service.uniqueId}/${key}/${options.handle}`)
                 })
         } else
-            this.#services.forEach(service => service.setValue(key, value).catch(e => console.error(e)))
+            this.#services.forEach(service => this.#controller.setValue(service, key, value).catch(e => console.error(e)))
     }
 }
 
@@ -185,6 +185,6 @@ export class RuleDevice extends Item {
             this.#controller.constraints.set(service, key, value, handle, priority, options)
             activeRule?.constraints.add(`${service.uniqueId}/${key}/${options.handle}`)
         } else
-            service.setValue(key, value).catch(e => console.error(e))
+            this.#controller.setValue(service, key, value).catch(e => console.error(e))
     }
 }

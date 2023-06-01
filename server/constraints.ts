@@ -138,12 +138,8 @@ export default class Constraints {
             service.setValue(key, value).catch(e => console.error(e))
     }
 
-    #updateValue(service: Service, key: string, value: any) {
-        const constraints = this.#constraints.get(service)?.get(key)
-        if (!constraints)
-            return
-
-        const action = constraints.reduceRight((current, constraint) => {
+    #constrainValueAction(service: Service, key: string, value: any, constraints: Constraint[]): any {
+        return constraints.reduceRight((current, constraint) => {
             if (current == NEEDS_RESET || current == UP_TO_DATE)
                 return current
 
@@ -163,7 +159,28 @@ export default class Constraints {
                     return current == constraint.value ? UP_TO_DATE : NEEDS_RESET
             }
         }, value)
+    }
 
+    constrainValue(service: Service, key: string, value: any) {
+        const constraints = this.#constraints.get(service)?.get(key)
+        if (!constraints)
+            return value
+
+        const action = this.#constrainValueAction(service, key, value, constraints)
+        if (action == NEEDS_RESET)
+            return this.#solve(constraints)
+        else if (action == UP_TO_DATE)
+            return value
+        else
+            return action
+    }
+
+    #updateValue(service: Service, key: string, value: any) {
+        const constraints = this.#constraints.get(service)?.get(key)
+        if (!constraints)
+            return
+
+        const action = this.#constrainValueAction(service, key, value, constraints)
         if (action == NEEDS_RESET) {
             const value = this.#solve(constraints)
             service.setValue(key, value).catch(e => console.error(e))

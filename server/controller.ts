@@ -1,3 +1,5 @@
+import { Service } from "../shared/service"
+
 import Constraints from "./constraints"
 import Devices from "./devices"
 import History, { HistoryConfig } from "./history"
@@ -24,5 +26,11 @@ export default class Controller {
 
         this.constraints = new Constraints(this)
         this.rules = new Rules(this, config.rules)
+    }
+
+    setValue(service: Service, key: string, value: any): Promise<void> {
+        value = this.constraints.constrainValue(service, key, value)
+
+        return service.setValue(key, value)
     }
 }
