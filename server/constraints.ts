@@ -3,6 +3,7 @@ import Controller from "./controller"
 import Providers from "./providers"
 
 export enum Action {
+    BASE,
     MINIMUM,
     MAXIMUM,
     ADDITION,
@@ -18,6 +19,9 @@ export type Constraint = {
     value: any
 }
 
+const NEEDS_RESET = Symbol('RESET')
+const UP_TO_DATE = Symbol('UPTODATE')
+
 export default class Constraints {
     #constraints: Map<Service, Map<string, Constraint[]>>
     #modified: Map<Service, Set<string>>
@@ -28,9 +32,7 @@ export default class Constraints {
         this.#constraints = new Map
         this.#modified = new Map
 
-        controller.providers.on("update", (service: Service, key: string) => {
-            this.#solveAndSet(service, key)
-        })
+        controller.providers.on("update", this.#updateValue.bind(this))
     }
 
     #markModified(service: Service, key: string) {
@@ -59,7 +61,12 @@ export default class Constraints {
 
         let propertyConstraints = serviceConstraints.get(key)
         if (!propertyConstraints) {
-            propertyConstraints = []
+            propertyConstraints = [{
+                handle: "_BASE",
+                priority: -1,
+                action: Action.BASE,
+                value: service.values.get(key)
+            }]
             serviceConstraints.set(key, propertyConstraints)
         }
 
@@ -131,11 +138,40 @@ export default class Constraints {
             service.setValue(key, value).catch(e => console.error(e))
     }
 
+    #updateValue(service: Service, key: string, value: any) {
+        const constraints = this.#constraints.get(service)?.get(key)
+        if (!constraints)
+            return
+
+        const action = constraints.reduceRight((current, constraint) => {
+            if (current == NEEDS_RESET || current == UP_TO_DATE)
+                return current
+
+            switch(constraint.action) {
+                case Action.BASE:
+                    constraint.value = current
+                    return UP_TO_DATE
+                case Action.MINIMUM:
+                    return current < constraint.value ? NEEDS_RESET : current
+                case Action.MAXIMUM:
+                    return current > constraint.value ? NEEDS_RESET : current
+                case Action.ADDITION:
+                    return current - constraint.value
+                case Action.MULTIPLY:
+                    return (current as number) / constraint.value
+                default:
+                    return current == constraint.value ? UP_TO_DATE : NEEDS_RESET
+            }
+        }, value)
+
+        if (action == NEEDS_RESET) {
+            const value = this.#solve(constraints)
+            service.setValue(key, value).catch(e => console.error(e))
+        }
+    }
+
     #solve(constraints: Constraint[]): any {
         return constraints.reduce((current, constraint) => {
-            if (typeof current == 'undefined' || typeof constraint.action == 'undefined')
-                return constraint.value
-
             switch(constraint.action) {
                 case Action.MINIMUM:
                     return Math.max(current as number, constraint.value)
@@ -145,6 +181,8 @@ export default class Constraints {
                     return current + constraint.value
                 case Action.MULTIPLY:
                     return (current as number) * constraint.value
+                default:
+                    return constraint.value
             }
         }, undefined as unknown)
     }
