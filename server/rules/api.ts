@@ -63,7 +63,7 @@ export class RuleService extends Item {
     set(key: string, value: any, handle?: string, priority?: number, options?: any) {
         if (handle !== undefined && priority !== undefined) {
             this.#controller.constraints.set(this.#service, key, value, handle, priority, options)
-            activeRule?.constraints.add(`${this.#service.uniqueId}/${key}/${options.handle}`)
+            activeRule?.constraints.add(`${this.#service.uniqueId}/${key}/${handle}`)
         } else
             this.#controller.setValue(this.#service, key, value).catch(e => console.error(e))
     }
@@ -108,7 +108,7 @@ export class RuleServices extends Item {
             this.#services.filter(service => service.values.has(key))
                 .forEach(service => {
                     this.#controller.constraints.set(service, key, value, handle, priority, options)
-                    activeRule?.constraints.add(`${service.uniqueId}/${key}/${options.handle}`)
+                    activeRule?.constraints.add(`${service.uniqueId}/${key}/${handle}`)
                 })
         } else
             this.#services.forEach(service => this.#controller.setValue(service, key, value).catch(e => console.error(e)))
@@ -183,7 +183,7 @@ export class RuleDevice extends Item {
 
         if (handle !== undefined && priority !== undefined) {
             this.#controller.constraints.set(service, key, value, handle, priority, options)
-            activeRule?.constraints.add(`${service.uniqueId}/${key}/${options.handle}`)
+            activeRule?.constraints.add(`${service.uniqueId}/${key}/${handle}`)
         } else
             this.#controller.setValue(service, key, value).catch(e => console.error(e))
     }
