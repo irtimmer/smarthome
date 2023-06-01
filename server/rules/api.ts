@@ -47,9 +47,9 @@ export class RuleService implements Item {
         activeRule?.listeners.set(`${this.#service.uniqueId}/${key}`, fn)
     }
 
-    set(key: string, value: any, options?: any) {
-        if (typeof options !== "undefined") {
-            activeRule?.controller.constraints.set(this.#service, key, value, options.handle, options.priority, options)
+    set(key: string, value: any, handle?: string, priority?: number, options?: any) {
+        if (handle !== undefined && priority !== undefined) {
+            activeRule?.controller.constraints.set(this.#service, key, value, handle, priority, options)
             activeRule?.constraints.add(`${this.#service.uniqueId}/${key}/${options.handle}`)
         } else
             this.#service.setValue(key, value).catch(e => console.error(e))
@@ -91,13 +91,13 @@ export class RuleDevice implements Item {
         return service.values.get(key)
     }
 
-    set(type: string, value: any, options?: any) {
+    set(type: string, value: any, handle?: string, priority?: number, options?: any) {
         const [service, key] = this.#property(type)
         if (!service)
             return
 
-        if (typeof options !== "undefined") {
-            activeRule?.controller.constraints.set(service, key, value, options.priority, options.handle, options)
+        if (handle !== undefined && priority !== undefined) {
+            activeRule?.controller.constraints.set(service, key, value, handle, priority, options)
             activeRule?.constraints.add(`${service.uniqueId}/${key}/${options.handle}`)
         } else
             service.setValue(key, value).catch(e => console.error(e))
