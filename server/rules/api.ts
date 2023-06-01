@@ -2,6 +2,7 @@ import { Service } from "../../shared/service"
 
 import Controller from "../controller"
 import { Device } from "../devices"
+import { ServiceFilter, matchServiceFilter } from "../filters"
 import { Rule } from "../rule"
 
 let activeRule: Rule | undefined
@@ -68,6 +69,52 @@ export class RuleService extends Item {
     }
 }
 
+export class RuleServices extends Item {
+    #services: Service[]
+    #controller: Controller
+
+    constructor(services: Service[], controller: Controller) {
+        super()
+        this.#services = services
+        this.#controller = controller
+    }
+
+    has(key: string) {
+        return this.#services.some(service => service.values.has(key))
+    }
+
+    get(key: string) {
+        return this.#services.filter(service => service.values.has(key))
+            .map(service => {
+                activeRule?.watchProperties.add(`${service.uniqueId}/${key}`)
+                return service.values.get(key)
+            })
+    }
+
+    on(key: string, fn: (args: Record<string, any>) => void) {
+        this.#services.forEach(service => activeRule?.listeners.set(`${service.uniqueId}/${key}`, fn))
+    }
+
+    isSet(key: string, handle: string) {
+        return this.#services.some(service => this.#controller.constraints.isSet(service, key, handle))
+    }
+
+    unset(key: string, handle: string) {
+        this.#services.forEach(service => this.#controller.constraints.unset(service, key, handle))
+    }
+
+    set(key: string, value: any, handle?: string, priority?: number, options?: any) {
+        if (handle !== undefined && priority !== undefined) {
+            this.#services.filter(service => service.values.has(key))
+                .forEach(service => {
+                    this.#controller.constraints.set(service, key, value, handle, priority, options)
+                    activeRule?.constraints.add(`${service.uniqueId}/${key}/${options.handle}`)
+                })
+        } else
+            this.#services.forEach(service => service.setValue(key, value).catch(e => console.error(e)))
+    }
+}
+
 export class RuleDevice extends Item {
     #device: Device
     #controller: Controller
@@ -104,6 +151,13 @@ export class RuleDevice extends Item {
 
         activeRule?.watchProperties.add(`${service.uniqueId}/${key}`)
         return service.values.get(key)
+    }
+
+    getServices(filter: ServiceFilter) {
+        const services = Array.from(this.#device.services.values())
+            .filter(service => matchServiceFilter(filter, service))
+        services.forEach(service => activeRule?.watchServices.add(service.uniqueId))
+        return new RuleServices(services, this.#controller)
     }
 
     isSet(type: string, handle: string) {
