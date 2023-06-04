@@ -35,10 +35,10 @@ export abstract class Rule {
     }
 
     execute() {
-        this.watchServices = new Set()
-        this.watchDevices = new Set()
-        this.watchProperties = new Set()
-        this.listeners = new Map
+        this.watchServices.clear()
+        this.watchDevices.clear()
+        this.watchProperties.clear()
+        this.listeners.clear()
 
         let currentConstraints = this.constraints
         this.constraints = new Set()
