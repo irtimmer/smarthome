@@ -17,8 +17,8 @@ const controller = new Controller(config)
 const server = new Server()
 new ClientApi(server, controller)
 
-fs.watch(CONFIG_FILE, (_, filename) => {
-    if (filename) {
+fs.watch(CONFIG_FILE, event => {
+    if (event == "change") {
         const file = fs.readFileSync(CONFIG_FILE, 'utf8')
         const config = yaml.parse(file)
 

@@ -57,8 +57,8 @@ export default class Rules {
         this.#rules.forEach(r => this.unscheduleRule(r))
         this.#rules = config.map(r => {
             const rule = new JSRule(r, this)
+            this.scheduleRule(rule)
             rule.loading.then(() => {
-                this.scheduleRule(rule)
                 rule.execute()
             })
             return rule

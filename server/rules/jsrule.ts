@@ -39,6 +39,7 @@ export default class JSRule extends Rule {
     #script?: vm.Script
     #loading: Promise<any>
     #config: JSRuleConfig
+    readonly #watcher: fs.FSWatcher
 
     constructor(config: JSRuleConfig, rules: Rules) {
         super(rules)
@@ -46,13 +47,18 @@ export default class JSRule extends Rule {
         this.#scriptFile = config.script
 
         this.#loading = this.#load()
-        fs.watch(this.#scriptFile, (_, filename) => {
-            if (!filename)
+        this.#watcher = fs.watch(this.#scriptFile, event => {
+            if (event != "change")
                 return
 
             this.#loading = this.#load()
             this.#loading.then(_ => this.execute())
         });
+    }
+
+    unload() {
+        super.unload()
+        this.#watcher.close()
     }
 
     get #context() {
