@@ -12,6 +12,8 @@ export abstract class Rule {
     subRules: Rule[]
     listeners: Map<String, (args: Record<string, any>) => void>
 
+    #closed: boolean
+
     constructor(rules: Rules) {
         this.rules = rules
         this.controller = rules.controller
@@ -21,11 +23,15 @@ export abstract class Rule {
         this.subRules = []
         this.constraints = new Set()
         this.listeners = new Map
+
+        this.#closed = false
     }
 
     abstract run(): void
 
     unload() {
+        this.#closed = true
+
         for (let constraint of this.constraints) {
             const [id, key, handle] = constraint.split('/')
             this.controller.constraints.unset(this.controller.providers.services.get(id)!, key, handle)
@@ -51,6 +57,11 @@ export abstract class Rule {
         } catch (e) {
             console.error(e)
         } finally {
+            if (this.#closed) {
+                this.unload()
+                return
+            }
+
             for (let constraint of currentConstraints) {
                 if (this.constraints.has(constraint))
                     continue
