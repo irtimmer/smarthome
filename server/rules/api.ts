@@ -53,7 +53,7 @@ export class RuleService extends Item {
     }
 
     isSet(key: string, handle: string) {
-        this.#controller.constraints.isSet(this.#service, key, handle)
+        return this.#controller.constraints.isSet(this.#service, key, handle)
     }
 
     unset(key: string, handle: string) {
