@@ -69,6 +69,10 @@ export class RuleService extends Item {
             return this.#controller.setValue(this.#service, key, value).catch(e => console.error(e))
     }
 
+    trigger(key: string, args: any): Promise<void> {
+        return this.#service.triggerAction(key, args)
+    }
+
     handle(key: string, handler: Handler) {
         this.#controller.handlers.add(this.#service, key, handler)
         activeRule?.handlers.set(`${this.#service.uniqueId}/${key}`, handler)
@@ -118,6 +122,11 @@ export class RuleServices extends Item {
                 })
         } else
             return Promise.all(this.#services.map(service => this.#controller.setValue(service, key, value).catch(e => console.error(e)))).then(() => {})
+    }
+
+    trigger(key: string, args: any): Promise<void> {
+        return Promise.all(this.#services.filter(service => service.actions.has(key))
+                .map(service => service.triggerAction(key, args))).then(() => {})
     }
 }
 
