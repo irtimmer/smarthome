@@ -101,8 +101,8 @@ export class RuleServices extends Item {
             })
     }
 
-    on(key: string, fn: (args: Record<string, any>) => void) {
-        this.#services.forEach(service => activeRule?.listeners.set(`${service.uniqueId}/${key}`, fn))
+    on(key: string, fn: (args: Record<string, any>, service: RuleService) => void) {
+        this.#services.forEach(service => activeRule?.listeners.set(`${service.uniqueId}/${key}`, args => fn(args, new RuleService(service, this.#controller))))
     }
 
     isSet(key: string, handle: string) {
