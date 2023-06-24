@@ -1,4 +1,5 @@
 import Controller from "./controller"
+import { Handler } from "./handlers"
 import type Rules from "./rules"
 
 export abstract class Rule {
@@ -11,6 +12,7 @@ export abstract class Rule {
     constraints: Set<string>
     subRules: Rule[]
     listeners: Map<String, (args: Record<string, any>) => void>
+    handlers: Map<string, Handler>
 
     #closed: boolean
 
@@ -23,6 +25,7 @@ export abstract class Rule {
         this.subRules = []
         this.constraints = new Set()
         this.listeners = new Map
+        this.handlers = new Map
 
         this.#closed = false
     }
@@ -37,6 +40,11 @@ export abstract class Rule {
             this.controller.constraints.unset(this.controller.providers.services.get(id)!, key, handle)
         }
 
+        for (const [path, handler] of this.handlers.entries()) {
+            const [id, key] = path.split('/')
+            this.controller.handlers.remove(this.controller.providers.services.get(id)!, key, handler)
+        }
+
         this.subRules.forEach(r => this.rules.unscheduleRule(r))
     }
 
@@ -45,6 +53,12 @@ export abstract class Rule {
         this.watchDevices.clear()
         this.watchProperties.clear()
         this.listeners.clear()
+
+        for (const [path, handler] of this.handlers.entries()) {
+            const [id, key] = path.split('/')
+            this.controller.handlers.remove(this.controller.providers.services.get(id)!, key, handler)
+        }
+        this.handlers.clear()
 
         let currentConstraints = this.constraints
         this.constraints = new Set()

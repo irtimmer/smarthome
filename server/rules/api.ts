@@ -3,6 +3,7 @@ import { Service } from "../../shared/service"
 import Controller from "../controller"
 import { Device } from "../devices"
 import { ServiceFilter, matchServiceFilter } from "../filters"
+import { Handler } from "../handlers"
 import { Rule } from "../rule"
 
 let activeRule: Rule | undefined
@@ -60,12 +61,17 @@ export class RuleService extends Item {
         this.#controller.constraints.unset(this.#service, key, handle)
     }
 
-    set(key: string, value: any, handle?: string, priority?: number, options?: any) {
+    set(key: string, value: any, handle?: string, priority?: number, options?: any): Promise<void> | void {
         if (handle !== undefined && priority !== undefined) {
             this.#controller.constraints.set(this.#service, key, value, handle, priority, options)
             activeRule?.constraints.add(`${this.#service.uniqueId}/${key}/${handle}`)
         } else
-            this.#controller.setValue(this.#service, key, value).catch(e => console.error(e))
+            return this.#controller.setValue(this.#service, key, value).catch(e => console.error(e))
+    }
+
+    handle(key: string, handler: Handler) {
+        this.#controller.handlers.add(this.#service, key, handler)
+        activeRule?.handlers.set(`${this.#service.uniqueId}/${key}`, handler)
     }
 }
 
@@ -103,7 +109,7 @@ export class RuleServices extends Item {
         this.#services.forEach(service => this.#controller.constraints.unset(service, key, handle))
     }
 
-    set(key: string, value: any, handle?: string, priority?: number, options?: any) {
+    set(key: string, value: any, handle?: string, priority?: number, options?: any): Promise<void> | void {
         if (handle !== undefined && priority !== undefined) {
             this.#services.filter(service => service.values.has(key))
                 .forEach(service => {
@@ -111,7 +117,7 @@ export class RuleServices extends Item {
                     activeRule?.constraints.add(`${service.uniqueId}/${key}/${handle}`)
                 })
         } else
-            this.#services.forEach(service => this.#controller.setValue(service, key, value).catch(e => console.error(e)))
+            return Promise.all(this.#services.map(service => this.#controller.setValue(service, key, value).catch(e => console.error(e)))).then(() => {})
     }
 }
 
@@ -176,7 +182,7 @@ export class RuleDevice extends Item {
         this.#controller.constraints.unset(service, key, handle)
     }
 
-    set(type: string, value: any, handle?: string, priority?: number, options?: any) {
+    set(type: string, value: any, handle?: string, priority?: number, options?: any): Promise<void> | void {
         const [service, key] = this.#property(type)
         if (!service)
             return
@@ -185,6 +191,15 @@ export class RuleDevice extends Item {
             this.#controller.constraints.set(service, key, value, handle, priority, options)
             activeRule?.constraints.add(`${service.uniqueId}/${key}/${handle}`)
         } else
-            this.#controller.setValue(service, key, value).catch(e => console.error(e))
+            return this.#controller.setValue(service, key, value).catch(e => console.error(e))
+    }
+
+    handle(type: string, handler: Handler) {
+        const [service, key] = this.#property(type)
+        if (!service)
+            return
+
+        this.#controller.handlers.add(service, key, handler)
+        activeRule?.handlers.set(`${service.uniqueId}/${key}`, handler)
     }
 }
