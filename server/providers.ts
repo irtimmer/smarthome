@@ -16,6 +16,8 @@ export default class Providers extends EventEmitter {
             for (const [key, providerConfig] of Object.entries(config)) {
                 import(`../providers/${key}.js`).then((providerClass) => {
                     this.registerProvider(new providerClass.default(key, providerConfig))
+                }).catch(e => {
+                    console.error(`Can't load ${key}`, e)
                 })
             }
         })
