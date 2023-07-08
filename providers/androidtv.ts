@@ -95,6 +95,7 @@ class AndroidTVService extends Service<AndroidTVProvider> {
         super(provider, "androidtv")
         this.registerIdentifier("provider", provider.id)
         this.registerType("television")
+        this.name = "Android TV"
 
         for (const [_msg, properties] of Object.entries(ANDROIDTV_PROPERTIES))
             for (const [key, property] of Object.entries(properties))
