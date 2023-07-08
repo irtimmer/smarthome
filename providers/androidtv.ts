@@ -85,7 +85,8 @@ export default class AndroidTVProvider extends Provider<AndroidTVService> {
             }
         })
 
-        client.on("error", e => connected ? resolve() : reject(e))
+        client.on("error", e => !connected ? reject(e) : null)
+        client.on("close", _ => connected ? resolve() : null)
     }
 }
 
