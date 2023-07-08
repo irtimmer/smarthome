@@ -102,7 +102,9 @@ export default class JSRule extends Rule {
         return fs.promises.readFile(this.#scriptFile, {
             encoding: 'utf-8'
         }).then(data => {
-            this.#script = new vm.Script(data)
+            this.#script = new vm.Script(data, {
+                filename: this.#scriptFile
+            })
         }).catch(e => console.error(e))
     }
 
