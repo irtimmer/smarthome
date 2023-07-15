@@ -24,13 +24,9 @@ export default class Rules {
         })
 
         controller.providers.on("event", (service: Service, key: string, args: Record<string, any>) => {
-            this.#scheduled.map(r => r.listeners.get(`${service.uniqueId}/${key}`)).filter(x => x).forEach(x => {
-                try {
-                    x!(args)
-                } catch (e) {
-                    console.error(e)
-                }
-            })
+            const ref = `${service.uniqueId}/${key}`;
+            this.#scheduled.filter(r => r.listeners.has(ref))
+                .forEach(x => x.executeListener(ref, args))
         })
 
         controller.devices.on("update", (key: string) => {

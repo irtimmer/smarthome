@@ -48,6 +48,18 @@ export abstract class Rule {
         this.subRules.forEach(r => this.rules.unscheduleRule(r))
     }
 
+    executeListener(id: string, args: Record<string, any>) {
+        const listener = this.listeners.get(id)
+
+        try {
+            listener!(args)
+        } catch (e) {
+            console.error(e)
+        } finally {
+            this.controller.constraints.update()
+        }
+    }
+
     execute() {
         this.watchServices.clear()
         this.watchDevices.clear()
