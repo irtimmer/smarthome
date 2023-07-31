@@ -33,17 +33,25 @@ export default class PhilipsTVProvider extends Provider<Service<PhilipsTVProvide
 
         let connected = false
         new Poll(async () => {
-            let res = await this.request('notifychange', {
-                method: 'POST',
-                data: {
-                    notification: this.#currentState
+            try {
+                let res = await this.request('notifychange', {
+                    method: 'POST',
+                    data: {
+                        notification: this.#currentState
+                    },
+                    timeout: 2 * 60 * 1000 + 5000
+                })
+
+                for (const [endpoint, data] of Object.entries(res.data))
+                    this.#updateService(endpoint, data)
+
+                this.#currentState = res.data
+            } catch (e: any) {
+                if (!(e.constructor.name == 'SocketError' && e.code == 'UND_ERR_SOCKET')) {
+                    connected = false
+                    throw e
                 }
-            })
-
-            for (const [endpoint, data] of Object.entries(res.data))
-                this.#updateService(endpoint, data)
-
-            this.#currentState = res.data
+            }
             connected = true
         }, {
             interval: 1000
