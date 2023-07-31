@@ -27,7 +27,7 @@ export default class History {
 
         controller.providers.on("update", (service: Service, key: string, value: any) => {
             const tracker = config.track.find(track =>
-                service.types.has(track.service_type) &&
+                (!track.service_type || service.types.has(track.service_type)) &&
                 service.properties.get(key)?.["@type"] == track.property_type
             )
 
