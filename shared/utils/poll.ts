@@ -29,11 +29,11 @@ export default class Poll {
     }
 
     #run() {
-        this.#fn().catch((e) => {
-            this.#retries = Math.min(this.#retries + 1, this.#options.maxRetries)
-            console.error(e)
-        }).then(() => {
+        this.#fn().then(() => {
             this.#retries = 0
+        }).catch((e) => {
+            this.#retries = Math.min(this.#retries + 1, this.#options.maxRetries)
+            console.error(`Attempt ${this.#retries} of ${this.#options.maxRetries}, error:`, e)
         }).finally(() => {
             if (!this.#canceled) {
                 let interval = this.#retries > 0 ? 2 ** this.#retries * this.#options.retryInterval : this.#options.interval
