@@ -1,4 +1,4 @@
-import { RequestOptions, request } from 'urllib'
+import { HttpClient, RequestOptions, request } from 'urllib'
 
 import Poll from "../shared/utils/poll"
 import Provider from "../shared/provider"
@@ -14,6 +14,7 @@ type PhilipsTvConfig = {
 
 export default class PhilipsTVProvider extends Provider<Service<PhilipsTVProvider>> {
     #config: PhilipsTvConfig
+    #client: HttpClient
     #currentState: any
 
     constructor(id: string, config: PhilipsTvConfig) {
@@ -23,6 +24,12 @@ export default class PhilipsTVProvider extends Provider<Service<PhilipsTVProvide
         this.#currentState = {}
         for (const endpoint in PHILIPS_TV_PROPERTIES)
             this.#currentState[endpoint] = {}
+
+        this.#client = new HttpClient({
+            connect: {
+                rejectUnauthorized: false,
+            },
+        });
 
         let connected = false
         new Poll(async () => {
@@ -88,7 +95,7 @@ export default class PhilipsTVProvider extends Provider<Service<PhilipsTVProvide
     }
 
     request(path: string, options?: Partial<RequestOptions>) {
-        return request(`${this.#config.url}/${path}`, {...{
+        return this.#client.request(`${this.#config.url}/${path}`, {...{
             digestAuth: `${this.#config.username}:${this.#config.password}`,
             contentType: 'json',
             dataType: 'json'
