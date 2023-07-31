@@ -17,6 +17,7 @@ interface HueOptions {
 
 interface HueServiceTypeProperty {
     parse: (data: any) => any
+    supported?: (data: any) => any
     set?: (value: any) => any
     definition: Omit<Property, 'read_only'> | string
 }
@@ -127,7 +128,8 @@ class HueService extends Service<HueProvider> {
         this.priority = HUE_SERVICE_PRIORITIES[this.#type] ?? 0
         this.#typeDefinition = HUE_SERVICE_TYPES[this.#type]
         if (this.#typeDefinition)
-            for (const [key, property] of Object.entries(this.#typeDefinition))
+            const properties = Object.entries(this.#typeDefinition).filter(([_, prop]) => prop.supported === undefined || prop.supported(data))
+            for (const [key, property] of properties)
                 this.registerProperty(key, typeof property.definition === "string" ? property.definition : { ...property.definition, ...{
                     read_only: !('set' in property)
                 }})

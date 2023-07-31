@@ -186,6 +186,7 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
         },
         brightness: {
             parse: (data: any) => data.dimming?.brightness,
+            supported: (data: any) => data.dimming !== undefined,
             set: (value: any) => ({ dimming: { brightness: value }}),
             definition: {
                 type: "number",
@@ -196,6 +197,7 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
         },
         mirek: {
             parse: (data: any) => data.color_temperature?.mirek,
+            supported: (data: any) => data.color_temperature !== undefined,
             set: (value: any) => ({ color_temperature: { mirek: value }}),
             definition: {
                 type: "number",
