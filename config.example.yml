@@ -51,7 +51,7 @@ scenes: {}
 #      "hue:GUID": { on: false }
 
 rules: []
-#  - script: rules/hue_sensor.js
+#  - script: rule.example.js
 #    aliases:
 #      sensor: "uuid:HUE-SENSOR-DEVICE-GUID"
 #      lights: "hue:LIGHTS-UUID"
