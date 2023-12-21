@@ -14,7 +14,7 @@ const config = yaml.parse(file)
 
 const controller = new Controller(config)
 
-const server = new Server()
+const server = new Server(config.server)
 new ClientApi(server, controller)
 
 fs.watch(CONFIG_FILE, event => {
