@@ -35,7 +35,7 @@ const itemProxyHandler: ProxyHandler<Item> = {
 }
 
 export default class JSRule extends Rule {
-    readonly #scriptFile
+    readonly scriptFile
     #script?: vm.Script
     #loading: Promise<any>
     #config: JSRuleConfig
@@ -44,10 +44,10 @@ export default class JSRule extends Rule {
     constructor(config: JSRuleConfig, rules: Rules) {
         super(rules)
         this.#config = config
-        this.#scriptFile = config.script
+        this.scriptFile = config.script
 
         this.#loading = this.#load()
-        this.#watcher = fs.watch(this.#scriptFile, event => {
+        this.#watcher = fs.watch(this.scriptFile, event => {
             if (event != "change")
                 return
 
@@ -99,11 +99,11 @@ export default class JSRule extends Rule {
     }
 
     #load() : Promise<void> {
-        return fs.promises.readFile(this.#scriptFile, {
+        return fs.promises.readFile(this.scriptFile, {
             encoding: 'utf-8'
         }).then(data => {
             this.#script = new vm.Script(data, {
-                filename: this.#scriptFile
+                filename: this.scriptFile
             })
         }).catch(e => console.error(e))
     }

@@ -1,8 +1,11 @@
+import { v1 as uuidv1 } from 'uuid';
+
 import Controller from "./controller"
 import { Handler } from "./handlers"
 import type Rules from "./rules"
 
 export abstract class Rule {
+    readonly id: string
     readonly rules: Rules
     readonly controller: Controller
     abstract readonly loading: Promise<void>
@@ -17,6 +20,7 @@ export abstract class Rule {
     #closed: boolean
 
     constructor(rules: Rules) {
+        this.id = uuidv1()
         this.rules = rules
         this.controller = rules.controller
         this.watchServices = new Set()
