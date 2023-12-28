@@ -2,6 +2,7 @@ import { Service } from "../shared/service";
 import type { Rule } from "./rule";
 import JSRule, { JSRuleConfig } from "./rules/jsrule";
 import Controller from "./controller";
+import { matchServiceFilter } from "./filters";
 import { EventEmitter } from "stream";
 
 export type RulesConfig = JSRuleConfig[]
@@ -18,7 +19,8 @@ export default class Rules extends EventEmitter {
         this.#scheduled = []
 
         controller.providers.on("register", (service: Service) => {
-            this.#scheduled.filter(r => r.watchServices.has(service.uniqueId)).forEach(r => r.execute())
+            this.#scheduled.filter(r => r.watchServices.has(service.uniqueId) || r.watchServiceFilters.some(filter => matchServiceFilter(filter, service) ))
+                .forEach(r => r.execute())
         })
 
         controller.providers.on("update", (service: Service, key: string) => {

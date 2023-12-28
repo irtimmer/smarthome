@@ -1,6 +1,7 @@
 import { v1 as uuidv1 } from 'uuid';
 
 import Controller from "./controller"
+import { ServiceFilter } from "./filters"
 import { Handler } from "./handlers"
 import type Rules from "./rules"
 
@@ -9,6 +10,7 @@ export abstract class Rule {
     readonly rules: Rules
     readonly controller: Controller
     abstract readonly loading: Promise<void>
+    watchServiceFilters: ServiceFilter[]
     watchServices: Set<string>
     watchDevices: Set<string>
     watchProperties: Set<string>
@@ -23,6 +25,7 @@ export abstract class Rule {
         this.id = uuidv1()
         this.rules = rules
         this.controller = rules.controller
+        this.watchServiceFilters = []
         this.watchServices = new Set()
         this.watchDevices = new Set()
         this.watchProperties = new Set()
@@ -65,6 +68,7 @@ export abstract class Rule {
     }
 
     execute() {
+        this.watchServiceFilters = []
         this.watchServices.clear()
         this.watchDevices.clear()
         this.watchProperties.clear()
