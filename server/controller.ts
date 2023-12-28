@@ -31,9 +31,14 @@ export default class Controller {
         this.rules = new Rules(this, config.rules)
     }
 
+    // Set a value on a service, constrained by the constraints and handler by handlers
     async setValue(service: Service, key: string, value: any): Promise<void> {
         value = this.constraints.constrainValue(service, key, value)
+        this.setConstrainedValue(service, key, value)
+    }
 
+    // This is a separate function so that it can be called from the constraints
+    async setConstrainedValue(service: Service, key: string, value: any): Promise<void> {
         if (!await this.handlers.setValue(service, key, value))
             return service.setValue(key, value)
     }

@@ -135,7 +135,7 @@ export default class Constraints {
 
         const value = this.#solve(constraints)
         if (typeof value != 'undefined' && service.values.get(key) != value)
-            service.setValue(key, value).catch(e => console.error(e))
+            this.controller.setConstrainedValue(service, key, value).catch(e => console.error(e))
     }
 
     #constrainValueAction(service: Service, key: string, value: any, constraints: Constraint[]): any {
