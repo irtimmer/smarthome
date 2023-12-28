@@ -36,14 +36,7 @@ class DenonService extends Service<DenonProvider> {
         this.registerIdentifier("provider", this.id)
 
         this.#socket = new Socket();
-        this.#socket.connect(23, provider.host);
-        this.#socket.on('data', this.#onData.bind(this));
-        this.#socket.on('connect', async () => {
-            if (this.#socket.remoteAddress)
-                this.registerIdentifier('ip', this.#socket.remoteAddress);
-
-            this.requestInfo()
-        });
+        this.#connect()
 
         for (const [key, property] of Object.entries(DENON_PROPERTIES)) {
             if (!property)
@@ -53,6 +46,24 @@ class DenonService extends Service<DenonProvider> {
                 read_only: property.set === undefined
             }})
         }
+    }
+
+    #connect() {
+        this.#socket.connect(23, this.provider.host);
+        this.#socket.on('close', () => {
+            this.#connect()
+        })
+        this.#socket.on('error', (err) => {
+            console.error("Denon error", err)
+            this.#connect()
+        })
+        this.#socket.on('data', this.#onData.bind(this));
+        this.#socket.on('connect', async () => {
+            if (this.#socket.remoteAddress)
+                this.registerIdentifier('ip', this.#socket.remoteAddress);
+
+            this.requestInfo()
+        });
     }
 
     #onData(buffer: Buffer) {
