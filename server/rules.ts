@@ -2,15 +2,17 @@ import { Service } from "../shared/service";
 import type { Rule } from "./rule";
 import JSRule, { JSRuleConfig } from "./rules/jsrule";
 import Controller from "./controller";
+import { EventEmitter } from "stream";
 
 export type RulesConfig = JSRuleConfig[]
 
-export default class Rules {
+export default class Rules extends EventEmitter {
     #scheduled: Rule[]
     #rules: Rule[]
     controller: Controller
 
     constructor(controller: Controller, config: RulesConfig) {
+        super()
         this.controller = controller
         this.#rules = []
         this.#scheduled = []
@@ -37,16 +39,22 @@ export default class Rules {
     }
 
     scheduleRule(rule: Rule) {
+        this.emit("register", rule)
         this.#scheduled.push(rule)
     }
 
     unscheduleRule(rule: Rule) {
+        this.emit("unregister", rule)
         rule.unload()
         this.#scheduled.splice(this.#scheduled.indexOf(rule), 1)
     }
 
     get rules(): readonly Rule[] {
         return this.#rules
+    }
+
+    get scheduled(): readonly Rule[] {
+        return this.#scheduled
     }
 
     setConfig(config: RulesConfig) {

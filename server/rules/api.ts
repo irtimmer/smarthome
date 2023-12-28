@@ -8,6 +8,28 @@ import { Rule } from "../rule"
 
 let activeRule: Rule | undefined
 
+export const itemProxyHandler: ProxyHandler<Item> = {
+    get(target, prop, receiver) {
+        if (target.has(prop.toString()))
+            return target.get(prop.toString())
+        else {
+            const value = Reflect.get(target, prop, receiver)
+            return typeof value == 'function' ? (...args: any[]) => {
+                const ret = value.bind(target)(...args)
+                return ret instanceof Item ? new Proxy(ret, itemProxyHandler) : ret
+            } : value;
+        }
+    },
+    set(target, prop, value) {
+        if (target.has(prop.toString())) {
+            target.set(prop.toString(), value)
+            return true
+        }
+
+        return Reflect.set(target, prop, value)
+    }
+}
+
 export function setActiveRule(rule?: Rule) {
     activeRule = rule
 }
@@ -101,8 +123,8 @@ export class RuleServices extends Item {
             })
     }
 
-    on(key: string, fn: (args: Record<string, any>, service: RuleService) => void) {
-        this.#services.forEach(service => activeRule?.listeners.set(`${service.uniqueId}/${key}`, args => fn(args, new RuleService(service, this.#controller))))
+    on(key: string, fn: (args: Record<string, any>, service: Item) => void) {
+        this.#services.forEach(service => activeRule?.listeners.set(`${service.uniqueId}/${key}`, args => fn(args, new Proxy(new RuleService(service, this.#controller), itemProxyHandler))))
     }
 
     isSet(key: string, handle: string) {

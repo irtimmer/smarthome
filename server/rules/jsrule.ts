@@ -4,34 +4,12 @@ import vm from "vm";
 import type Rules from "../rules";
 import { Rule } from "../rule";
 import { Action } from "../constraints";
-import { Item, NullItem, RuleDevice, RuleService, setActiveRule } from "./api";
+import { NullItem, RuleDevice, RuleService, itemProxyHandler, setActiveRule } from "./api";
 
 export type JSRuleConfig = {
     script: string
     aliases: { [key: string]: string }
     config?: any
-}
-
-const itemProxyHandler: ProxyHandler<Item> = {
-    get(target, prop, receiver) {
-        if (target.has(prop.toString()))
-            return target.get(prop.toString())
-        else {
-            const value = Reflect.get(target, prop, receiver)
-            return typeof value == 'function' ? (...args: any[]) => {
-                const ret = value.bind(target)(...args)
-                return ret instanceof Item ? new Proxy(ret, itemProxyHandler) : ret
-            } : value;
-        }
-    },
-    set(target, prop, value) {
-        if (target.has(prop.toString())) {
-            target.set(prop.toString(), value)
-            return true
-        }
-
-        return Reflect.set(target, prop, value)
-    }
 }
 
 export default class JSRule extends Rule {
