@@ -24,6 +24,7 @@ fs.watch(CONFIG_FILE, event => {
         const file = fs.readFileSync(CONFIG_FILE, 'utf8')
         const config = yaml.parse(file)
 
-        controller.rules.setConfig(config.rules)
+        if (config)
+            controller.rules.setConfig(config.rules)
     }
 });
