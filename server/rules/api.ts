@@ -194,6 +194,7 @@ export class RuleDevice extends Item {
         const services = Array.from(this.#device.services.values())
             .filter(service => matchServiceFilter(filter, service))
         services.forEach(service => activeRule?.watchServices.add(service.uniqueId))
+        activeRule?.watchServiceFilters.push(filter)
         return new RuleServices(services, this.#controller)
     }
 
