@@ -127,12 +127,13 @@ class HueService extends Service<HueProvider> {
         this.name = data.type
         this.priority = HUE_SERVICE_PRIORITIES[this.#type] ?? 0
         this.#typeDefinition = HUE_SERVICE_TYPES[this.#type]
-        if (this.#typeDefinition)
+        if (this.#typeDefinition) {
             const properties = Object.entries(this.#typeDefinition).filter(([_, prop]) => prop.supported === undefined || prop.supported(data))
             for (const [key, property] of properties)
                 this.registerProperty(key, typeof property.definition === "string" ? property.definition : { ...property.definition, ...{
                     read_only: !('set' in property)
                 }})
+        }
 
         this.#typeActionDefinitions = HUE_SERVICE_ACTIONS[this.#type]
         if (this.#typeActionDefinitions)
