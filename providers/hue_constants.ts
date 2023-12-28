@@ -264,6 +264,13 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
         }
     },
     button: {
+        control_id: {
+            parse: (data: any) => data.metadata?.control_id,
+            definition: {
+                type: "number",
+                label: "Control Id"
+            }
+        },
         event: {
             parse: (data: any) => data.button?.last_event,
             definition: {
