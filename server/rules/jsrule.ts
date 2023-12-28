@@ -43,6 +43,7 @@ export default class JSRule extends Rule {
         return vm.createContext(new Proxy({
             Action,
             config: this.#config.config,
+            console,
             getService: (key: string) => {
                 key = this.#config.aliases[key] ?? key
 
