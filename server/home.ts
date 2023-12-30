@@ -48,11 +48,25 @@ class RuleService extends Service<Home> {
         this.name = "Rule"
         this.#rule = rule;
 
+        this.registerProperty("enabled", {
+            label: "Enabled",
+            read_only: false,
+            type: "boolean"
+        }, rule.enabled)
+
         if (rule instanceof JSRule)
             this.registerProperty("file", {
                 label: "Filename",
                 read_only: true,
                 type: "string"
             }, rule.scriptFile)
+    }
+
+    setValue(key: string, value: any): Promise<void> {
+        if (key == 'enabled') {
+            this.#rule.enabled = value
+            return Promise.resolve()
+        } else
+            return Promise.reject()
     }
 }

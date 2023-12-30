@@ -19,6 +19,7 @@ export abstract class Rule {
     listeners: Map<String, (args: Record<string, any>) => void>
     handlers: Map<string, Handler>
 
+    #enabled: boolean
     #closed: boolean
 
     constructor(rules: Rules) {
@@ -34,6 +35,7 @@ export abstract class Rule {
         this.listeners = new Map
         this.handlers = new Map
 
+        this.#enabled = true
         this.#closed = false
     }
 
@@ -68,6 +70,9 @@ export abstract class Rule {
     }
 
     execute() {
+        if (!this.#enabled)
+            return
+
         this.watchServiceFilters = []
         this.watchServices.clear()
         this.watchDevices.clear()
@@ -106,5 +111,17 @@ export abstract class Rule {
 
             this.controller.constraints.update()
         }
+    }
+
+    set enabled(value: boolean) {
+        if (this.#enabled == value)
+            return
+
+        this.#enabled = value
+        this.subRules.forEach(r => r.enabled = value)
+    }
+
+    get enabled() {
+        return this.#enabled
     }
 }
