@@ -12,9 +12,10 @@ export default class Provider<T extends Service> extends EventEmitter {
         this.#services = new Map
     }
 
-    registerService(service: T) {
+    registerService(service: T): T {
         this.#services.set(service.id, service)
         this.emit("register", service)
+        return service
     }
 
     unregisterService(service: T) {
