@@ -65,8 +65,7 @@ export default class PhilipsTVProvider extends Provider<Service<PhilipsTVProvide
                 const id = endpoint.replace('/', '-')
                 let service = this.services.get(id);
                 if (!service) {
-                    service = new PhilipsTVService(this, id)
-                    this.registerService(service)
+                    service = this.registerService(new PhilipsTVService(this, id))
 
                     for (const [key, action] of Object.entries(actions))
                         service.registerAction(key, action.definition)

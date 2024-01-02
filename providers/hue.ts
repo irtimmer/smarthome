@@ -58,15 +58,10 @@ export default class HueProvider extends Provider<HueService> {
 
         this.fetch(`/clip/v2/resource`).then(async (json: any) => {
             for (let serviceData of json.data) {
-                const service = new HueService(this, serviceData)
-                this.registerService(service)
+                const service = this.registerService(new HueService(this, serviceData))
 
                 if (serviceData.type in HUE_SERVICE_TYPE)
-                    if (Array.isArray(HUE_SERVICE_TYPE[serviceData.type]))
-                        for (const type of HUE_SERVICE_TYPE[serviceData.type])
-                            service.registerType(type) 
-                    else
-                        service.registerType(HUE_SERVICE_TYPE[serviceData.type] as string)
+                    service.updateTypes(HUE_SERVICE_TYPE[serviceData.type])
 
                 if (serviceData.owner)
                     service.registerIdentifier('uuid', serviceData.owner.rid)

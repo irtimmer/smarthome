@@ -16,15 +16,7 @@ export default class DenonProvider extends Provider<DenonService> {
         super(id)
         this.host = config.host
 
-        setInterval(this.#scan.bind(this), 10000)
-    }
-
-    #scan() {
-        let service = this.services.get(this.id)
-        if (!service) {
-            service = new DenonService(this, this.id)
-            this.registerService(service)
-        }
+        this.registerService(new DenonService(this, this.id))
     }
 }
 

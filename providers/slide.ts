@@ -44,12 +44,7 @@ export default class SlideProvider extends Provider<Slide> {
             const data = await req.json()
             for (const slide of data.slides) {
                 const id = slide.device_id.substring(6)
-                let device = this.services.get(id)
-                if (!device) {
-                    device = new Slide(this, id, slide.id)
-                    this.registerService(device)
-                    device.registerIdentifier('slide', id)
-                }
+                const device = this.services.get(id) ?? this.registerService(new Slide(this, id, slide.id))
                 device.refresh(slide)
             }
         })
@@ -80,8 +75,8 @@ class Slide extends Service<SlideProvider> {
         this.#internalId = internalId
         this.name = 'Slide'
 
-        this.registerType("window")
-        this.registerType("multilevel")
+        this.registerIdentifier('slide', id)
+        this.updateTypes(["window", "multilevel"])
         for (const [key, property] of Object.entries(SLIDE_PROPERTIES))
             this.registerProperty(key, typeof property.definition == "string" ? property.definition : { ...property.definition, ...{
                 read_only: !('url' in property)

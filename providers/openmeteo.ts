@@ -15,8 +15,7 @@ export default class OpenMeteoProvider extends Provider<OpenMeteoService> {
     constructor(id: string, config: OpenMeteoConfig) {
         super(id)
 
-        const weather = new OpenMeteoService(this, config)
-        this.registerService(weather)
+        const weather = this.registerService(new OpenMeteoService(this, config))
 
         new Poll(async () => weather.update(), {
             interval: 5 * 60 * 1000
@@ -32,8 +31,7 @@ class OpenMeteoService extends Service<OpenMeteoProvider> {
         this.#config = config
         this.name = "Weather"
 
-        this.registerType('weather')
-        this.registerType('temperatureSensor')
+        this.updateTypes(['weather', 'temperatureSensor'])
         this.registerIdentifier('provider', provider.id)
         for (const [key, property] of Object.entries(OPENMETEO_PROPERTIES))
             this.registerProperty(key, {...{
