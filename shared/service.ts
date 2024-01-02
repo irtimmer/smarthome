@@ -77,6 +77,14 @@ export default abstract class AbstractService<T extends Provider<Service>> exten
         this.#events.set(key, event)
     }
 
+    updateTypes(types: string[] | string) {
+        this.#types.clear()
+        if (Array.isArray(types))
+            types.forEach(t => this.registerType(t))
+        else
+            this.registerType(types)
+    }
+
     updateValue(key: string, value: any) {
         const oldValue = this.#values.get(key)
         if (value != oldValue) {
