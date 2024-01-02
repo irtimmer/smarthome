@@ -47,6 +47,9 @@ export default class SlideProvider extends Provider<Slide> {
                 const device = this.services.get(id) ?? this.registerService(new Slide(this, id, slide.id))
                 device.refresh(slide)
             }
+        }, {
+            retryInterval: 30 * 1000,
+            maxRetries: 4
         })
     }
 
