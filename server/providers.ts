@@ -1,3 +1,5 @@
+import Storage from "./storage";
+
 import Provider from "../shared/provider";
 import { Service } from "../shared/service";
 
@@ -15,7 +17,8 @@ export default class Providers extends EventEmitter {
         setImmediate(() => {
             for (const [key, providerConfig] of Object.entries(config)) {
                 import(`../providers/${key}.js`).then((providerClass) => {
-                    this.registerProvider(new providerClass.default(key, providerConfig))
+                    const storage = new Storage(key)
+                    this.registerProvider(new providerClass.default(key, providerConfig, storage))
                 }).catch(e => {
                     console.error(`Can't load ${key}`, e)
                 })
