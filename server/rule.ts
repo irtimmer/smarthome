@@ -1,38 +1,40 @@
 import { v1 as uuidv1 } from 'uuid';
+import { EventEmitter } from 'stream';
 
 import Controller from "./controller"
 import { ServiceFilter } from "./filters"
 import { Handler } from "./handlers"
 import type Rules from "./rules"
 
-export abstract class Rule {
+export abstract class Rule extends EventEmitter {
     readonly id: string
     readonly rules: Rules
     readonly controller: Controller
     abstract readonly loading: Promise<void>
+    watchServiceEvents: Map<String, (args: Record<string, any>) => void>
     watchServiceFilters: ServiceFilter[]
     watchServices: Set<string>
     watchDevices: Set<string>
     watchProperties: Set<string>
     constraints: Set<string>
     subRules: Rule[]
-    listeners: Map<String, (args: Record<string, any>) => void>
     handlers: Map<string, Handler>
 
     #enabled: boolean
     #closed: boolean
 
     constructor(rules: Rules) {
+        super()
         this.id = uuidv1()
         this.rules = rules
         this.controller = rules.controller
+        this.watchServiceEvents = new Map
         this.watchServiceFilters = []
         this.watchServices = new Set()
         this.watchDevices = new Set()
         this.watchProperties = new Set()
         this.subRules = []
         this.constraints = new Set()
-        this.listeners = new Map
         this.handlers = new Map
 
         this.#enabled = true
@@ -58,7 +60,7 @@ export abstract class Rule {
     }
 
     executeListener(id: string, args: Record<string, any>) {
-        const listener = this.listeners.get(id)
+        const listener = this.watchServiceEvents.get(id)
 
         try {
             listener!(args)
@@ -73,11 +75,11 @@ export abstract class Rule {
         if (!this.#enabled)
             return
 
+        this.watchServiceEvents.clear()
         this.watchServiceFilters = []
         this.watchServices.clear()
         this.watchDevices.clear()
         this.watchProperties.clear()
-        this.listeners.clear()
 
         for (const [path, handler] of this.handlers.entries()) {
             const [id, key] = path.split('/')

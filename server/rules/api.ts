@@ -72,7 +72,7 @@ export class RuleService extends Item {
     }
 
     on(key: string, fn: (args: Record<string, any>) => void) {
-        activeRule?.listeners.set(`${this.#service.uniqueId}/${key}`, fn)
+        activeRule?.watchServiceEvents.set(`${this.#service.uniqueId}/${key}`, fn)
     }
 
     isSet(key: string, handle: string) {
@@ -124,7 +124,7 @@ export class RuleServices extends Item {
     }
 
     on(key: string, fn: (args: Record<string, any>, service: Item) => void) {
-        this.#services.forEach(service => activeRule?.listeners.set(`${service.uniqueId}/${key}`, args => fn(args, new Proxy(new RuleService(service, this.#controller), itemProxyHandler))))
+        this.#services.forEach(service => activeRule?.watchServiceEvents.set(`${service.uniqueId}/${key}`, args => fn(args, new Proxy(new RuleService(service, this.#controller), itemProxyHandler))))
     }
 
     isSet(key: string, handle: string) {
