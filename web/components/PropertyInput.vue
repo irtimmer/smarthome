@@ -11,7 +11,12 @@
   <PropertyValue v-else :value="modelValue" :property="property" />
 </template>
 
-<script setup>
-defineProps(['modelValue', 'property'])
+<script setup lang="ts">
+import { Property } from '~~/stores/devices';
+
+defineProps<{
+  modelValue: any,
+  property: Property
+}>()
 defineEmits(['update:modelValue'])
 </script>

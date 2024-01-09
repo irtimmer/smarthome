@@ -3,6 +3,11 @@
   <span v-else>{{ value }}</span>
 </template>
 
-<script setup>
-defineProps(["value", "property"])
+<script setup lang="ts">
+import { Property } from '~~/stores/devices';
+
+defineProps<{
+  value: any,
+  property: Property
+}>()
 </script>

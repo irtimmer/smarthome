@@ -24,11 +24,17 @@
   </q-item>
 </template>
 
-<script setup>
-const props = defineProps(['modelValue', 'property'])
+<script setup lang="ts">
+import { Property } from '~~/stores/devices';
+
+const props = defineProps<{
+  modelValue: any,
+  property: Property
+}>()
+
 defineEmits(['update:modelValue'])
 
-const options = computed(() => Object.entries(props.property.options).map(([value, label]) => ({
+const options = computed(() => Object.entries(props.property.options!).map(([value, label]) => ({
   label,
   value
 })))

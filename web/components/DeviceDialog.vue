@@ -24,8 +24,12 @@
   </q-dialog>
 </template>
 
-<script setup>
-const props = defineProps(["device"])
+<script setup lang="ts">
+import { Device } from '~~/stores/devices'
+
+const props = defineProps<{
+  device: Device
+}>()
 const deviceHelper = useDevice(props.device)
 
 const tab = ref('status')

@@ -11,11 +11,13 @@
   </q-card>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { DeviceDialog } from '#components'
-import { useStore } from '~~/stores/devices';
+import { Device, useStore } from '~~/stores/devices';
 
-const props = defineProps(["device"])
+const props = defineProps<{
+  device: Device
+}>()
 
 const { value, main: getMain, name: getName, icon: getIcon } = useDevice(props.device)
 const $q = useQuasar()
