@@ -28,6 +28,7 @@ export default class Devices extends EventEmitter {
             if (device.services.size > 0)
                 this.emit("update", key)
             else {
+                device.identifiers.forEach(id => this.#identifiers.delete(id))
                 this.emit("delete", key)
                 this.#devices.delete(key)
             }
