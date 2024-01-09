@@ -7,6 +7,10 @@ type ZWAVE_COMMAND_CLASS_PROPERTY = {
 } | null
 
 export const ZWAVE_DEVICE_CLASS_TYPES: Record<number, Record<number | '_', string>> = {
+    8: { //Thermostat
+        _: "thermostat",
+        6: "hvac" // Thermostat - HVAC
+    },
     16: { // Binary Switch
         _: "switch",
         1: "power" // On/Off Power Switch
@@ -85,6 +89,12 @@ export const ZWAVE_COMMAND_CLASS_PROPERTIES: Record<number, Record<string, ZWAVE
                 '@type': "battery"
             }
         }
+    }
+}
+
+export const ZWAVE_COMMAND_CLASS_PROPERTY_TYPE_CLASS: Record<number, Record<string, string>> = {
+    49: { // Multilevel Sensor
+        "Air temperature": "temperatureSensor"
     }
 }
 

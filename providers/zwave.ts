@@ -4,7 +4,7 @@ import { Property } from "../shared/definitions";
 import Provider from "../shared/provider";
 import Service from "../shared/service";
 
-import { ZWAVE_COMMAND_CLASS_PROPERTIES, ZWAVE_DEVICE_CLASS_TYPES, ZWAVE_SERVICE_GROUP, ZWAVE_SERVICE_PRIORITIES } from "./zwave_constants";
+import { ZWAVE_COMMAND_CLASS_PROPERTIES, ZWAVE_COMMAND_CLASS_PROPERTY_TYPE_CLASS, ZWAVE_DEVICE_CLASS_TYPES, ZWAVE_SERVICE_GROUP, ZWAVE_SERVICE_PRIORITIES } from "./zwave_constants";
 
 interface ZWaveConfig {
     port: string,
@@ -230,6 +230,10 @@ class ZWaveCommandClassService extends ZWaveService {
                 this.registerProperty(propertyKey, options)
                 this.updateValue(propertyKey, convertValue(options.type, this.node.getValue(args)))
             }
+
+            if (args.commandClass in ZWAVE_COMMAND_CLASS_PROPERTY_TYPE_CLASS && propertyKey in ZWAVE_COMMAND_CLASS_PROPERTY_TYPE_CLASS[args.commandClass])
+                this.registerType(ZWAVE_COMMAND_CLASS_PROPERTY_TYPE_CLASS[args.commandClass][propertyKey])
+
         } else if ('newValue' in args)
             this.updateValue(propertyKey, convertValue(this.properties.get(propertyKey)!.type, args.newValue))
     }
