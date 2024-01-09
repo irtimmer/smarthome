@@ -39,7 +39,24 @@ export default class Devices extends EventEmitter {
             if (this.#services.has(service)) {
                 if (this.#identifiers.has(key)) {
                     if (this.#identifiers.get(key) != this.#services.get(service)) {
-                        // TODO merge devices
+                        const oldDeviceKey = this.#services.get(service)!
+                        const oldDevice = this.#devices.get(oldDeviceKey)!
+                        const newDeviceKey = this.#identifiers.get(key)!
+                        const newDevice = this.#devices.get(newDeviceKey)!
+
+                        oldDevice.services.forEach(s => {
+                            this.#services.set(s, newDeviceKey)
+                            newDevice.services.add(s)
+                        })
+
+                        oldDevice.identifiers.forEach(id => {
+                            this.#identifiers.set(id, newDeviceKey)
+                            newDevice.identifiers.add(id)
+                        })
+
+                        this.#devices.delete(oldDeviceKey)
+                        this.emit("delete", oldDeviceKey)
+                        this.emit("update", newDeviceKey)
                     }
                 } else {
                     const deviceKey = this.#services.get(service)!
