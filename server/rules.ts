@@ -29,7 +29,7 @@ export default class Rules extends EventEmitter {
 
         controller.providers.on("event", (service: Service, key: string, args: Record<string, any>) => {
             const ref = `${service.uniqueId}/${key}`;
-            this.#scheduled.filter(r => r.listeners.has(ref))
+            this.#scheduled.filter(r => r.watchServiceEvents.has(ref))
                 .forEach(x => x.executeListener(ref, args))
         })
 
