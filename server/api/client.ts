@@ -139,6 +139,7 @@ export default class {
     #serviceToJSON(service: Service): any {
         return {
             name: service.name,
+            priority: service.priority,
             identifiers: Array.from(service.identifiers),
             properties: Object.fromEntries(service.properties),
             values: Object.fromEntries(service.values),
