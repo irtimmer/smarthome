@@ -3,17 +3,18 @@ import type { Rule } from "./rule";
 import JSRule, { JSRuleConfig } from "./rules/jsrule";
 import Controller from "./controller";
 import { matchServiceFilter } from "./filters";
-import { EventEmitter } from "stream";
+
+import Provider from "../shared/provider";
 
 export type RulesConfig = JSRuleConfig[]
 
-export default class Rules extends EventEmitter {
+export default class Rules extends Provider<Rule> {
     #scheduled: Rule[]
     #rules: Rule[]
     controller: Controller
 
     constructor(controller: Controller, config: RulesConfig) {
-        super()
+        super("rules")
         this.controller = controller
         this.#rules = []
         this.#scheduled = []

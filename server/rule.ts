@@ -1,14 +1,13 @@
 import { v1 as uuidv1 } from 'uuid';
-import { EventEmitter } from 'stream';
 
 import Controller from "./controller"
 import { ServiceFilter } from "./filters"
 import { Handler } from "./handlers"
 import type Rules from "./rules"
 
-export abstract class Rule extends EventEmitter {
-    readonly id: string
-    readonly rules: Rules
+import Service from "../shared/service"
+
+export abstract class Rule extends Service<Rules> {
     readonly controller: Controller
     abstract readonly loading: Promise<void>
     watchServiceEvents: Map<String, (args: Record<string, any>) => void>
@@ -20,13 +19,10 @@ export abstract class Rule extends EventEmitter {
     subRules: Rule[]
     handlers: Map<string, Handler>
 
-    #enabled: boolean
     #closed: boolean
 
     constructor(rules: Rules) {
-        super()
-        this.id = uuidv1()
-        this.rules = rules
+        super(rules, uuidv1())
         this.controller = rules.controller
         this.watchServiceEvents = new Map
         this.watchServiceFilters = []
@@ -37,8 +33,18 @@ export abstract class Rule extends EventEmitter {
         this.constraints = new Set()
         this.handlers = new Map
 
-        this.#enabled = true
         this.#closed = false
+
+        this.registerIdentifier('uuid', this.id)
+        this.registerType("rule")
+
+        this.name = "Rule"
+
+        this.registerProperty("enabled", {
+            label: "Enabled",
+            read_only: false,
+            type: "boolean"
+        }, true)
     }
 
     abstract run(): void
@@ -56,7 +62,7 @@ export abstract class Rule extends EventEmitter {
             this.controller.handlers.remove(this.controller.providers.services.get(id)!, key, handler)
         }
 
-        this.subRules.forEach(r => this.rules.unscheduleRule(r))
+        this.subRules.forEach(r => this.provider.unscheduleRule(r))
     }
 
     executeListener(id: string, args: Record<string, any>) {
@@ -72,7 +78,7 @@ export abstract class Rule extends EventEmitter {
     }
 
     execute() {
-        if (!this.#enabled)
+        if (!this.values.get('enabled'))
             return
 
         this.watchServiceEvents.clear()
@@ -90,7 +96,7 @@ export abstract class Rule extends EventEmitter {
         let currentConstraints = this.constraints
         this.constraints = new Set()
 
-        this.subRules.forEach(r => this.rules.unscheduleRule(r))
+        this.subRules.forEach(r => this.provider.unscheduleRule(r))
         this.subRules = []
 
         try {
@@ -115,15 +121,12 @@ export abstract class Rule extends EventEmitter {
         }
     }
 
-    set enabled(value: boolean) {
-        if (this.#enabled == value)
-            return
-
-        this.#enabled = value
-        this.subRules.forEach(r => r.enabled = value)
-    }
-
-    get enabled() {
-        return this.#enabled
+    setValue(key: string, value: any): Promise<void> {
+        if (key == 'enabled') {
+            this.updateValue(key, value)
+            this.subRules.forEach(r => r.setValue(key, value))
+            return Promise.resolve()
+        } else
+            return Promise.reject()
     }
 }

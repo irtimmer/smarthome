@@ -32,6 +32,12 @@ export default class JSRule extends Rule {
             this.#loading = this.#load()
             this.#loading.then(_ => this.execute())
         });
+
+        this.registerProperty("file", {
+            label: "Filename",
+            read_only: true,
+            type: "string"
+        }, this.scriptFile)
     }
 
     unload() {
@@ -59,9 +65,9 @@ export default class JSRule extends Rule {
                 return device ? new Proxy(new RuleDevice(device, this.controller), itemProxyHandler) : null
             },
             watch: (fn: () => void) => {
-                const subRule = new SubRule(fn, this.rules)
+                const subRule = new SubRule(fn, this.provider)
                 this.subRules.push(subRule)
-                this.rules.scheduleRule(subRule)
+                this.provider.scheduleRule(subRule)
                 setImmediate(subRule.execute.bind(subRule))
             }
         }, {

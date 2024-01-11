@@ -29,6 +29,8 @@ export default class Controller {
         this.constraints = new Constraints(this)
         this.handlers = new Handlers(this)
         this.rules = new Rules(this, config.rules)
+
+        this.providers.registerProvider(this.rules)
     }
 
     // Set a value on a service, constrained by the constraints and handler by handlers
