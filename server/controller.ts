@@ -6,10 +6,12 @@ import Handlers from "./handlers"
 import History, { HistoryConfig } from "./history"
 import Providers from "./providers"
 import Rules, { RulesConfig } from "./rules"
+import Scenes, { ScenesConfig } from "./scenes"
 
 type ControllerConfig = {
     providers: Record<string, any>
     rules: RulesConfig
+    scenes: ScenesConfig
     history: HistoryConfig
 }
 
@@ -20,6 +22,7 @@ export default class Controller {
     readonly constraints: Constraints
     readonly handlers: Handlers
     readonly rules: Rules
+    readonly scenes: Scenes
 
     constructor(config: ControllerConfig) {
         this.providers = new Providers(config.providers)
@@ -29,8 +32,10 @@ export default class Controller {
         this.constraints = new Constraints(this)
         this.handlers = new Handlers(this)
         this.rules = new Rules(this, config.rules)
+        this.scenes = new Scenes(this, config.scenes)
 
         this.providers.registerProvider(this.rules)
+        this.providers.registerProvider(this.scenes)
     }
 
     // Set a value on a service, constrained by the constraints and handler by handlers
