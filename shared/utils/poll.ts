@@ -5,18 +5,18 @@ type RetryOptions = {
 }
 
 export class Retry {
-    #options: RetryOptions
     #timeout?: NodeJS.Timeout
     #canceled: boolean
-    #retries: number
+    readonly options: RetryOptions
+    attempt: number
     fn: () => Promise<void>
 
     constructor(fn: () => Promise<void>, options?: Partial<RetryOptions>) {
-        this.fn = fn
         this.#canceled = false
-        this.#retries = 0
-        this.#options = {...{
-            interval: 30 * 1000,
+        this.fn = fn
+        this.attempt = 0
+        this.options = {...{
+            interval: 0,
             retryInterval: 5 * 1000,
             maxRetries: 7
         }, ...options}
@@ -25,18 +25,19 @@ export class Retry {
     }
 
     succeeded() {
-        this.#retries = 0
+        this.attempt = 0
     }
 
     run() {
-        this.#retries = Math.min(this.#retries + 1, this.#options.maxRetries)
+        this.attempt += 1
         this.fn().catch(e => {
             this.retry(e)
         })
     }
 
     retry(e?: any) {
-        console.error(`Attempt ${this.#retries} of ${this.#options.maxRetries}`, e)
+        const wait = (2 ** Math.min(this.attempt, this.options.maxRetries) * this.options.retryInterval) / 1000
+        console.error(`Attempt ${this.attempt} failed, retry in ${wait}s`, e?.message ?? e)
         this.schedule()
     }
 
@@ -44,7 +45,7 @@ export class Retry {
         if (this.#canceled)
             return
 
-        let interval = this.#retries > 0 ? 2 ** this.#retries * this.#options.retryInterval : this.#options.interval
+        let interval = this.attempt > 0 ? 2 ** Math.min(this.attempt, this.options.maxRetries) * this.options.retryInterval : this.options.interval
         this.#timeout = setTimeout(this.run.bind(this), interval)
     }
 
@@ -57,11 +58,19 @@ export class Retry {
 }
 
 export default class Poll extends Retry {
+    constructor(fn: () => Promise<void>, options?: Partial<RetryOptions>) {
+        super(fn, {...{
+            interval: 30 * 1000
+        }, ...options})
+    }
+
     run() {
-        this.fn().catch(e => this.retry(e))
-        .then(() => {
+        this.fn().then(() => {
             this.succeeded()
-            this.schedule.bind(this)
+            this.schedule()
+        }).catch(e => {
+            this.attempt += 1
+            this.retry(e)
         })
     }
 }
