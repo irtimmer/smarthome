@@ -42,12 +42,12 @@ export default class Rules extends Provider<Rule> {
     }
 
     scheduleRule(rule: Rule) {
-        this.emit("register", rule)
+        this.registerService(rule)
         this.#scheduled.push(rule)
     }
 
     unscheduleRule(rule: Rule) {
-        this.emit("unregister", rule)
+        this.unregisterService(rule)
         rule.unload()
         this.#scheduled.splice(this.#scheduled.indexOf(rule), 1)
     }
