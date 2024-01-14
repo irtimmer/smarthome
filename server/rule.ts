@@ -13,8 +13,10 @@ export abstract class Rule extends Service<Rules> {
     watchServiceEvents: Map<String, (args: Record<string, any>) => void>
     watchServiceFilters: ServiceFilter[]
     watchServices: Set<string>
+    watchTimeEvents: NodeJS.Timeout[]
     watchDevices: Set<string>
     watchProperties: Set<string>
+    nextRun?: number
     constraints: Set<string>
     subRules: Rule[]
     handlers: Map<string, Handler>
@@ -27,6 +29,7 @@ export abstract class Rule extends Service<Rules> {
         this.watchServiceEvents = new Map
         this.watchServiceFilters = []
         this.watchServices = new Set()
+        this.watchTimeEvents = []
         this.watchDevices = new Set()
         this.watchProperties = new Set()
         this.subRules = []
@@ -51,6 +54,9 @@ export abstract class Rule extends Service<Rules> {
 
     unload() {
         this.#closed = true
+
+        this.watchTimeEvents.forEach(timeout => clearTimeout(timeout))
+        this.watchTimeEvents = []
 
         for (let constraint of this.constraints) {
             const [id, key, handle] = constraint.split('/')
@@ -81,6 +87,8 @@ export abstract class Rule extends Service<Rules> {
         if (!this.values.get('enabled'))
             return
 
+        this.watchTimeEvents.forEach(timeout => clearTimeout(timeout))
+        this.watchTimeEvents = []
         this.watchServiceEvents.clear()
         this.watchServiceFilters = []
         this.watchServices.clear()
@@ -99,6 +107,8 @@ export abstract class Rule extends Service<Rules> {
         this.subRules.forEach(r => this.provider.unscheduleRule(r))
         this.subRules = []
 
+        this.nextRun = undefined
+
         try {
             this.run()
         } catch (e) {
@@ -108,6 +118,10 @@ export abstract class Rule extends Service<Rules> {
                 this.unload()
                 return
             }
+
+            // Reschedule next run if needed
+            if (this.nextRun)
+                this.watchTimeEvents.push(setTimeout(this.execute.bind(this), this.nextRun - Date.now()))
 
             for (let constraint of currentConstraints) {
                 if (this.constraints.has(constraint))

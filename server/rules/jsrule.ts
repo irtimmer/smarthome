@@ -50,6 +50,39 @@ export default class JSRule extends Rule {
             Action,
             config: this.#config.config,
             console,
+            at: (time: string, fn: () => void) => {
+                const [hour, minute] = time.split(":").map(v => parseInt(v))
+                const date = new Date()
+                date.setHours(hour, minute)
+                if (date < new Date())
+                    date.setDate(date.getDate() + 1)
+
+                this.watchTimeEvents.push(setTimeout(fn, date.getTime() - Date.now()))
+            },
+            between: (start: string, end: string) => {
+                const [startHour, startMinute] = start.split(":").map(v => parseInt(v))
+                const [endHour, endMinute] = end.split(":").map(v => parseInt(v))
+                const date = new Date()
+
+                const now = date.getTime()
+                let startTime = date.setHours(startHour, startMinute)
+                let endTime = date.setHours(endHour, endMinute)
+
+                // If the end time is before the start time, the end time must be tomorrow
+                if (endTime < startTime)
+                    endTime = date.setDate(date.getDate() + 1)
+
+                // If the end time is before now, the start time must be tomorrow
+                if (now > endTime)
+                    startTime += 24 * 60 * 60 * 1000
+
+                const ret = now >= startTime && now <= endTime
+                const nextRun = ret ? endTime : startTime
+                if (!this.nextRun || nextRun < this.nextRun)
+                    this.nextRun = nextRun
+
+                return ret
+            },
             getService: (key: string) => {
                 key = this.#config.aliases[key] ?? key
 
