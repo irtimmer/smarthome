@@ -123,7 +123,7 @@ class PhilipsTVService extends Service<PhilipsTVProvider> {
         if (property && property.set) {
             return this.provider.request(id, {
                 method: 'POST',
-                content: property.set(value)
+                content: JSON.stringify(property.set(value))
             }).catch(e => console.error(e)) as Promise<void>
         } else
             return Promise.reject()
@@ -134,10 +134,9 @@ class PhilipsTVService extends Service<PhilipsTVProvider> {
         const action: any = PHILIPS_TV_ACTIONS[id][key]
         console.log(key, props)
         if (action && action.trigger) {
-            console.log(id, JSON.stringify(action.trigger(props)))
             return this.provider.request(id, {
                 method: 'POST',
-                content: action.trigger(props)
+                content: JSON.stringify(action.trigger(props))
             }).catch(e => console.error(e)) as Promise<void>
         } else
             return Promise.reject()
