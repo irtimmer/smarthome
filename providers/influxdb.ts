@@ -20,8 +20,8 @@ export default class InfluxDBLogger implements Logger {
         this.#writeApi = influxDB.getWriteApi(config.organisation, config.bucket)
     }
 
-    write(service: string, key: string, value: any): void {
-        const point = new Point('temperature')
+    write(service: string, type: string, key: string, value: any): void {
+        const point = new Point(type)
             .tag('service_id', service)
             .tag('property', key)
             .floatField('value', value)

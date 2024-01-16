@@ -34,7 +34,8 @@ export default class History {
             if (!tracker)
                 return
 
-            this.#logger?.write(service.uniqueId, key, value)
+            let type = service.properties.get(key)?.["@type"] ?? "generic"
+            this.#logger?.write(service.uniqueId, type, key, value)
         })
     }
 }
