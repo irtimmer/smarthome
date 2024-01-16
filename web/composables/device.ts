@@ -6,19 +6,30 @@ export const useDevice = (device: Device) => {
     const store = useStore()
 
     function property(type: string) {
+        let properties = [];
         for (const serviceId of device.services) {
-            if (store.services.has(serviceId))
+            if (!store.services.has(serviceId))
+                continue
+
                 for (const [key, property] of Object.entries(store.services.get(serviceId)!.properties)) {
                     if (property['@type'] == type)
-                        return [serviceId, key]
+                    properties.push([serviceId, key])
                 }
         }
-        return [null, null]
+        return properties
     }
 
     function value(type: string) {
-        const [serviceId, key] = property(type)
-        return store.services.get(serviceId!)?.values[key!]
+        const properties = property(type);
+        let ret;
+        for (const [serviceId, key] of properties) {
+            const value = store.services.get(serviceId!)?.values[key!];
+            if (Array.isArray(ret) && Array.isArray(value))
+                ret = [...ret, ...value];
+            else
+                ret = value ?? ret;
+        }
+        return ret;
     }
 
     function name() {
@@ -30,7 +41,7 @@ export const useDevice = (device: Device) => {
 
         for (const {type, property: prop} of MAIN_PROPERTIES) {
             if (types.has(type))
-                return property(prop)
+                return property(prop)[0] ?? [null, null]
         }
 
         return [null, null]
