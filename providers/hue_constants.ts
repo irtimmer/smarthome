@@ -50,6 +50,14 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
                 type: "string",
                 label: "Archetype",
             }
+        },
+        children: {
+            parse: (data: any) => data.children?.map((ref: any) => `uuid:${ref.rid}`),
+            definition: {
+                "@type": "children",
+                type: "services",
+                label: "Children"
+            }
         }
     },
     scene: {
@@ -90,6 +98,14 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
             definition: {
                 type: "string",
                 label: "Archetype"
+            }
+        },
+        children: {
+            parse: (data: any) => data.children?.map((ref: any) => `uuid:${ref.rid}`),
+            definition: {
+                "@type": "children",
+                type: "services",
+                label: "Children"
             }
         }
     },
