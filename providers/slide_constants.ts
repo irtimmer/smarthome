@@ -25,6 +25,7 @@ export const SLIDE_PROPERTIES: Record<string, SlideProperty> = {
         url: "position",
         parse: (data: any) => data.device_info.pos,
         definition: {
+            '@type': "level",
             type: "number",
             label: "Position",
             min: 0,
