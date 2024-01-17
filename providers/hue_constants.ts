@@ -111,6 +111,7 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
         },
         state: {
             parse: (data: any) => data.state == "active",
+            set: (value: any) => ({ recall: { action: value ? "activate" : "deactivate" }}),
             definition: {
                 type: "boolean",
                 label: "Active",
@@ -345,18 +346,6 @@ export const HUE_SERVICE_ACTIONS: { [type: string]: HueServiceActionType } = {
             trigger: props => ({
                 recall: {
                     action: "active"
-                }
-            }),
-            definition: {
-                label: "Activate"
-            }
-        }
-    },
-    smart_scene: {
-        activate: {
-            trigger: props => ({
-                recall: {
-                    action: "activate"
                 }
             }),
             definition: {
