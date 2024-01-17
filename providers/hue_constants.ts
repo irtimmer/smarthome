@@ -38,28 +38,53 @@ export const HUE_SERVICE_PRIORITIES: { [type: string]: number } = {
     zone: 10
 }
 
-export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
-    room: {
-        name: {
-            parse: (data: any) => data.metadata?.name,
-            definition: "name"
-        },
-        archetype: {
-            parse: (data: any) => data.metadata?.archetype,
-            definition: {
-                type: "string",
-                label: "Archetype",
-            }
-        },
-        children: {
-            parse: (data: any) => data.children?.map((ref: any) => `uuid:${ref.rid}`),
-            definition: {
-                "@type": "children",
-                type: "services",
-                label: "Children"
-            }
+const HUE_GROUP_PROPERTIES: HueServiceType = {
+    name: {
+        parse: (data: any) => data.metadata?.name,
+        definition: "name"
+    },
+    archetype: {
+        parse: (data: any) => data.metadata?.archetype,
+        definition: {
+            type: "string",
+            label: "Archetype",
         }
     },
+    children: {
+        parse: (data: any) => data.children?.map((ref: any) => `uuid:${ref.rid}`),
+        definition: {
+            "@type": "children",
+            type: "services",
+            label: "Children"
+        }
+    }
+}
+
+const HUE_LIGHT_PROPERTIES: HueServiceType = {
+    on: {
+        parse: (data: any) => data.on?.on,
+        set: (value: any) => ({ on: { on: value }}),
+        definition: {
+            '@type': "onoff",
+            type: "boolean",
+            label: "On/off"
+        }
+    },
+    brightness: {
+        parse: (data: any) => data.dimming?.brightness,
+        supported: (data: any) => data.dimming !== undefined,
+        set: (value: any) => ({ dimming: { brightness: value }}),
+        definition: {
+            type: "number",
+            label: "Brightness",
+            min: 0,
+            max: 100
+        }
+    }
+}
+
+export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
+    room: HUE_GROUP_PROPERTIES,
     scene: {
         name: {
             parse: (data: any) => data.metadata?.name,
@@ -102,27 +127,7 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
             }
         }
     },
-    zone: {
-        name: {
-            parse: (data: any) => data.metadata?.name,
-            definition: "name"
-        },
-        archetype: {
-            parse: (data: any) => data.metadata?.archetype,
-            definition: {
-                type: "string",
-                label: "Archetype"
-            }
-        },
-        children: {
-            parse: (data: any) => data.children?.map((ref: any) => `uuid:${ref.rid}`),
-            definition: {
-                "@type": "children",
-                type: "services",
-                label: "Children"
-            }
-        }
-    },
+    zone: HUE_GROUP_PROPERTIES,
     device: {
         name: {
             parse: (data: any) => data.metadata?.name,
@@ -205,26 +210,7 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
         }
     },
     light: {
-        on: {
-            parse: (data: any) => data.on?.on,
-            set: (value: any) => ({ on: { on: value }}),
-            definition: {
-                '@type': "onoff",
-                type: "boolean",
-                label: "On/off"
-            }
-        },
-        brightness: {
-            parse: (data: any) => data.dimming?.brightness,
-            supported: (data: any) => data.dimming !== undefined,
-            set: (value: any) => ({ dimming: { brightness: value }}),
-            definition: {
-                type: "number",
-                label: "Brightness",
-                min: 0,
-                max: 100
-            }
-        },
+        ...HUE_LIGHT_PROPERTIES,
         mirek: {
             parse: (data: any) => data.color_temperature?.mirek,
             supported: (data: any) => data.color_temperature !== undefined,
@@ -237,27 +223,7 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
             }
         }
     },
-    grouped_light: {
-        on: {
-            parse: (data: any) => data.on?.on,
-            set: (value: any) => ({ on: { on: value }}),
-            definition: {
-                '@type': "onoff",
-                type: "boolean",
-                label: "On/off"
-            }
-        },
-        brightness: {
-            parse: (data: any) => data.dimming?.brightness,
-            set: (value: any) => ({ dimming: { brightness: value }}),
-            definition: {
-                type: "number",
-                label: "Brightness",
-                min: 0,
-                max: 100
-            }
-        }
-    },
+    grouped_light: HUE_LIGHT_PROPERTIES,
     motion: {
         motion: {
             parse: (data: any) => data.motion?.motion,
