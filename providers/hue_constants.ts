@@ -67,6 +67,13 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
                 type: "string",
                 label: "Name",
             }
+        },
+        status: {
+            parse: (data: any) => data.active?.status,
+            definition: {
+                type: "string",
+                label: "Status",
+            }
         }
     },
     smart_scene: {
@@ -75,6 +82,13 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
             definition: {
                 type: "string",
                 label: "Name",
+            }
+        },
+        state: {
+            parse: (data: any) => data.state == "active",
+            definition: {
+                type: "boolean",
+                label: "Active",
             }
         }
     },
