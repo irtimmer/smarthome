@@ -75,6 +75,7 @@ const HUE_LIGHT_PROPERTIES: HueServiceType = {
         supported: (data: any) => data.dimming !== undefined,
         set: (value: any) => ({ dimming: { brightness: value }}),
         definition: {
+            '@type': 'brightness',
             type: "number",
             label: "Brightness",
             min: 0,
@@ -278,6 +279,7 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
         lightlevel: {
             parse: (data: any) => data.light?.light_level,
             definition: {
+                '@type': "lightlevel",
                 type: "number",
                 label: "Lightlevel"
             }
