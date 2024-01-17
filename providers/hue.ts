@@ -19,7 +19,7 @@ interface HueServiceTypeProperty {
     parse: (data: any) => any
     supported?: (data: any) => any
     set?: (value: any) => any
-    definition: Omit<Property, 'read_only'> | string
+    definition: Omit<Property, 'read_only'> | ((data: any) => Omit<Property, 'read_only'>) | string
 }
 
 interface HueServiceTypeAction {
@@ -124,10 +124,12 @@ class HueService extends Service<HueProvider> {
         this.#typeDefinition = HUE_SERVICE_TYPES[this.#type]
         if (this.#typeDefinition) {
             const properties = Object.entries(this.#typeDefinition).filter(([_, prop]) => prop.supported === undefined || prop.supported(data))
-            for (const [key, property] of properties)
-                this.registerProperty(key, typeof property.definition === "string" ? property.definition : { ...property.definition, ...{
+            for (const [key, property] of properties) {
+                const definition = typeof property.definition === "function" ? property.definition(data) : property.definition
+                this.registerProperty(key, typeof definition === "string" ? definition : { ...definition, ...{
                     read_only: !('set' in property)
                 }})
+            }
         }
 
         this.#typeActionDefinitions = HUE_SERVICE_ACTIONS[this.#type]

@@ -221,6 +221,37 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
                 min: 153,
                 max: 500
             }
+        },
+        effects_status: {
+            parse: (data: any) => data.effects?.status,
+            supported: (data: any) => data.effects !== undefined,
+            set: (value: any) => ({ effects: { effect: value }}),
+            definition: (data) => ({
+                type: "enum",
+                label: "Effect",
+                options: Object.fromEntries(data.effects?.effect_values.map((id: string) => [id, id]))
+            })
+        },
+        signaling_status: {
+            parse: (data: any) => data.signaling?.status?.signal ?? "no_signal",
+            supported: (data: any) => data.signaling !== undefined,
+            set: (value: any) => ({ signaling: { signal: value, duration: 2000 }}),
+            definition: (data) => ({
+                type: "enum",
+                label: "Signal",
+                options: Object.fromEntries(data.signaling?.signal_values.map((id: string) => [id, id]))
+            })
+        },
+        mode: {
+            parse: (data: any) => data.mode,
+            definition: {
+                type: "enum",
+                label: "Mode",
+                options: {
+                    "normal": "Normal",
+                    "streaming": "Streaming",
+                }
+            }
         }
     },
     grouped_light: HUE_LIGHT_PROPERTIES,
@@ -330,6 +361,18 @@ export const HUE_SERVICE_ACTIONS: { [type: string]: HueServiceActionType } = {
             }),
             definition: {
                 label: "Activate"
+            }
+        }
+    },
+    light: {
+        identify: {
+            trigger: _ => ({
+                identify: {
+                    action: "identify"
+                }
+            }),
+            definition: {
+                label: "Identify"
             }
         }
     }
