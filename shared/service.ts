@@ -85,6 +85,11 @@ export default abstract class AbstractService<T extends Provider<Service>> exten
             this.registerType(types)
     }
 
+    updateIdentifiers(ids: [string, string][]) {
+        this.#identifiers.clear()
+        ids.forEach(([key, id]) => this.registerIdentifier(key, id))
+    }
+
     updateValue(key: string, value: any) {
         const oldValue = this.#values.get(key)
         if (value != oldValue) {
