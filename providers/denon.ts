@@ -5,6 +5,8 @@ import Service from "../shared/service";
 
 import { DENON_PROPERTIES } from "./denon_constants";
 
+import { Retry } from "../shared/utils/poll";
+
 interface DenonConfig {
     host: string
 }
@@ -22,13 +24,14 @@ export default class DenonProvider extends Provider<DenonService> {
 
 class DenonService extends Service<DenonProvider> {
     #socket: Socket
+    #reconnect: Retry
 
     constructor(provider: DenonProvider, id: string) {
         super(provider, id)
         this.registerIdentifier("provider", this.id)
 
         this.#socket = new Socket();
-        this.#connect()
+        this.#reconnect = new Retry(this.#connect.bind(this))
 
         for (const [key, property] of Object.entries(DENON_PROPERTIES)) {
             if (!property)
@@ -40,17 +43,13 @@ class DenonService extends Service<DenonProvider> {
         }
     }
 
-    #connect() {
+    async #connect() {
         this.#socket.connect(23, this.provider.host);
-        this.#socket.on('close', () => {
-            this.#connect()
-        })
-        this.#socket.on('error', (err) => {
-            console.error("Denon error", err)
-            this.#connect()
-        })
+        this.#socket.on('close', this.#reconnect.retry.bind(this.#reconnect))
+        this.#socket.on('error', this.#reconnect.retry.bind(this.#reconnect))
         this.#socket.on('data', this.#onData.bind(this));
         this.#socket.on('connect', async () => {
+            this.#reconnect.succeeded()
             if (this.#socket.remoteAddress)
                 this.registerIdentifier('ip', this.#socket.remoteAddress);
 
