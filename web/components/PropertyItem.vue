@@ -1,5 +1,19 @@
 <template>
-  <q-item v-if="property.type == 'number' && !property.read_only && property.min != null && property.max != null">
+  <q-item v-if="property.type == 'services'">
+    <q-item-section>
+      <q-item-label>{{ property.label }}</q-item-label>
+      <div class="row items-start">
+        <DeviceButton class="col-xs-6 col-sm-3" v-for="[key, device] in devices" :device="device" :key="key" />
+      </div>
+    </q-item-section>
+  </q-item>
+  <q-item v-else-if="property.read_only">
+    <q-item-section>{{ property.label }}</q-item-section>
+    <q-item-section side>
+      <PropertyValue :value="modelValue" :property="property" />
+    </q-item-section>
+  </q-item>
+  <q-item v-else-if="property.type == 'number' && property.min != null && property.max != null">
     <q-item-section>
       <q-field borderless :label="property.label" :modelValue="modelValue">
         <template v-slot:control>
@@ -16,12 +30,6 @@
       <q-select dense emit-value map-options borderless :label="property.label" :options="options" :modelValue="modelValue" @update:modelValue="$emit('update:modelValue', $event)" />
     </q-item-section>
   </q-item>
-  <div v-else-if="property.type == 'services'">
-    {{ property.label }}
-    <div class="row items-start">
-      <DeviceButton class="col-xs-6 col-sm-3" v-for="[key, device] in devices" :device="device" :key="key" />
-    </div>
-  </div>
   <q-item v-else>
     <q-item-section>{{ property.label }}</q-item-section>
     <q-item-section side>
