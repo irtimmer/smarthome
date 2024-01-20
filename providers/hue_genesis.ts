@@ -48,8 +48,8 @@ export default class GenesisProvider extends Provider<GenesisService> {
                 this.services.get(id) ?? this.registerService(new GenesisService(this, id))
             }
         }, {
-            interval: 60 * 60 * 1000,
-            retryInterval: 60 * 1000,
+            interval: 60 * 60,
+            retryInterval: 60,
         })
     }
 

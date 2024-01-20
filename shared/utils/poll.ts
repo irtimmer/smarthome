@@ -17,7 +17,7 @@ export class Retry {
         this.attempt = 0
         this.options = {...{
             interval: 0,
-            retryInterval: 5 * 1000,
+            retryInterval: 5,
             maxRetries: 7
         }, ...options}
 
@@ -36,7 +36,7 @@ export class Retry {
     }
 
     retry(e?: any) {
-        const wait = (2 ** Math.min(this.attempt, this.options.maxRetries) * this.options.retryInterval) / 1000
+        const wait = 2 ** Math.min(this.attempt, this.options.maxRetries) * this.options.retryInterval
         console.error(`Attempt ${this.attempt} failed, retry in ${wait}s`, e?.message ?? e)
         this.schedule()
     }
@@ -60,7 +60,7 @@ export class Retry {
 export default class Poll extends Retry {
     constructor(fn: () => Promise<void>, options?: Partial<RetryOptions>) {
         super(fn, {...{
-            interval: 30 * 1000
+            interval: 30
         }, ...options})
     }
 

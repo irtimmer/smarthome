@@ -39,7 +39,7 @@ export default class PhilipsTVProvider extends Provider<Service<PhilipsTVProvide
                     data: {
                         notification: this.#currentState
                     },
-                    timeout: 2 * 60 * 1000 + 5000
+                    timeout: 2 * 60 + 5
                 })
 
                 for (const [endpoint, data] of Object.entries(res.data))
@@ -54,7 +54,7 @@ export default class PhilipsTVProvider extends Provider<Service<PhilipsTVProvide
             }
             connected = true
         }, {
-            interval: 1000
+            interval: 1
         })
 
         new Poll(async () => {
