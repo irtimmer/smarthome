@@ -48,7 +48,8 @@ export default class SlideProvider extends Provider<Slide> {
                 device.refresh(slide)
             }
         }, {
-            retryInterval: 30,
+            interval: 60,
+            retryInterval: 60,
             maxRetries: 4
         })
     }
