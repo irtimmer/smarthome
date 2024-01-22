@@ -9,6 +9,8 @@ export type HistoryConfig = {
     track: {
         service_type: string,
         property_type: string
+        maximum?: number
+        minimum?: number
     }[]
 }
 
@@ -33,6 +35,22 @@ export default class History {
 
             if (!tracker)
                 return
+
+            if (tracker.maximum !== undefined) {
+                if (value > tracker.maximum)
+                    return
+
+                if (oldValue > tracker.maximum)
+                    oldValue = undefined
+            }
+
+            if (tracker.minimum !== undefined) {
+                if (value < tracker.minimum)
+                    return
+
+                if (oldValue < tracker.minimum)
+                    oldValue = undefined
+            }
 
             let type = service.properties.get(key)?.["@type"] ?? "generic"
             this.#logger?.write(service.uniqueId, type, key, value, oldValue)
