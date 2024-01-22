@@ -25,7 +25,7 @@ export default class History {
             console.error(`Can't load ${config.logger!.type}`, e)
         })
 
-        controller.providers.on("update", (service: Service, key: string, value: any) => {
+        controller.providers.on("update", (service: Service, key: string, value: any, oldValue: any) => {
             const tracker = config.track.find(track =>
                 (!track.service_type || service.types.has(track.service_type)) &&
                 service.properties.get(key)?.["@type"] == track.property_type
@@ -35,7 +35,7 @@ export default class History {
                 return
 
             let type = service.properties.get(key)?.["@type"] ?? "generic"
-            this.#logger?.write(service.uniqueId, type, key, value)
+            this.#logger?.write(service.uniqueId, type, key, value, oldValue)
         })
     }
 }
