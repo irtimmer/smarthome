@@ -4,7 +4,7 @@ export default defineNuxtConfig({
     },
     modules: [
         'nuxt-quasar-vite',
-        '@nuxtjs-alt/proxy',
+        '@nuxt-alt/proxy',
         '@pinia/nuxt'
     ],
     components: true,

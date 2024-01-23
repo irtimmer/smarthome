@@ -11,10 +11,11 @@
     "nuxt": "3.9.3"
   },
   "dependencies": {
-    "@nuxtjs-alt/proxy": "^2.0.4",
+    "@nuxt-alt/proxy": "^2.5.8",
     "@pinia/nuxt": "^0.5.1",
     "@quasar/extras": "^1.16.9",
     "nuxt-quasar-vite": "^1.0.13",
+    "pinia": "^2.1.7",
     "quasar": "^2.14.2",
     "sass": "^1.70.0"
   }
