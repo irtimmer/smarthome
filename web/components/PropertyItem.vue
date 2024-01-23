@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { Property, useStore } from '~~/stores/devices';
+import { type Property, useStore } from '~~/stores/devices';
 
 const store = useStore()
 const props = defineProps<{

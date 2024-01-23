@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { Device } from '~~/stores/devices'
+import { type Device } from '~~/stores/devices'
 
 const props = defineProps<{
   device: Device

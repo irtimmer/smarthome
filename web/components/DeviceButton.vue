@@ -13,7 +13,7 @@
 
 <script setup lang="ts">
 import { DeviceDialog } from '#components'
-import { Device, useStore } from '~~/stores/devices';
+import { type Device, useStore } from '~~/stores/devices';
 
 const props = defineProps<{
   device: Device

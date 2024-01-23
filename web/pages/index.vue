@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { Device, useStore } from '~~/stores/devices'
+import { type Device, useStore } from '~~/stores/devices'
 
 const store = useStore()
 store.init()

@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { Property } from '~~/stores/devices';
+import { type Property } from '~~/stores/devices';
 
 defineProps<{
   modelValue: any,
