@@ -12,10 +12,10 @@
   },
   "dependencies": {
     "@nuxtjs-alt/proxy": "^2.0.4",
-    "@pinia/nuxt": "^0.4.3",
-    "@quasar/extras": "^1.15.4",
-    "nuxt-quasar-vite": "^1.0.10",
-    "quasar": "^2.9.1",
-    "sass": "^1.32.0"
+    "@pinia/nuxt": "^0.5.1",
+    "@quasar/extras": "^1.16.9",
+    "nuxt-quasar-vite": "^1.0.13",
+    "quasar": "^2.14.2",
+    "sass": "^1.70.0"
   }
 }
