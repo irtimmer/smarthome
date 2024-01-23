@@ -98,7 +98,7 @@ export default class JSRule extends Rule {
                 return device ? new Proxy(new RuleDevice(device, this.controller), itemProxyHandler) : null
             },
             watch: (fn: () => void) => {
-                const subRule = new SubRule(fn, this.provider)
+                const subRule = new SubRule(fn, this)
                 this.subRules.push(subRule)
                 this.provider.scheduleRule(subRule)
                 setImmediate(subRule.execute.bind(subRule))
@@ -140,9 +140,12 @@ export default class JSRule extends Rule {
 class SubRule extends Rule {
     #fn: () => void
 
-    constructor(fn: () => void, rules: Rules) {
-        super(rules)
+    constructor(fn: () => void, rule: Rule) {
+        super(rule.provider)
         this.#fn = fn
+
+        // Mark the subrule as part of the parent rule
+        this.registerIdentifier("uuid", rule.id)
     }
 
     get loading(): Promise<void> {
