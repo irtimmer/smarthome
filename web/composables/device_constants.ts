@@ -2,7 +2,8 @@ export type TypeIconMapping = { _default: string, [type: string]: string | TypeI
 
 export const MAIN_PROPERTIES: { type: string, property: string }[] = [
     { type: "switch", property: "onoff" },
-    { type: "temperatureSensor", property: "temperature" }
+    { type: "temperatureSensor", property: "temperature" },
+    { type: "sensor", property: "level" }
 ]
 
 export const TYPE_ICONS: TypeIconMapping = {
