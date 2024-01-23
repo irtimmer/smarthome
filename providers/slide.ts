@@ -63,7 +63,7 @@ export default class SlideProvider extends Provider<Slide> {
                 },
                 body: JSON.stringify(this.#config)
             })
-            this.#token = await req.json()
+            this.#token = await req.json() as any
             this.#token_expiration = Date.now() + (this.#token!.expires_in * 1000) / 2
         }
 
