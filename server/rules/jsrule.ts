@@ -132,7 +132,11 @@ export default class JSRule extends Rule {
 
     run() {
         setActiveRule(this)
-        this.#script?.runInContext(this.#context)
+        try {
+            this.#script?.runInContext(this.#context)
+        } catch (e: any) {
+            console.error(e?.message ?? e)
+        }
         setActiveRule(undefined)
     }
 }
@@ -154,7 +158,11 @@ class SubRule extends Rule {
 
     run(): void {
         setActiveRule(this)
-        this.#fn()
+        try {
+            this.#fn()
+        } catch (e: any) {
+            console.error(e?.message ?? e)
+        }
         setActiveRule(undefined)
     }
 }
