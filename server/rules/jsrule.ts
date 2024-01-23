@@ -102,6 +102,10 @@ export default class JSRule extends Rule {
                 this.subRules.push(subRule)
                 this.provider.scheduleRule(subRule)
                 setImmediate(subRule.execute.bind(subRule))
+            },
+            registerIdentifier: (type: string, id: string) => {
+                if (!this.identifiers.has(`${type}:${id}`))
+                    this.registerIdentifier(type, id)
             }
         }, {
             get(target, prop, receiver) {
