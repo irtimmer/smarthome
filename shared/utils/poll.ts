@@ -46,7 +46,7 @@ export class Retry {
             return
 
         let interval = this.attempt > 0 ? 2 ** Math.min(this.attempt, this.options.maxRetries) * this.options.retryInterval : this.options.interval
-        this.#timeout = setTimeout(this.run.bind(this), interval)
+        this.#timeout = setTimeout(this.run.bind(this), interval * 1000)
     }
 
     cancel() {
