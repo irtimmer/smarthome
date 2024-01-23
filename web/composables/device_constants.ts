@@ -7,6 +7,9 @@ export const MAIN_PROPERTIES: { type: string, property: string }[] = [
 
 export const TYPE_ICONS: TypeIconMapping = {
     _default: "mdi-gauge",
+    "endpoint": "mdi-devices",
+    "home": "mdi-home",
+    "user": "mdi-account",
     "zone": "mdi-select-group",
     "light": {
         _default: "mdi-lightbulb",
@@ -16,7 +19,7 @@ export const TYPE_ICONS: TypeIconMapping = {
     "remote": "mdi-remote",
     "window": "mdi-curtains",
     "shutter": "mdi-window-shutter",
-    "havc": "mdi-havc",
+    "hvac": "mdi-hvac",
     "power": "mdi-power-socket",
     "motion": "mdi-motion-sensor",
     "thermostat": "mdi-thermostat",
