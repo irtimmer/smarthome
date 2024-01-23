@@ -5,6 +5,8 @@ import { type TypeIconMapping, TYPE_ICONS } from "./device_constants"
 export const useDevice = (device: Device) => {
     const store = useStore()
 
+    const services = () => device.services.map((id): [string, Service] => [id, store.services.get(id)!]).filter(([_, s]) => s !== undefined)
+
     function property(type: string) {
         let properties = [];
         for (const serviceId of device.services) {
@@ -62,6 +64,7 @@ export const useDevice = (device: Device) => {
     }
 
     return {
+        services,
         property,
         value,
         name,
