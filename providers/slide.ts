@@ -41,7 +41,7 @@ export default class SlideProvider extends Provider<Slide> {
                     'Authorization': `${token.token_type} ${token.access_token}`
                 }
             })
-            const data = await req.json()
+            const data: any = await req.json()
             for (const slide of data.slides) {
                 const id = slide.device_id.substring(6).toLowerCase()
                 const device = this.services.get(id) ?? this.registerService(new Slide(this, id, slide.id))

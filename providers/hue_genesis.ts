@@ -39,7 +39,7 @@ export default class GenesisProvider extends Provider<GenesisService> {
                 }
             })
 
-            let data = await ret.json()
+            let data: any = await ret.json()
             if (!data.users)
                 throw new Error("No Genesis users")
 
@@ -71,7 +71,7 @@ export default class GenesisProvider extends Provider<GenesisService> {
             body: `grant_type=refresh_token&refresh_token=${refresh_token}`
         })
 
-        let data = await ret.json()
+        let data: any = await ret.json()
         if (data.refresh_token)
             this.#storage.set("next_refresh_token", data.refresh_token)
 

@@ -38,7 +38,7 @@ export default class SpotifyProvider extends Provider<SpotifyService> {
                     redirect_uri: 'http://localhost'
                 })
             })
-            this.#token = await req.json()
+            this.#token = await req.json() as any
             this.#token_expiration = Date.now() + (this.#token!.expires_in * 1000) / 2
         }
 
