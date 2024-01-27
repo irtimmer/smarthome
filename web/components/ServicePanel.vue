@@ -4,7 +4,7 @@
     <q-item v-if="Object.keys(visibleActions).length">
       <q-item-section>
         <q-btn-group flat dense spread>
-          <q-btn v-for="(action, key) in visibleActions" size="12px" flat dense @click="store.triggerAction(id, key as string, null)">{{ action.label }}</q-btn>
+          <q-btn v-for="(action, key) in visibleActions" size="12px" flat dense @click="store.triggerAction(id, key as string)">{{ action.label }}</q-btn>
         </q-btn-group>
       </q-item-section>
     </q-item>

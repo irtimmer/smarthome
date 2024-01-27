@@ -90,13 +90,13 @@ export const useStore = defineStore('main', {
             })
         },
 
-        triggerAction(id: string, key: string, props: any) {
+        triggerAction(id: string, key: string, props?: any) {
             $fetch(`/api/service/${id}/action/${key}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(props),
+                body: JSON.stringify(props ?? {}),
             })
         }
     }
