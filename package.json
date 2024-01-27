@@ -11,7 +11,7 @@
     "uuid": "^9.0.1",
     "ws": "^8.16.0",
     "yaml": "^2.3.4",
-    "zwave-js": "^12.4.1"
+    "zwave-js": "^12.4.3"
   },
   "devDependencies": {
     "@types/eventsource": "^1.1.15",
