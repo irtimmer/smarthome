@@ -49,6 +49,26 @@ export const useDevice = (device: Device) => {
         return [null, null]
     }
 
+    function badge() {
+        if (value("connected") === false)
+            return { icon: 'mdi-connection', color: 'orange' }
+
+        const battery = value('battery')
+        if (battery !== undefined && battery < 10)
+            return { icon: 'mdi-battery-low', color: 'orange' }
+
+        if (value("playing"))
+            return { icon: 'mdi-play', color: 'green' }
+
+        if (value("active"))
+            return { icon: 'mdi-cog', color: 'green' }
+
+        if (value("presence") === true)
+            return { color: 'green' }
+
+        return null
+    }
+
     function icon() {
         const icon = value("icon")
         if (icon)
@@ -69,6 +89,7 @@ export const useDevice = (device: Device) => {
         value,
         name,
         main,
-        icon
+        icon,
+        badge
     }
 }

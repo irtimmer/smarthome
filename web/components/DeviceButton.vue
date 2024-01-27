@@ -2,7 +2,13 @@
   <q-card flat class="cursor-pointer q-hoverable" v-ripple @click="openDialog()">
     <span class="q-focus-helper"></span>
     <q-card-section class="text-center q-pa-sm">
-      <q-icon :name="icon" size="3em" />
+      <div class="relative-position">
+        <q-icon :name="icon" size="3em">
+          <q-badge v-if="badge" style="box-sizing: border-box" :color="badge.color" floating rounded>
+            <q-icon v-if="badge.icon" :name="badge.icon" />
+          </q-badge>
+        </q-icon>
+      </div>
     </q-card-section>
     <q-card-section class="text-center q-pa-sm">
       <div>{{ name }}</div>
@@ -19,12 +25,13 @@ const props = defineProps<{
   device: Device
 }>()
 
-const { value, main: getMain, name: getName, icon: getIcon } = useDevice(props.device)
+const { main: getMain, name: getName, icon: getIcon, badge: getBadge } = useDevice(props.device)
 const $q = useQuasar()
 const store = useStore()
 
 const name = computed(() => getName())
 const icon = computed(() => getIcon())
+const badge = computed(() => getBadge())
 
 const main = computed(() => {
     const [serviceId, propertyId] = getMain()
