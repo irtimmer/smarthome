@@ -27,6 +27,9 @@ export default class ZWaveProvider extends Provider<ZWaveService> {
             logConfig: {
                 enabled: false
             },
+            storage: {
+                "cacheDir": `./cache/${id}`
+            },
             securityKeys: {
                 S2_Unauthenticated: Buffer.from(config.keys.s2_unauthenticated, 'hex'),
                 S2_Authenticated: Buffer.from(config.keys.s2_authenticated, 'hex'),
