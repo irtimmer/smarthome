@@ -19,11 +19,11 @@ interface ZWaveConfig {
 const convertValue = (type: string, value: any) => type == 'enum' ? String(value) : value
 
 export default class ZWaveProvider extends Provider<ZWaveService> {
-    #driver: Driver
+    readonly driver: Driver
 
     constructor(id: string, config: ZWaveConfig) {
         super(id)
-        this.#driver = new Driver(config.port, {
+        this.driver = new Driver(config.port, {
             logConfig: {
                 enabled: false
             },
@@ -37,16 +37,16 @@ export default class ZWaveProvider extends Provider<ZWaveService> {
                 S0_Legacy: Buffer.from(config.keys.s0, 'hex')
             }
         })
-        this.#driver.once("driver ready", () => {
-            const service = new ZWaveControllerService(this, "controller", this.#driver.controller, "Controller")
+        this.driver.once("driver ready", () => {
+            const service = new ZWaveControllerService(this, "controller", this.driver.controller, "Controller")
             this.registerService(service)
 
-            this.#driver.controller.nodes.forEach(this.#addNode.bind(this))
-            this.#driver.controller.on("node added", this.#addNode.bind(this))
+            this.driver.controller.nodes.forEach(this.#addNode.bind(this))
+            this.driver.controller.on("node added", this.#addNode.bind(this))
         })
 
-        this.#driver.on("error", e => console.error(e))
-        this.#driver.start().catch(e => console.error(e))
+        this.driver.on("error", e => console.error(e))
+        this.driver.start().catch(e => console.error(e))
     }
 
     #addNode(node: ZWaveNode) {
@@ -329,6 +329,13 @@ class ZWaveControllerService extends ZWaveService {
         this.registerAction("stopExclusion", {
             label: "Stop Exclusion"
         })
+
+        this.registerAction("rebuildRoutes", {
+            label: "Rebuild Routes"
+        })
+        this.registerAction("softReset", {
+            label: "Soft Reset"
+        })
     }
 
     triggerAction(key: string, _props: any): Promise<void> {
@@ -341,6 +348,10 @@ class ZWaveControllerService extends ZWaveService {
                 return this.#controller.beginExclusion().then((_) => {})
             case "stopExclusion":
                 return this.#controller.stopExclusion().then((_) => {})
+            case "rebuildRoutes":
+                return this.#controller.beginRebuildingRoutes() ? Promise.resolve() : Promise.reject()
+            case "softReset":
+                return this.provider.driver.softReset()
             default:
                 return Promise.reject()
         }
