@@ -58,9 +58,11 @@ export default class Ista extends Provider<IstaService> {
                 })
             }).then((data: any) => data.json())
 
-            for (const service of data["Cus"][0]["curConsumption"]["ServicesComp"]) {
+            for (const i in data["Cus"][0]["curConsumption"]["ServicesComp"]) {
+                const billing = data["Cus"][0]["curConsumption"]["Billingservices"][i]
+                const service = data["Cus"][0]["curConsumption"]["ServicesComp"][i]
                 for (const meter of service["CurMeters"])
-                    this.services.get(meter["MeterId"])?.refresh(meter) ?? this.registerService(new IstaService(this, meter))
+                    this.services.get(meter["MeterId"])?.refresh(meter) ?? this.registerService(new IstaService(this, meter, billing))
             }
         }, {
             interval: 60 * 60 * 24,
@@ -70,16 +72,18 @@ export default class Ista extends Provider<IstaService> {
 }
 
 class IstaService extends Service<Ista> {
-    constructor(provider: Ista, data: any) {
+    constructor(provider: Ista, data: any, billingService: any) {
         super(provider, data["MeterId"])
         this.registerType("sensor")
         this.registerIdentifier("ista", data["MeterId"])
         this.name = "Meter"
 
-        for (const [key, property] of Object.entries(ISTA_SERVICE_PROPERTIES))
-            this.registerProperty(key, typeof property.definition === "string" ? property.definition : { ...property.definition, ...{
+        for (const [key, property] of Object.entries(ISTA_SERVICE_PROPERTIES)) {
+            const definition = typeof property.definition === "function" ? property.definition(data, billingService) : property.definition
+            this.registerProperty(key, typeof definition === "string" ? definition : { ...definition, ...{
                 read_only: true
             }}, property.parse(data))
+        }
     }
 
     refresh(data: any) {

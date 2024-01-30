@@ -2,7 +2,7 @@ import { Property } from "../shared/definitions"
 
 interface IstaServiceProperty {
     parse: (data: any) => any
-    definition: Omit<Property, 'read_only'> | string
+    definition: Omit<Property, 'read_only'> | ((data: any, billing: any) => Omit<Property, 'read_only'>) | string
 }
 
 export const ISTA_SERVICE_PROPERTIES: Record<string, IstaServiceProperty> = {
@@ -13,13 +13,21 @@ export const ISTA_SERVICE_PROPERTIES: Record<string, IstaServiceProperty> = {
             label: "Meter Nr."
         }
     },
-    "EndValue": {
-        parse: (data: any) => data.EndValue,
+    "MeterId": {
+        parse: (data: any) => data.MeterId,
         definition: {
+            type: "string",
+            label: "Meter ID"
+        }
+    },
+    "EndValue": {
+        parse: (data: any) => data.CalcFactor > 0 ? data.EndValue * data.CalcFactor : data.EndValue,
+        definition: (_, billing: any) => ({
             '@type': "level",
             type: "number",
+            unit: billing["Unit"],
             label: "Value"
-        }
+        })
     },
     "CalcFactor": {
         parse: (data: any) => data.CalcFactor,
