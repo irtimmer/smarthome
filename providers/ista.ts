@@ -62,7 +62,7 @@ export default class Ista extends Provider<IstaService> {
                 const billing = data["Cus"][0]["curConsumption"]["Billingservices"][i]
                 const service = data["Cus"][0]["curConsumption"]["ServicesComp"][i]
                 for (const meter of service["CurMeters"])
-                    this.services.get(meter["MeterId"])?.refresh(meter) ?? this.registerService(new IstaService(this, meter, billing))
+                    this.services.get(meter["MeterNr"])?.refresh(meter) ?? this.registerService(new IstaService(this, meter, billing))
             }
         }, {
             interval: 60 * 60 * 24,
@@ -73,9 +73,9 @@ export default class Ista extends Provider<IstaService> {
 
 class IstaService extends Service<Ista> {
     constructor(provider: Ista, data: any, billingService: any) {
-        super(provider, data["MeterId"])
+        super(provider, data["MeterNr"])
         this.registerType("sensor")
-        this.registerIdentifier("ista", data["MeterId"])
+        this.registerIdentifier("ista", data["MeterNr"])
         this.name = "Meter"
 
         for (const [key, property] of Object.entries(ISTA_SERVICE_PROPERTIES)) {
