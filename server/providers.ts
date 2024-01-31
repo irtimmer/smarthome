@@ -42,6 +42,7 @@ export default class Providers extends EventEmitter {
             })
 
             service.identifiers.forEach(id => service.emit("identifier", ...id.split(':')))
+            service.values.forEach((value, key) => service.emit("update", key, value, undefined))
         })
 
         provider.on("unregister", (service: Service) => {
