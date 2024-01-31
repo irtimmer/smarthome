@@ -24,7 +24,7 @@ export default class InfluxDBLogger implements Logger {
         this.#bucket = config.bucket
     }
 
-    write(service: string, type: string, key: string, value: any, oldValue: any): void {
+    write(service: string, type: string, key: string, value: any, oldValue: any, timestamp: number | undefined): void {
         // After a restart, the previous value needs to be fetched from the database
         if (oldValue == undefined)
             oldValue = this.getPreviousValue(service, type, key)
@@ -36,6 +36,9 @@ export default class InfluxDBLogger implements Logger {
             .tag('service_id', service)
             .tag('property', key)
             .floatField('value', value)
+
+        if (timestamp)
+            point.timestamp(new Date(timestamp * 1000))
 
         this.#writeApi.writePoint(point)
     }

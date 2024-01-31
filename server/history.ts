@@ -9,6 +9,7 @@ export type HistoryConfig = {
     track: {
         service_type: string,
         property_type: string
+        timestamp_property?: string
         maximum?: number
         minimum?: number
     }[]
@@ -52,8 +53,12 @@ export default class History {
                     oldValue = undefined
             }
 
+            let timestamp = null
+            if (tracker.timestamp_property)
+                timestamp = service.values.get(tracker.timestamp_property)
+
             let type = service.properties.get(key)?.["@type"] ?? "generic"
-            this.#logger?.write(service.uniqueId, type, key, value, oldValue)
+            this.#logger?.write(service.uniqueId, type, key, value, oldValue, timestamp)
         })
     }
 }
