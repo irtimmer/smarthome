@@ -39,7 +39,7 @@ export default class PhilipsTVProvider extends Provider<Service<PhilipsTVProvide
                     data: {
                         notification: this.#currentState
                     },
-                    timeout: 2 * 60 + 5
+                    timeout: (2 * 60 + 5) * 1000
                 })
 
                 for (const [endpoint, data] of Object.entries(res.data))
