@@ -117,6 +117,19 @@ class ZWaveDeviceService extends ZWaveService {
         })
         this.updateValue("name", node.name ?? `${node.deviceConfig?.manufacturer} ${node.deviceConfig?.label}`)
 
+        this.registerProperty("product", {
+            type: "string",
+            label: "Product",
+            read_only: true,
+            group: "meta"
+        }, node.deviceConfig?.label)
+        this.registerProperty("manufacturer", {
+            type: "string",
+            label: "Manufacturer",
+            read_only: true,
+            group: "meta"
+        }, node.deviceConfig?.manufacturer)
+
         this.registerAction("refreshInfo", {
             label: 'Refresh Info'
         })
