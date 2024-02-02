@@ -6,6 +6,17 @@ export const MAIN_PROPERTIES: { type: string, property: string }[] = [
     { type: "sensor", property: "level" }
 ]
 
+export const SECONDARY_PROPERTIES = [
+    "temperature",
+    "brightness",
+    "lightlevel",
+    "power",
+    "consumption",
+    "battery",
+    "voltage",
+    "current",
+]
+
 export const TYPE_ICONS: TypeIconMapping = {
     _default: "mdi-gauge",
     "endpoint": "mdi-devices",

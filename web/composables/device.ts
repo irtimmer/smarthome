@@ -83,12 +83,17 @@ export const useDevice = (device: Device) => {
         return findIcon(TYPE_ICONS)
     }
 
+    function secondaries() {
+        return SECONDARY_PROPERTIES.map(x => property(x)).flat().filter(([_, d]) => d != null)
+    }
+
     return {
         services,
         property,
         value,
         name,
         main,
+        secondaries,
         icon,
         badge
     }
