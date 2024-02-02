@@ -1,15 +1,22 @@
 import Provider from "../shared/provider";
 import Service from "../shared/service";
+import Controller from "./controller";
 
 type UserConfig = {
     name: string
+    devices: {
+        id: string
+    }[]
 }
 
 export type UsersConfig = Record<string, UserConfig>
 
 export default class Users extends Provider<User> {
-    constructor(config: UsersConfig) {
+    readonly controller: Controller
+
+    constructor(controller: Controller, config: UsersConfig) {
         super("users")
+        this.controller = controller
 
         this.setConfig(config)
     }
@@ -35,5 +42,16 @@ class User extends Service<Users> {
         this.registerType("user")
         this.registerIdentifier("username", id)
         this.registerProperty("name", "name", config.name)
+        this.registerProperty("devices", {
+            type: "services",
+            label: "Devices",
+            read_only: true
+        })
+
+        this.updateConfig(config)
+    }
+
+    updateConfig(config: UserConfig) {
+        this.updateValue("devices", config.devices.map(device => device.id))
     }
 }
