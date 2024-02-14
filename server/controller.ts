@@ -40,7 +40,7 @@ export default class Controller {
         this.rules = new Rules(this, config.rules)
         this.scenes = new Scenes(this, config.scenes)
         this.groups = new Groups(config.groups)
-        this.users = new Users(config.users)
+        this.users = new Users(this, config.users)
 
         this.providers.registerProvider(this.rules)
         this.providers.registerProvider(this.scenes)
