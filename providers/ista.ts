@@ -1,5 +1,6 @@
 import { CookieJar } from 'tough-cookie'
 import { CookieAgent } from 'http-cookie-agent/undici'
+import { HeaderGenerator } from 'header-generator'
 
 import Provider from "../shared/provider"
 import Service from "../shared/service"
@@ -17,12 +18,20 @@ type IstaConfig = {
 export default class Ista extends Provider<IstaService> {
     constructor(id: string, config: IstaConfig) {
         super(id)
+        const generator = new HeaderGenerator({
+            httpVersion: '1',
+            browsers: ['firefox'],
+        });
+        const headers = generator.getHeaders()
 
         new Poll(async () => {
             const jar = new CookieJar()
             const agent = new CookieAgent({ cookies: { jar } })
             
-            await fetch(`${ISTA_BASE_URL}/Identity/Account/Login`, { dispatcher: agent })
+            await fetch(`${ISTA_BASE_URL}/Identity/Account/Login`, {
+                dispatcher: agent,
+                headers
+            })
             const cookies = await jar.getCookies(ISTA_BASE_URL)
             const xsrf_token = cookies.find(cookie => cookie.key.startsWith(".AspNetCore.Antiforgery"))?.value
             if (!xsrf_token)
@@ -31,9 +40,9 @@ export default class Ista extends Provider<IstaService> {
             let mainPage = await fetch(`${ISTA_BASE_URL}/Identity/Account/Login`, {
                 method: "POST",
                 dispatcher: agent,
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                },
+                headers: {...headers, ...{
+                    "content-type": "application/x-www-form-urlencoded",
+                }},
                 body: new URLSearchParams({
                     "txtUsername": config.username,
                     "txtPassword": config.password,
@@ -49,9 +58,9 @@ export default class Ista extends Provider<IstaService> {
 
             let data = await fetch(`${ISTA_BASE_URL}/api/Values/UserValues`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: {...headers, ...{
+                    "content-type": "application/json",
+                }},
                 body: JSON.stringify({
                     "JWT": jwtToken,
                     "LANG": "en-US"
@@ -66,7 +75,7 @@ export default class Ista extends Provider<IstaService> {
             }
         }, {
             interval: 60 * 60 * 24,
-            retryInterval: 5 * 60
+            retryInterval: 60 * 60
         })
     }
 }
