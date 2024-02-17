@@ -55,32 +55,39 @@ export default class HueProvider extends Provider<HueService> {
         });
 
         events.onmessage = this.#onmessage.bind(this)
-
-        this.fetch(`/clip/v2/resource`).then(async (json: any) => {
-            for (let serviceData of json.data) {
-                const service = this.registerService(new HueService(this, serviceData))
-
-                if (serviceData.type in HUE_SERVICE_TYPE)
-                    service.updateTypes(HUE_SERVICE_TYPE[serviceData.type])
-
-                if (serviceData.owner)
-                    service.registerIdentifier('uuid', serviceData.owner.rid)
-
-                if (serviceData.script_id)
-                    service.registerIdentifier('uuid', serviceData.script_id)
-
-                if (serviceData.group)
-                    service.registerIdentifier('uuid', serviceData.group.rid)
-
-                service.registerIdentifier('uuid', serviceData.id)
-                service.update(serviceData, false)
-            }
-        }).catch((err: any) => {
-            console.error(err)
+        new Poll(this.#connect.bind(this), {
+            interval: 60 * 60
         })
     }
 
-    fetch(path: string, options: any = {}) {
+    async #connect() {
+        let json = await this.fetch(`/clip/v2/resource`)
+        for (let serviceData of json.data) {
+            if (this.services.has(serviceData.id))
+                continue
+
+            const service = this.registerService(new HueService(this, serviceData))
+
+            if (serviceData.type in HUE_SERVICE_TYPE)
+                service.updateTypes(HUE_SERVICE_TYPE[serviceData.type])
+
+            if (serviceData.owner)
+                service.registerIdentifier('uuid', serviceData.owner.rid)
+            else if (serviceData.script_id)
+                service.registerIdentifier('uuid', serviceData.script_id)
+            else if (serviceData.group)
+                service.registerIdentifier('uuid', serviceData.group.rid)
+
+            service.registerIdentifier('uuid', serviceData.id)
+
+            if (serviceData.metadata?.control_id)
+                service.instanceId = serviceData.metadata?.control_id.toString()
+
+            service.update(serviceData, false)
+        }
+    }
+
+    fetch(path: string, options: any = {}): Promise<any> {
         return new Promise((resolve, reject) => this.#lock.take(done => {
             let req = request(`${this.#url}${path}`, {...options, ...{
                 agent: this.#agent,
@@ -88,7 +95,11 @@ export default class HueProvider extends Provider<HueService> {
                     'hue-application-key': this.#key
                 }
             }}, response => {
-                resolve(consumers.json(response))
+                if (response.statusCode == 429)
+                    resolve(consumers.text(response).then(t => reject(t)))
+                else
+                    resolve(consumers.json(response))
+
                 response.on("close", done)
             }).on('error', (e) => {
                 reject(e)
