@@ -35,6 +35,7 @@ export default class HueProvider extends Provider<HueService> {
     #key: string
     #agent: Agent
     #lock: Semaphore
+    #bridge?: HueService
 
     constructor(id: string, options: HueOptions) {
         super(id)
@@ -62,6 +63,16 @@ export default class HueProvider extends Provider<HueService> {
 
     async #connect() {
         let json = await this.fetch(`/clip/v2/resource`)
+
+        let bridge_data = json.data.filter((serviceData: any) => serviceData.type == "bridge")[0]
+        if (!this.#bridge) {
+            this.#bridge = this.registerService(new HueService(this, bridge_data))
+            this.#bridge.updateTypes(HUE_SERVICE_TYPE.bridge)
+            this.#bridge.registerIdentifier('uuid', bridge_data.id)
+            this.#bridge.registerIdentifier('uuid', bridge_data.owner.rid)
+            this.#bridge.update(bridge_data, false)
+        }
+
         for (let serviceData of json.data) {
             if (this.services.has(serviceData.id))
                 continue
@@ -85,6 +96,10 @@ export default class HueProvider extends Provider<HueService> {
 
             service.update(serviceData, false)
         }
+
+        let services = Array.from(this.services.values())
+        this.#bridge.updateValue("_scripts", Array.from(services.filter(s => s.types.has('controller')).map(s => s.identifiers.values().next().value)))
+        this.#bridge.updateValue("_apis", Array.from(services.filter(s => s.types.has("api")).map(s => s.identifiers.values().next().value)))
     }
 
     fetch(path: string, options: any = {}): Promise<any> {

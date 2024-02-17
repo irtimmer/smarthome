@@ -85,6 +85,24 @@ const HUE_LIGHT_PROPERTIES: HueServiceType = {
 }
 
 export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
+    bridge: {
+        _scripts: {
+            parse: (_) => null,
+            definition: {
+                '@type': 'children',
+                type: "services",
+                label: "Scripts"
+            }
+        },
+        _apis: {
+            parse: (_) => null,
+            definition: {
+                '@type': 'children',
+                type: "services",
+                label: "API's"
+            }
+        }
+    },
     room: HUE_GROUP_PROPERTIES,
     scene: {
         name: {
