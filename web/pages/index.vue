@@ -47,13 +47,14 @@ const deviceGroups = computed(() => {
   let groups = new Map<string, DeviceGroup>()
   for (const [key, device] of store.devices.entries()) {
     const { services, value, name: getName } = useDevice(device)
+    const ids = value('children') ?? []
+    const devices = Array.from(store.devices.entries()).filter(([_, dev]) => dev.identifiers.find(x => ids.includes(x)))
+    devices.forEach(([_, dev]) => groupedDevices.add(dev))
+
     const groupServices = services().filter(([_, service]) => service.types.includes('room'))
     if (groupServices.length > 0) {
-      const ids = value('children') ?? []
-      const devices = Array.from(store.devices.entries()).filter(([_, dev]) => dev.identifiers.find(x => ids.includes(x)))
 
       groupedDevices.add(device)
-      devices.forEach(([_, dev]) => groupedDevices.add(dev))
       groups.set(key, {
         device,
         name: getName(),
