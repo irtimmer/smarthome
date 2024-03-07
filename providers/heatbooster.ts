@@ -38,6 +38,7 @@ class HeatBoosterService extends Service<HeatBoosterProvider> {
 
     async update() {
         return fetch(`${this.#config.url}/getStatus`).then((data: any) => data.json()).then((data: any) => {
+            this.registerIdentifier('ip', data.WIFI_TEST_IP)
             for (const [key, property] of Object.entries(HEATBOOSTER_PROPERTIES))
                 this.updateValue(key, property.parse(data))
         })
