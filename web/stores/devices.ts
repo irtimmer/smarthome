@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 
+type PropertyGroup = 'internal' | 'config' | 'meta'
+
 export interface Device {
     services: [string]
     identifiers: [string]
@@ -8,15 +10,19 @@ export interface Device {
 export interface Property {
     '@type'?: string
     type: string
+    logical_type?: string
     label: string
     read_only: boolean
+    group?: PropertyGroup
     min?: number
     max?: number
     unit?: string
+    options?: { [key: string]: string } | { [key: string]: number }
 }
 
 export interface Action {
     label: string
+    group?: PropertyGroup
 }
 
 export interface Service {
