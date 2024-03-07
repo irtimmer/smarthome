@@ -13,10 +13,9 @@ export default class HeatBoosterProvider extends Provider<HeatBoosterService> {
         super(id)
 
         const service = this.registerService(new HeatBoosterService(this, config))
-        const poll = new Poll(async () => service.update(), {
+        new Poll(async () => service.update(), {
             interval: 30
         })
-        this.registerTask("poll", poll)
     }
 }
 
