@@ -91,10 +91,6 @@ export default class HueProvider extends Provider<HueService> {
                 service.registerIdentifier('uuid', serviceData.group.rid)
 
             service.registerIdentifier('uuid', serviceData.id)
-
-            if (serviceData.metadata?.control_id)
-                service.instanceId = serviceData.metadata?.control_id.toString()
-
             service.update(serviceData, false)
         }
 
