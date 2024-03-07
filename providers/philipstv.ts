@@ -132,7 +132,6 @@ class PhilipsTVService extends Service<PhilipsTVProvider> {
     triggerAction(key: string, props: any): Promise<void> {
         const id = this.id.replace('-', '/')
         const action: any = PHILIPS_TV_ACTIONS[id][key]
-        console.log(key, props)
         if (action && action.trigger) {
             return this.provider.request(id, {
                 method: 'POST',
