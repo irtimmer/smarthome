@@ -7,7 +7,9 @@ import Service from "../shared/service"
 import Poll from "../shared/utils/poll"
 
 import { ISTA_SERVICE_PROPERTIES } from './ista_constants'
+import Store from '../shared/store'
 
+const INTERVAL = 60 * 60 * 24
 const ISTA_BASE_URL = 'https://mijn.ista.nl'
 
 type IstaConfig = {
@@ -16,7 +18,7 @@ type IstaConfig = {
 }
 
 export default class Ista extends Provider<IstaService> {
-    constructor(id: string, config: IstaConfig) {
+    constructor(id: string, config: IstaConfig, storage: Store) {
         super(id)
         const generator = new HeaderGenerator({
             httpVersion: '1',
@@ -25,6 +27,12 @@ export default class Ista extends Provider<IstaService> {
         const headers = generator.getHeaders()
 
         new Poll(async () => {
+            // Load from cache
+            if (storage.get("updated") > Date.now() / 1000 - INTERVAL) {
+                this.update(storage.get("data"))
+                return
+            }
+
             const jar = new CookieJar()
             const agent = new CookieAgent({ cookies: { jar } })
             
@@ -67,16 +75,22 @@ export default class Ista extends Provider<IstaService> {
                 })
             }).then((data: any) => data.json())
 
-            for (const i in data["Cus"][0]["curConsumption"]["ServicesComp"]) {
-                const billing = data["Cus"][0]["curConsumption"]["Billingservices"][i]
-                const service = data["Cus"][0]["curConsumption"]["ServicesComp"][i]
-                for (const meter of service["CurMeters"])
-                    this.services.get(meter["MeterNr"])?.refresh(meter) ?? this.registerService(new IstaService(this, meter, billing))
-            }
+            storage.set("data", data)
+            storage.set("updated", Date.now() / 1000)
+            this.update(data)
         }, {
-            interval: 60 * 60 * 24,
+            interval: INTERVAL,
             retryInterval: 60 * 60
         })
+    }
+
+    update(data: any) {
+        for (const i in data["Cus"][0]["curConsumption"]["ServicesComp"]) {
+            const billing = data["Cus"][0]["curConsumption"]["Billingservices"][i]
+            const service = data["Cus"][0]["curConsumption"]["ServicesComp"][i]
+            for (const meter of service["CurMeters"])
+                this.services.get(meter["MeterNr"])?.refresh(meter) ?? this.registerService(new IstaService(this, meter, billing))
+        }
     }
 }
 
