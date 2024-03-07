@@ -1,6 +1,6 @@
 import { type Device, type Service, useStore } from "~~/stores/devices"
 
-import { type TypeIconMapping, TYPE_ICONS } from "./device_constants"
+import { SECONDARY_PROPERTIES, type TypeIconMapping, TYPE_ICONS, MAIN_PROPERTIES } from "./device_constants"
 
 export const useDevice = (device: Device) => {
     const store = useStore()
