@@ -47,4 +47,20 @@ export const HEATBOOSTER_PROPERTIES: { [type: string]: HeatBoosterProperty } = {
             label: 'Fan Speed'
         }
     },
+    FW_VERSION: {
+        parse: (data: any) => data.FW_VERSION,
+        defenition: {
+            type: 'string',
+            label: 'Firmware Version',
+            group: 'meta'
+        }
+    },
+    T_CHIP: {
+        parse: (data: any) => data.T_CHIP,
+        defenition: {
+            type: 'string',
+            label: 'Chip Version',
+            group: 'meta'
+        }
+    }
 }
