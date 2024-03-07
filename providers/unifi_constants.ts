@@ -21,7 +21,8 @@ export const UNIFI_SERVICE_PROPERTIES: Record<string, UnifiServiceProperty> = {
         parse: (data: any) => data.ip,
         definition: {
             label: "IP Address",
-            type: "string"
+            type: "string",
+            group: "meta"
         }
     },
     "mac": {
