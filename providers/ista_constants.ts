@@ -46,7 +46,8 @@ export const ISTA_SERVICE_PROPERTIES: Record<string, IstaServiceProperty> = {
     "EsDate": {
         parse: (data: any) => new Date(data.EsDate.split("-").reverse().join("-")).getTime() / 1000,
         definition: {
-            type: "string",
+            type: "number",
+            logical_type: 'timestamp',
             label: "Date"
         }
     },

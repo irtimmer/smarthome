@@ -3,6 +3,7 @@ export type PropertyGroup = 'internal' | 'config' | "meta"
 export interface Property {
     '@type'?: string
     type: string
+    logical_type?: string
     label: string
     read_only: boolean
     group?: PropertyGroup

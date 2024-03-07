@@ -33,11 +33,13 @@ class SunService extends Service<SunCalcProvider> {
         this.registerType("sun")
         this.registerProperty('sunset', {
             type: 'number',
+            logical_type: 'timestamp',
             label: 'Sunset',
             read_only: true
         })
         this.registerProperty('sunrise', {
             type: 'number',
+            logical_type: 'timestamp',
             label: 'Sunrise',
             read_only: true
         })
@@ -51,8 +53,8 @@ class SunService extends Service<SunCalcProvider> {
     update() {
         const date = new Date()
         const times = SunCalc.getTimes(date, this.#config.latitude, this.#config.longitude)
-        this.updateValue('sunset', times.sunset.getTime())
-        this.updateValue('sunrise', times.sunrise.getTime())
+        this.updateValue('sunset', times.sunset.getTime() / 1000)
+        this.updateValue('sunrise', times.sunrise.getTime() / 1000)
 
         const position = SunCalc.getPosition(date, this.#config.latitude, this.#config.longitude)
         this.updateValue('altitude', position.altitude)
