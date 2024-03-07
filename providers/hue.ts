@@ -7,6 +7,7 @@ import { Semaphore } from "../shared/utils/semaphore"
 import { Action, Property } from "../shared/definitions"
 import Provider from "../shared/provider"
 import Service from "../shared/service"
+import Poll from "../shared/utils/poll"
 
 import { HUE_SERVICE_TYPE, HUE_SERVICE_TYPES, HUE_SERVICE_ACTIONS, HUE_SERVICE_PRIORITIES } from "./hue_constants"
 
