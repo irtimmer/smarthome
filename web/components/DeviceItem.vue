@@ -33,7 +33,6 @@ const store = useStore()
 
 const helper = useDevice(props.device)
 const main = computed(() => {
-    //console.log(devic)
     const [serviceId, propertyId] = helper.main()
     return {
         service: serviceId,
