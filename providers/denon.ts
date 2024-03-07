@@ -29,6 +29,7 @@ class DenonService extends Service<DenonProvider> {
     constructor(provider: DenonProvider, id: string) {
         super(provider, id)
         this.registerIdentifier("provider", this.id)
+        this.name = "Denon AVR"
 
         this.#socket = new Socket();
         this.#reconnect = new Retry(this.#connect.bind(this))
