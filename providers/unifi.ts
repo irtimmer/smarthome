@@ -94,6 +94,7 @@ class UnifiService extends Service<Unifi> {
     constructor(provider: Unifi, device: any) {
         super(provider, device._id)
         this.name = "Endpoint"
+        this.priority = -10
         this.registerIdentifier("mac", device.mac.replaceAll(':', ''))
         this.registerIdentifier("ip", device.ip)
         this.registerType("endpoint")
