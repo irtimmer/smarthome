@@ -117,27 +117,27 @@ class PhilipsTVService extends Service<PhilipsTVProvider> {
         this.registerType("television")
     }
 
-    setValue(key: string, value: any): Promise<void> {
+    async setValue(key: string, value: any) {
         const id = this.id.replace('-', '/')
         const property = PHILIPS_TV_PROPERTIES[id][key]
         if (property && property.set) {
-            return this.provider.request(id, {
+            await this.provider.request(id, {
                 method: 'POST',
                 content: JSON.stringify(property.set(value))
-            }).catch(e => console.error(e)) as Promise<void>
+            }).catch(e => console.error(e))
         } else
-            return Promise.reject()
+            throw new Error("Property not found")
     }
 
-    triggerAction(key: string, props: any): Promise<void> {
+    async triggerAction(key: string, props: any): Promise<void> {
         const id = this.id.replace('-', '/')
         const action: any = PHILIPS_TV_ACTIONS[id][key]
         if (action && action.trigger) {
-            return this.provider.request(id, {
+            await this.provider.request(id, {
                 method: 'POST',
                 content: JSON.stringify(action.trigger(props))
-            }).catch(e => console.error(e)) as Promise<void>
+            }).catch(e => console.error(e))
         } else
-            return Promise.reject()
+            throw new Error("Action not found")
     }
 }

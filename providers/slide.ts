@@ -95,7 +95,7 @@ class Slide extends Service<SlideProvider> {
     async setValue(key: string, value: any) {
         if ('url' in SLIDE_PROPERTIES[key]) {
             const token = await this.provider.getToken()
-            return fetch(`${SLIDE_URL}/slide/${this.#internalId}/${SLIDE_PROPERTIES[key].url}`, {
+            await fetch(`${SLIDE_URL}/slide/${this.#internalId}/${SLIDE_PROPERTIES[key].url}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `${token.token_type} ${token.access_token}`,
@@ -104,10 +104,8 @@ class Slide extends Service<SlideProvider> {
                 body: JSON.stringify({
                     [key]: value
                 })
-            }).then(async (x: any) => {
-                console.log(await x.json())
             })
-        }
-        return Promise.reject("Unsupported key")
+        } else
+            return Promise.reject("Unsupported key")
     }
 }

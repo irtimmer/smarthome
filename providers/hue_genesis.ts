@@ -144,18 +144,17 @@ class GenesisService extends AbstractService<GenesisProvider> {
         });
     }
 
-    setValue(key: string, value: any): Promise<void> {
+    async setValue(key: string, value: any) {
         if (!this.#socket)
-            return Promise.reject("No socket")
+            throw new Error("No socket")
 
         const property = GENESIS_PROPERTIES[key]
         if (!property.set)
-            return Promise.reject("Property is read-only")
+            throw new Error("Property is read-only")
 
         this.#socket.send(JSON.stringify({
             type: "control",
             data: property.set(value)
         }))
-        return Promise.resolve()
     }
 }

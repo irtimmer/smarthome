@@ -189,29 +189,29 @@ class HueService extends Service<HueProvider> {
         }
     }
 
-    triggerAction(key: string, props: any) {
+    async triggerAction(key: string, props: any) {
         if (this.#typeActionDefinitions && this.#typeActionDefinitions[key]) {
-            return this.provider.fetch(`/clip/v2/resource/${this.#type}/${this.id}`, {
+            await this.provider.fetch(`/clip/v2/resource/${this.#type}/${this.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(this.#typeActionDefinitions[key].trigger!(props))
-            }) as Promise<void>
+            })
         } else
-            return Promise.reject()
+            throw new Error("Action not found")
     }
 
-    setValue(key: string, value: any) {
+    async setValue(key: string, value: any) {
         if (this.#typeDefinition[key].set) {
-            return this.provider.fetch(`/clip/v2/resource/${this.#type}/${this.id}`, {
+            await this.provider.fetch(`/clip/v2/resource/${this.#type}/${this.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(this.#typeDefinition[key].set!(value))
-            }) as Promise<void>
+            })
         } else
-            return Promise.reject()
+            throw new Error("Property not found")
     }
 }

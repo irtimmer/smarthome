@@ -153,25 +153,28 @@ class ZWaveDeviceService extends ZWaveService {
         this.updateValue("alive", ![NodeStatus.Dead, NodeStatus.Unknown].includes(status))
     }
 
-    triggerAction(key: string, props: any): Promise<void> {
+    async triggerAction(key: string, props: any) {
         switch (key) {
             case 'refreshInfo':
-                return this.node.refreshInfo()
+                await this.node.refreshInfo()
+                break
             case 'refreshValues':
-                return this.node.refreshValues()
+                await this.node.refreshValues()
+                break
             default:
-                return super.triggerAction(key, props);
+                throw Error("Invalid action")
         }
     }
 
-    setValue(key: string, value: any): Promise<void> {
+    async setValue(key: string, value: any) {
         switch (key) {
             case 'name':
                 this.node.name = value
                 this.updateValue('name', value)
-                return Promise.resolve()
+                break
+            default:
+                throw Error("Invalid property")
         }
-        return Promise.reject()
     }
 }
 
@@ -254,7 +257,7 @@ class ZWaveCommandClassService extends ZWaveService {
             this.updateValue(propertyKey, convertValue(this.properties.get(propertyKey)!.type, args.newValue))
     }
 
-    setValue(key: string, value: any): Promise<void> {
+    async setValue(key: string, value: any) {
         if (this.#commandClass in ZWAVE_COMMAND_CLASS_PROPERTIES && key in ZWAVE_COMMAND_CLASS_PROPERTIES[this.#commandClass]) {
             const propertySettings = ZWAVE_COMMAND_CLASS_PROPERTIES[this.#commandClass][key]!
 
@@ -273,7 +276,7 @@ class ZWaveCommandClassService extends ZWaveService {
         if (this.properties.get(key)?.type == 'enum')
             value = parseInt(value)
 
-        return this.node.setValue({
+        return await this.node.setValue({
             endpoint: this.#endpoint,
             commandClass: this.#commandClass,
             property,
@@ -283,8 +286,8 @@ class ZWaveCommandClassService extends ZWaveService {
         })
     }
 
-    triggerAction(key: string, _props: any): Promise<void> {
-        return this.setValue(key, true)
+    async triggerAction(key: string, _props: any) {
+        return await this.setValue(key, true)
     }
 
     static serviceId(node: ZWaveNode, args: Omit<ValueID, 'property'>) {
@@ -351,22 +354,27 @@ class ZWaveControllerService extends ZWaveService {
         })
     }
 
-    triggerAction(key: string, _props: any): Promise<void> {
+    async triggerAction(key: string, _props: any) {
         switch (key) {
             case "beginInclusion":
-                return this.#controller.beginInclusion().then((_) => {})
+                await this.#controller.beginInclusion()
+                break
             case "stopInclusion":
-                return this.#controller.stopInclusion().then((_) => {})
+                await this.#controller.stopInclusion()
+                break
             case "beginExclusion":
-                return this.#controller.beginExclusion().then((_) => {})
+                await this.#controller.beginExclusion()
+                break
             case "stopExclusion":
-                return this.#controller.stopExclusion().then((_) => {})
+                await this.#controller.stopExclusion()
+                break
             case "rebuildRoutes":
                 return this.#controller.beginRebuildingRoutes() ? Promise.resolve() : Promise.reject()
             case "softReset":
-                return this.provider.driver.softReset()
+                await this.provider.driver.softReset()
+                break
             default:
-                return Promise.reject()
+                throw Error("Invalid action")
         }
     }
 }

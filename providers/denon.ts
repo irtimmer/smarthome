@@ -81,12 +81,11 @@ class DenonService extends Service<DenonProvider> {
         }
     }
 
-    setValue(key: string, value: any): Promise<void> {
+    async setValue(key: string, value: any) {
         const property = DENON_PROPERTIES[key]
         if (!property || !property.set)
-            return Promise.reject()
+            throw new Error("Property is not found or read-only")
 
         this.#socket.write(property.set(value) + "\r");
-        return Promise.resolve()
     }
 }

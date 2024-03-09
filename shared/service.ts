@@ -105,11 +105,11 @@ export default abstract class AbstractService<T extends Provider<Service>> exten
         this.emit("event", key, args)
     }
 
-    setValue(key: string, value: any): Promise<void> {
+    async setValue(key: string, value: any) {
         throw new Error("Method not implemented.");
     }
 
-    triggerAction(key: string, props: any): Promise<void> {
+    async triggerAction(key: string, props: any) {
         throw new Error("Method not implemented.");
     }
 
