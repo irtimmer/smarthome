@@ -25,6 +25,7 @@ export default class DenonProvider extends Provider<DenonService> {
 class DenonService extends Service<DenonProvider> {
     #socket: Socket
     #reconnect: Retry
+    #lastError?: Error
 
     constructor(provider: DenonProvider, id: string) {
         super(provider, id)
@@ -46,8 +47,8 @@ class DenonService extends Service<DenonProvider> {
 
     async #connect() {
         this.#socket.connect(23, this.provider.host);
-        this.#socket.on('close', this.#reconnect.retry.bind(this.#reconnect))
-        this.#socket.on('error', this.#reconnect.retry.bind(this.#reconnect))
+        this.#socket.on('close', hasError => this.#reconnect.retry(hasError ? this.#lastError : undefined))
+        this.#socket.on('error', e => this.#lastError = e)
         this.#socket.on('data', this.#onData.bind(this));
         this.#socket.on('connect', async () => {
             this.#reconnect.succeeded()
