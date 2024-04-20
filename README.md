@@ -20,6 +20,7 @@ Lots of pairing and authentication code is not included (yet).
 - Philips Television (requires manually provided authentication username and password)
 - Android TV using Remote v2 API (requires certificate creation and manually pairing)
 - suncalc (just a library for calculating the sun position)
+- TeslaMate (requires MQTT server)
 
 [slide]: https://slide.store
 

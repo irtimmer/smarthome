@@ -46,6 +46,7 @@ providers: {}
 #    client_secret: SPOTIFY-CLIENT-SECRET
 #    code: SPOTIFY-CODE
 #    refresh_token: SPOTIFY-REFRESH-TOKEN
+#  teslamate: {}
 
 scenes: {}
 #  example1:
