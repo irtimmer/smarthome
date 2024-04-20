@@ -22,6 +22,12 @@ providers: {}
 #  hue:
 #    host: "https://HUE-BRIDGE-IP"
 #    key: HUE-API-KEY
+#  hue_genesis:
+#    client_id: OFFICIAL_HUE_APP_CLIENT_ID
+#    client_secret: OFFICIAL_HUE_APP_CLIENT_SECRET
+#  ista:
+#    username: USERNAME
+#    password: PASSWORD
 #  openmeteo:
 #    latitude: LATITUDE
 #    longitude: LONGITUDE
@@ -41,6 +47,10 @@ providers: {}
 #    latitude: LATITUDE
 #    longitude: LONGITUDE
 #  teslamate: {}
+#  unifi:
+#    url: http://localhost:8443
+#    username: USERNAME
+#    password: PASSWORD
 #  zwave:
 #    port: /dev/ttyACM0
 #    keys:

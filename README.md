@@ -13,16 +13,21 @@ Lots of pairing and authentication code is not included (yet).
 
 - Android TV using Remote v2 API (requires certificate creation and manually pairing)
 - Denon over Telnet
+- HeatBooster from [SDR Engineering][sdr] over HTTP
+- Hue (requires manually provided API key)
+- Hue Genesis (Hue Spotify integration) (requires manually provided API key)
+- Ista Netherlands
 - OpenMeteo
-- Philips Hue (requires manually provided API key)
 - Philips Television (requires manually provided authentication username and password)
 - [Slide][slide] (requires username and password)
 - Spotify (requires manually provided OAuth token and API keys)
 - suncalc (just a library for calculating the sun position)
-- TeslaMate (requires MQTT server)
+- TeslaMate over MQTT (requires MQTT server)
+- Unifi
 - ZWave (requires usb dongle)
 
 [slide]: https://slide.store
+[sdr]: https://www.sdr-engineering.nl
 
 ## History
 History of values can be stored in:
