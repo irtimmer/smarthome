@@ -5,12 +5,14 @@ import Devices from "./devices"
 import Groups, { GroupsConfig } from "./groups"
 import Handlers from "./handlers"
 import History, { HistoryConfig } from "./history"
+import ProviderHelper from "./providerhelper"
 import Providers from "./providers"
 import Rules, { RulesConfig } from "./rules"
 import Scenes, { ScenesConfig } from "./scenes"
 import Users, { UsersConfig } from "./users"
 
 type ControllerConfig = {
+    connections: Record<string, any>
     providers: Record<string, any>
     rules: RulesConfig
     scenes: ScenesConfig
@@ -20,6 +22,7 @@ type ControllerConfig = {
 }
 
 export default class Controller {
+    readonly providerHelper: ProviderHelper
     readonly providers: Providers
     readonly devices: Devices
     readonly history: History
@@ -31,7 +34,11 @@ export default class Controller {
     readonly users: Users
 
     constructor(config: ControllerConfig) {
-        this.providers = new Providers(config.providers)
+        this.providerHelper = new ProviderHelper({
+            connections: config.connections
+        })
+
+        this.providers = new Providers(config.providers, this.providerHelper)
         this.devices = new Devices(this.providers)
         this.history = new History(this, config.history)
 

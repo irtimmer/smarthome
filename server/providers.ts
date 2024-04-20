@@ -1,3 +1,4 @@
+import ProviderHelper from "./providerhelper";
 import Storage from "./storage";
 
 import Provider from "../shared/provider";
@@ -9,7 +10,7 @@ export default class Providers extends EventEmitter {
     #providers: Map<string, Provider<Service>>
     #services: Map<string, Service>
 
-    constructor(config: { [key: string]: any }) {
+    constructor(config: { [key: string]: any }, helper: ProviderHelper) {
         super()
         this.#services = new Map
         this.#providers = new Map
@@ -18,7 +19,7 @@ export default class Providers extends EventEmitter {
             for (const [key, providerConfig] of Object.entries(config)) {
                 import(`../providers/${key}.js`).then((providerClass) => {
                     const storage = new Storage(key)
-                    this.registerProvider(new providerClass.default(key, providerConfig, storage))
+                    this.registerProvider(new providerClass.default(key, providerConfig, storage, helper))
                 }).catch(e => {
                     console.error(`Can't load ${key}`, e)
                 })
