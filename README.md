@@ -11,16 +11,16 @@ NOTE: there is currently no authentication implemented
 The following hardware and api's are supported by SmartHome.
 Lots of pairing and authentication code is not included (yet).
 
-- Philips Hue (requires manually provided API key)
-- ZWave (requires usb dongle)
-- [Slide][slide] (requires username and password)
-- OpenMeteo
-- Denon over Telnet
-- Spotify (requires manually provided OAuth token and API keys)
-- Philips Television (requires manually provided authentication username and password)
 - Android TV using Remote v2 API (requires certificate creation and manually pairing)
+- Denon over Telnet
+- OpenMeteo
+- Philips Hue (requires manually provided API key)
+- Philips Television (requires manually provided authentication username and password)
+- [Slide][slide] (requires username and password)
+- Spotify (requires manually provided OAuth token and API keys)
 - suncalc (just a library for calculating the sun position)
 - TeslaMate (requires MQTT server)
+- ZWave (requires usb dongle)
 
 [slide]: https://slide.store
 

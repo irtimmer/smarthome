@@ -1,3 +1,7 @@
+server: {}
+#  cert: SELF-SIGNED-CERT.crt
+#  key: SELF-SIGNED-CERT.key
+
 connections: {}
 #  mqtt:
 #    url: mqtt://localhost
@@ -13,27 +17,30 @@ providers: {}
 #    model: SmartHome
 #    manufacturer: iTimmer
 #    secret: PAIRED-SECRET
+#  denon:
+#    host: "DENON-IP"
 #  hue:
 #    host: "https://HUE-BRIDGE-IP"
 #    key: HUE-API-KEY
-#  slide:
-#    email: SLIDE-EMAIL
-#    password: SLIDE-PASSWORD
 #  openmeteo:
 #    latitude: LATITUDE
 #    longitude: LONGITUDE
-#  suncalc:
-#    latitude: LATITUDE
-#    longitude: LONGITUDE
-#  denon:
-#    host: "DENON-IP"
-#  slide:
-#    email: SLIDE-USERNAME
-#    password: SLIDE-PASSWORD
 #  philipstv:
 #    url: "https://PHILIPS-TV-IP:1926/6"
 #    username: PHILIPS-TV-USERNAME
 #    password: PHILIPS-TV-PASSWORD
+#  slide:
+#    email: SLIDE-EMAIL
+#    password: SLIDE-PASSWORD
+#  spotify:
+#    client_id: SPOTIFY-CLIENT-ID
+#    client_secret: SPOTIFY-CLIENT-SECRET
+#    code: SPOTIFY-CODE
+#    refresh_token: SPOTIFY-REFRESH-TOKEN
+#  suncalc:
+#    latitude: LATITUDE
+#    longitude: LONGITUDE
+#  teslamate: {}
 #  zwave:
 #    port: /dev/ttyACM0
 #    keys:
@@ -41,12 +48,18 @@ providers: {}
 #      s2_authenticated: ZWAVE-S2-AUTHENTICATED-KEY-HEX
 #      s2_access_control: ZWAVE-S2-ACCESS-CONTROL-KEY-HEX
 #      s0: ZWAVE-S0-KEY-HEX
-#  spotify:
-#    client_id: SPOTIFY-CLIENT-ID
-#    client_secret: SPOTIFY-CLIENT-SECRET
-#    code: SPOTIFY-CODE
-#    refresh_token: SPOTIFY-REFRESH-TOKEN
-#  teslamate: {}
+
+history:
+#  logger:
+#    type: influxdb
+#    url: "http://INFLUXDB-IP:8086"
+#    token: INFLUXDB-TOKEN
+#    organisation: Smarthome
+#    bucket: Smarthome
+  track: []
+    # Example to track all temperature sensors
+    #- service_type: temperatureSensor
+    #  property_type: temperature
 
 scenes: {}
 #  example1:
@@ -64,15 +77,3 @@ rules: []
 #      keep_on: 5 #minutes
 #      daylight_level: 16000
 #      dark_level: 20000
-
-history:
-#  logger:
-#    type: influxdb
-#    url: "http://INFLUXDB-IP:8086"
-#    token: INFLUXDB-TOKEN
-#    organisation: Smarthome
-#    bucket: Smarthome
-  track: []
-    # Example to track all temperature sensors
-    #- service_type: temperatureSensor
-    #  property_type: temperature
