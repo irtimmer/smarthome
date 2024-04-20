@@ -1,3 +1,7 @@
+connections: {}
+#  mqtt:
+#    url: mqtt://localhost
+
 providers: {}
 #  androidtv:
 #    host: "ANDROID-TV-IP"
