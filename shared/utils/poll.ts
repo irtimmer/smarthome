@@ -36,16 +36,21 @@ export class Retry {
     }
 
     retry(e?: any) {
-        const wait = 2 ** Math.min(this.attempt, this.options.maxRetries) * this.options.retryInterval
+        let wait = this.attempt > 0 ? 2 ** Math.min(this.attempt, this.options.maxRetries) * this.options.retryInterval : this.options.interval
+        if (e instanceof RetryAfterError && e.retryAfter > wait)
+            wait = e.retryAfter
+
         console.error(`Attempt ${this.attempt} failed, retry in ${wait}s`, e?.message ?? e)
-        this.schedule()
+        this.schedule(wait)
     }
 
-    schedule() {
+    schedule(interval?: number) {
         if (this.#canceled)
             return
 
-        let interval = this.attempt > 0 ? 2 ** Math.min(this.attempt, this.options.maxRetries) * this.options.retryInterval : this.options.interval
+        if (!interval)
+            interval = this.attempt > 0 ? 2 ** Math.min(this.attempt, this.options.maxRetries) * this.options.retryInterval : this.options.interval
+
         this.#timeout = setTimeout(this.run.bind(this), interval * 1000)
     }
 
@@ -72,5 +77,15 @@ export default class Poll extends Retry {
             this.attempt += 1
             this.retry(e)
         })
+    }
+}
+
+export class RetryAfterError extends Error {
+    retryAfter: number
+
+    constructor(message: string, retryAfter: number) {
+      super(message)
+      this.retryAfter = retryAfter
+      this.name = "RetryAfterError"
     }
 }
