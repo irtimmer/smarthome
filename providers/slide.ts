@@ -1,7 +1,7 @@
 import { Property } from "../shared/definitions"
 import Provider from "../shared/provider";
 import Service from "../shared/service";
-import Poll from "../shared/utils/poll";
+import Poll, { RetryAfterError } from "../shared/utils/poll";
 
 import { SLIDE_PROPERTIES } from "./slide_constants";
 
@@ -42,6 +42,12 @@ export default class SlideProvider extends Provider<Slide> {
                 }
             })
             const data: any = await req.json()
+            if (req.status == 429)
+                throw new RetryAfterError("Rate limited", parseInt(req.headers.get('Retry-After') ?? "60"))
+
+            if (!data.slides)
+                throw new Error(data.message)
+
             for (const slide of data.slides) {
                 const id = slide.device_id.substring(6).toLowerCase()
                 const device = this.services.get(id) ?? this.registerService(new Slide(this, id, slide.id))
