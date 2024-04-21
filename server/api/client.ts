@@ -1,4 +1,5 @@
 import express, { Router } from 'express'
+import { v1 as uuidv1 } from 'uuid';
 
 import { Service } from '../../shared/service'
 
@@ -14,8 +15,15 @@ export default class {
         close: any
     }[]
 
+    // Unique identifier for this SmartHome instance to detect restarts
+    #instance: string
+    // Track revision number for event stream
+    #revision: number
+
     constructor(server: Server, controller: Controller) {
         this.#eventListeners = []
+        this.#instance = uuidv1()
+        this.#revision = 0
 
         const devices = controller.devices
         const providers = controller.providers
@@ -24,9 +32,13 @@ export default class {
 
         api.use(express.json())
         api.get('/services', (req, res) => {
-            res.json(Object.fromEntries(Array.from(providers.services, ([id, service]) => [
-                id, this.#serviceToJSON(service)
-            ])))
+            res.json({
+                instance: this.#instance,
+                counter: this.#revision,
+                services: Object.fromEntries(Array.from(providers.services, ([id, service]) => [
+                    id, this.#serviceToJSON(service)
+                ]))
+            })
         })
 
         api.post('/service/:id', (req, res) => {
@@ -58,9 +70,13 @@ export default class {
         })
 
         api.get('/devices', (_, res) => {
-            res.json(Object.fromEntries(Array.from(devices.devices, ([id, device]) => [
-                id, this.#deviceToJSON(device)
-            ])))
+            res.json({
+                instance: this.#instance,
+                counter: this.#revision,
+                devices: Object.fromEntries(Array.from(devices.devices, ([id, device]) => [
+                    id, this.#deviceToJSON(device)
+                ]))
+            })
         })
 
         api.get('/rules', (_, res) => {
@@ -79,6 +95,15 @@ export default class {
             res.writeHead(200, {
                 'Content-Type': 'text/event-stream'
             })
+
+            // Send hello message with instance and revision number
+            res.write("data: ");
+            res.write(JSON.stringify({
+                action: "hello",
+                instance: this.#instance,
+                counter: this.#revision
+            }));
+            res.write("\n\n");
 
             this.#eventListeners.push({
                 response: res,
@@ -129,6 +154,7 @@ export default class {
     }
 
     #notify(data: any) {
+        data['counter'] = this.#revision++
         for (const listener of this.#eventListeners) {
             listener.response.write("data: ");
             listener.response.write(JSON.stringify(data));

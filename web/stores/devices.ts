@@ -33,47 +33,106 @@ export interface Service {
     types: [string]
 }
 
+let events: EventSource | null = null
+let eventQueue: any[] = []
+
 export const useStore = defineStore('main', {
     state: () => ({
+        instance: null,
+        revision: 0,
         devices: new Map as Map<string, Device>,
         services: new Map as Map<string, Service>
     }),
     actions: {
-        init() {
-            if (!process.server) {
-                const events = new EventSource("/api/events")
-                events.onmessage = e => {
-                    const data = JSON.parse(e.data)
-                    switch (data.action) {
-                        case "register":
-                            this.services.set(data.id, data.service)
-                            break
-                        case "unregister":
-                            this.services.delete(data.id)
-                            break
-                        case "update":
-                            const service = this.services.get(data.id)
-                            if (service)
-                                service.values[data.key] = data.value
-
-                            break
-                        case "deviceUpdate":
-                            this.devices.set(data.id, data.device)
-                            break
-                        case "deviceDelete":
-                            this.devices.delete(data.id)
-                    }
-                }
+        onMessage(data: any) {
+            // Ignore messages from other instances
+            if (data.instance && this.instance != data.instance) {
+                this.refresh()
+                return
             }
+
+            // Ignore old messages
+            if (data.counter < this.revision)
+                return
+
+            switch (data.action) {
+                case "register":
+                    this.services.set(data.id, data.service)
+                    break
+                case "unregister":
+                    this.services.delete(data.id)
+                    break
+                case "update":
+                    const service = this.services.get(data.id)
+                    if (service)
+                        service.values[data.key] = data.value
+
+                    break
+                case "deviceUpdate":
+                    this.devices.set(data.id, data.device)
+                    break
+                case "deviceDelete":
+                    this.devices.delete(data.id)
+            }
+        },
+
+        processQueue() {
+            eventQueue.forEach(this.onMessage.bind(this))
+            eventQueue = []
+        },
+
+        connect() {
+            if (events)
+                events.close()
+
+            eventQueue = []
+            events = new EventSource("/api/events")
+            events.onopen = _ => {
+                if (this.instance === null)
+                    this.refresh()
+            }
+            events.onerror = _ => {
+                setTimeout(this.connect, 5000)
+            }
+            events.onmessage = e => {
+                const data = JSON.parse(e.data)
+
+                // Cache events until we have some initial data
+                if (this.instance == null)
+                    eventQueue.push(data)
+                else
+                    this.onMessage(data)
+            }
+        },
+
+        refresh(): Promise<any> {
+            this.instance = null
 
             return Promise.all([
                 $fetch("/api/devices").then(async (data: any) => {
-                    this.devices = new Map(Object.entries(data))
+                    this.devices = new Map(Object.entries(data.devices))
+                    return [data.instance, data.counter]
                 }),
                 $fetch("/api/services").then(async (data: any) => {
-                    this.services = new Map(Object.entries(data))
+                    this.services = new Map(Object.entries(data.services))
+                    return [data.instance, data.counter]
                 })
-            ])
+            ]).then(([[instance1, counter1], [instance2, counter2]]) => {
+                if (instance1 != instance2)
+                    return this.refresh()
+
+                this.instance = instance1
+                this.revision = Math.min(counter1, counter2)
+                this.processQueue()
+            })
+        },
+
+        init() {
+            // Initial data is fetched when events are connected
+            if (!process.server)
+                this.connect()
+            else
+                this.refresh()
         },
 
         update(id: string, key: string, value: any) {
