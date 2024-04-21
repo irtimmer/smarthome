@@ -1,5 +1,7 @@
 import { Logger } from "../shared/logger";
 import { Service } from "../shared/service";
+import logging from "../shared/logging";
+
 import Controller from "./controller";
 
 export type HistoryConfig = {
@@ -16,16 +18,18 @@ export type HistoryConfig = {
 }
 
 export default class History {
+    logger: ReturnType<typeof logging>
     #logger?: Logger
 
     constructor(controller: Controller, config: HistoryConfig) {
+        this.logger = logging().child({ module: "history" })
         if (!config.logger)
             return
 
         import(`../providers/${config.logger.type}.js`).then((loggerModule) => {
             this.#logger = new loggerModule.default(config.logger);
-        }).catch(e => {
-            console.error(`Can't load ${config.logger!.type}`, e)
+        }).catch((e: any) => {
+            this.logger.error({ module: config.logger!.type }, "Can't load provider: %s", e.message)
         })
 
         controller.providers.on("update", (service: Service, key: string, value: any, oldValue: any) => {

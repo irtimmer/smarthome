@@ -4,6 +4,7 @@ import vm from "vm";
 import type Rules from "../rules";
 import { Rule } from "../rule";
 import { Action } from "../constraints";
+import { ServiceFilter } from "../filters";
 import { NullItem, RuleDevice, RuleService, itemProxyHandler, setActiveRule } from "./api";
 
 export type JSRuleConfig = {
@@ -20,7 +21,7 @@ export default class JSRule extends Rule {
     readonly #watcher: fs.FSWatcher
 
     constructor(config: JSRuleConfig, rules: Rules) {
-        super(rules)
+        super(rules, config.script)
         this.#config = config
         this.scriptFile = config.script
 
@@ -49,7 +50,12 @@ export default class JSRule extends Rule {
         return vm.createContext(new Proxy({
             Action,
             config: this.#config.config,
-            console,
+            console: {
+                log: this.logger.info.bind(this.logger),
+                error: this.logger.error.bind(this.logger),
+                warn: this.logger.warn.bind(this.logger),
+                debug: this.logger.debug.bind(this.logger)
+            },
             at: (time: string, fn: () => void) => {
                 const [hour, minute] = time.split(":").map(v => parseInt(v))
                 const date = new Date()
@@ -127,7 +133,7 @@ export default class JSRule extends Rule {
             this.#script = new vm.Script(data, {
                 filename: this.scriptFile
             })
-        }).catch(e => console.error(e))
+        }).catch(e => this.logger.error(e))
     }
 
     get loading() : Promise<void> {
@@ -139,7 +145,7 @@ export default class JSRule extends Rule {
         try {
             this.#script?.runInContext(this.#context)
         } catch (e: any) {
-            console.error(e?.message ?? e)
+            this.logger.error(e?.message ?? e)
         }
         setActiveRule(undefined)
     }
@@ -149,7 +155,7 @@ class SubRule extends Rule {
     #fn: () => void
 
     constructor(fn: () => void, rule: Rule) {
-        super(rule.provider)
+        super(rule.provider, rule.id.substring(0, 8) + "-subrule")
         this.#fn = fn
 
         // Mark the subrule as part of the parent rule
@@ -165,7 +171,7 @@ class SubRule extends Rule {
         try {
             this.#fn()
         } catch (e: any) {
-            console.error(e?.message ?? e)
+            this.logger.error(e?.message ?? e)
         }
         setActiveRule(undefined)
     }

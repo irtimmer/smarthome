@@ -6,6 +6,18 @@ import ClientApi from './api/client'
 import Home from './home'
 import Controller from './controller'
 
+import logging from '../shared/logging'
+
+const logger = logging({
+    transport: {
+        target: 'pino-pretty',
+        options: {
+            messageFormat: '{module}{if id}({id}){end} - {msg}',
+            ignore: 'pid,hostname,module,id'
+        }
+    }
+})
+
 const CONFIG_FILE = './config.yml'
 
 const file = fs.readFileSync(CONFIG_FILE, 'utf8')

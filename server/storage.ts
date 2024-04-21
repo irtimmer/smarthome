@@ -1,12 +1,15 @@
 import * as fs from 'fs';
 
 import Store from '../shared/store';
+import logging from "../shared/logging";
 
 export default class Storage implements Store {
     #id: string
     #storage: Record<string, any>
+    #logger: ReturnType<typeof logging>
 
     constructor(id: string) {
+        this.#logger = logging().child({ module: 'storage' })
         this.#id = id
         this.#storage = {}
         this.#load()
@@ -17,7 +20,7 @@ export default class Storage implements Store {
             const data = fs.readFileSync(`data/${this.#id}.json`)
             this.#storage = JSON.parse(data.toString())
         } catch (e) {
-            console.error(`Can't load storage ${this.#id}`)
+            this.#logger.warn({ id: this.#id }, "Can't load")
         }
     }
 
@@ -25,7 +28,7 @@ export default class Storage implements Store {
         try {
             fs.writeFileSync(`data/${this.#id}.json`, JSON.stringify(this.#storage))
         } catch (e) {
-            console.error(`Can't save storage ${this.#id}`, e)
+            this.#logger.error({ id: this.#id }, "Can't save")
         }
     }
 

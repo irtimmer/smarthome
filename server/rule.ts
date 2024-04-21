@@ -6,6 +6,7 @@ import { Handler } from "./handlers"
 import type Rules from "./rules"
 
 import Service from "../shared/service"
+import logging from "../shared/logging"
 
 export abstract class Rule extends Service<Rules> {
     readonly controller: Controller
@@ -20,11 +21,13 @@ export abstract class Rule extends Service<Rules> {
     constraints: Set<string>
     subRules: Rule[]
     handlers: Map<string, Handler>
+    logger: ReturnType<typeof logging>
 
     #closed: boolean
 
-    constructor(rules: Rules) {
+    constructor(rules: Rules, module: string) {
         super(rules, uuidv1())
+        this.logger = rules.logger.child({ module, id: this.id.substring(0, 8) })
         this.controller = rules.controller
         this.watchServiceEvents = new Map
         this.watchServiceFilters = []
@@ -39,7 +42,7 @@ export abstract class Rule extends Service<Rules> {
         this.#closed = false
 
         this.registerIdentifier('uuid', this.id)
-        this.registerType("rule")
+        this.updateTypes(["rule", "controller"])
 
         this.name = "Rule"
 
@@ -76,8 +79,8 @@ export abstract class Rule extends Service<Rules> {
 
         try {
             listener!(args)
-        } catch (e) {
-            console.error(e)
+        } catch (e: any) {
+            this.logger.error(e?.message ?? e)
         } finally {
             this.controller.constraints.update()
         }
@@ -111,8 +114,8 @@ export abstract class Rule extends Service<Rules> {
 
         try {
             this.run()
-        } catch (e) {
-            console.error(e)
+        } catch (e: any) {
+            this.logger.error(e?.message ?? e)
         } finally {
             if (this.#closed) {
                 this.unload()
