@@ -1,3 +1,5 @@
+import { Logger } from "pino"
+
 import Task from "../task"
 
 type RetryOptions = {
@@ -9,6 +11,7 @@ type RetryOptions = {
 export class Retry extends Task {
     #timeout?: NodeJS.Timeout
     #canceled: boolean
+    #logger?: Logger
     readonly options: RetryOptions
     attempt: number
     fn: () => Promise<void>
@@ -24,7 +27,7 @@ export class Retry extends Task {
             maxRetries: 7
         }, ...options}
 
-        this.run()
+        setImmediate(() => this.run())
     }
 
     succeeded() {
@@ -43,7 +46,7 @@ export class Retry extends Task {
         if (e instanceof RetryAfterError && e.retryAfter > wait)
             wait = e.retryAfter
 
-        console.error(`Attempt ${this.attempt} failed, retry in ${wait}s`, e?.message ?? e)
+        this.#logger?.warn("Attempt %d failed, retry in %ds: %s", this.attempt, wait, e?.message ?? e)
         this.schedule(wait)
     }
 
@@ -62,6 +65,10 @@ export class Retry extends Task {
             clearTimeout(this.#timeout)
 
         this.#canceled = true
+    }
+
+    set logger(logger: Logger) {
+        this.#logger = logger
     }
 
     get status() {
