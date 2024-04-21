@@ -1,10 +1,12 @@
+import Task from "../task"
+
 type RetryOptions = {
     interval: number
     maxRetries: number
     retryInterval: number
 }
 
-export class Retry {
+export class Retry extends Task {
     #timeout?: NodeJS.Timeout
     #canceled: boolean
     readonly options: RetryOptions
@@ -12,6 +14,7 @@ export class Retry {
     fn: () => Promise<void>
 
     constructor(fn: () => Promise<void>, options?: Partial<RetryOptions>) {
+        super()
         this.#canceled = false
         this.fn = fn
         this.attempt = 0
@@ -59,6 +62,10 @@ export class Retry {
             clearTimeout(this.#timeout)
 
         this.#canceled = true
+    }
+
+    get status() {
+        return "OK"
     }
 }
 

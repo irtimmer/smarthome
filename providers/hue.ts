@@ -57,9 +57,9 @@ export default class HueProvider extends Provider<HueService> {
         });
 
         events.onmessage = this.#onmessage.bind(this)
-        new Poll(this.#connect.bind(this), {
+        this.registerTask("connect", new Poll(this.#connect.bind(this), {
             interval: 60 * 60
-        })
+        }))
     }
 
     async #connect() {

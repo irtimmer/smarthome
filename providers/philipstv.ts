@@ -32,7 +32,7 @@ export default class PhilipsTVProvider extends Provider<Service<PhilipsTVProvide
         });
 
         let connected = false
-        new Poll(async () => {
+        this.registerTask("notifyChange", new Poll(async () => {
             try {
                 let res = await this.request('notifychange', {
                     method: 'POST',
@@ -55,9 +55,9 @@ export default class PhilipsTVProvider extends Provider<Service<PhilipsTVProvide
             connected = true
         }, {
             interval: 1
-        })
+        }))
 
-        new Poll(async () => {
+        this.registerTask("scan", new Poll(async () => {
             if (!connected)
                 return
 
@@ -79,7 +79,7 @@ export default class PhilipsTVProvider extends Provider<Service<PhilipsTVProvide
                     })
                 }
             }
-        })
+        }))
     }
 
     #updateService(endpoint: string, data: any) {

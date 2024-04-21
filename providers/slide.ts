@@ -34,7 +34,7 @@ export default class SlideProvider extends Provider<Slide> {
         this.#config = config
         this.#token_expiration = 0
 
-        new Poll(async () => {
+        this.registerTask('poll', new Poll(async () => {
             const token = await this.getToken()
             const req = await fetch(`${SLIDE_URL}/slides/overview`, {
                 headers: {
@@ -57,7 +57,7 @@ export default class SlideProvider extends Provider<Slide> {
             interval: 60,
             retryInterval: 60,
             maxRetries: 4
-        })
+        }))
     }
 
     async getToken() {

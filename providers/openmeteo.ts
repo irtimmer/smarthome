@@ -16,9 +16,9 @@ export default class OpenMeteoProvider extends Provider<OpenMeteoService> {
         super(id)
 
         const weather = this.registerService(new OpenMeteoService(this, config))
-        new Poll(async () => weather.update(), {
+        this.registerTask("poll", new Poll(async () => weather.update(), {
             interval: 5 * 60
-        })
+        }))
     }
 }
 

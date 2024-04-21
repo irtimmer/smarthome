@@ -26,7 +26,7 @@ export default class Ista extends Provider<IstaService> {
         });
         const headers = generator.getHeaders()
 
-        new Poll(async () => {
+        this.registerTask("poll", new Poll(async () => {
             // Load from cache
             if (storage.get("updated") > Date.now() / 1000 - INTERVAL) {
                 this.update(storage.get("data"))
@@ -81,7 +81,7 @@ export default class Ista extends Provider<IstaService> {
         }, {
             interval: INTERVAL,
             retryInterval: 60 * 60
-        })
+        }))
     }
 
     update(data: any) {

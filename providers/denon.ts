@@ -34,6 +34,7 @@ class DenonService extends Service<DenonProvider> {
 
         this.#socket = new Socket();
         this.#reconnect = new Retry(this.#connect.bind(this))
+        this.provider.registerTask(`reconnect-${id}`, this.#reconnect)
 
         for (const [key, property] of Object.entries(DENON_PROPERTIES)) {
             if (!property)

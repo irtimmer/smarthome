@@ -34,7 +34,7 @@ export default class Unifi extends Provider<UnifiService> {
             cookies: { jar }
         })
 
-        new Poll(async () => {
+        this.registerTask("poll", new Poll(async () => {
             const data = await this.fetch('/api/self/sites')
             const site_name = data.data[0].name
             const devices = await this.fetch(`/api/s/${site_name}/stat/sta`)
@@ -47,7 +47,7 @@ export default class Unifi extends Provider<UnifiService> {
 
             for (const service of this.services.values())
                 service.updateValue("_connected", seen_devices.has(service.id))
-        })
+        }))
     }
 
     fetch(path: string, options: any = {}): Promise<any> {

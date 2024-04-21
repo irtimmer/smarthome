@@ -21,7 +21,7 @@ export default class SpotifyProvider extends Provider<SpotifyService> {
         this.#token_expiration = 0
         this.#config = config
 
-        new Poll(this.#scan.bind(this))
+        this.registerTask("poll", new Poll(this.#scan.bind(this)))
     }
 
     async #getToken() {
