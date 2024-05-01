@@ -9,7 +9,7 @@ type RetryOptions = {
 }
 
 export class Retry extends Task {
-    #timeout?: NodeJS.Timeout
+    protected timeout?: NodeJS.Timeout
     #canceled: boolean
     #logger?: Logger
     readonly options: RetryOptions
@@ -35,6 +35,7 @@ export class Retry extends Task {
     }
 
     run() {
+        this.timeout = undefined
         this.attempt += 1
         this.fn().catch(e => {
             this.retry(e)
@@ -54,15 +55,20 @@ export class Retry extends Task {
         if (this.#canceled)
             return
 
+        if (this.timeout) {
+            this.#logger?.error("Attempt to schedule a task that was already scheduled")
+            clearTimeout(this.timeout)
+        }
+
         if (!interval)
             interval = this.attempt > 0 ? 2 ** Math.min(this.attempt, this.options.maxRetries) * this.options.retryInterval : this.options.interval
 
-        this.#timeout = setTimeout(this.run.bind(this), interval * 1000)
+        this.timeout = setTimeout(this.run.bind(this), interval * 1000)
     }
 
     cancel() {
-        if (this.#timeout)
-            clearTimeout(this.#timeout)
+        if (this.timeout)
+            clearTimeout(this.timeout)
 
         this.#canceled = true
     }
@@ -84,6 +90,7 @@ export default class Poll extends Retry {
     }
 
     run() {
+        this.timeout = undefined
         this.fn().then(() => {
             this.succeeded()
             this.schedule()
