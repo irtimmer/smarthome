@@ -33,21 +33,12 @@ class DenonService extends Service<DenonProvider> {
         this.name = "Denon AVR"
 
         this.#socket = new Socket();
-        this.#reconnect = new Retry(this.#connect.bind(this))
+        this.#reconnect = new Retry(() => {
+            this.#socket.connect(23, this.provider.host)
+            return Promise.resolve()
+        })
         this.provider.registerTask(`reconnect-${id}`, this.#reconnect)
 
-        for (const [key, property] of Object.entries(DENON_PROPERTIES)) {
-            if (!property)
-                continue
-
-            this.registerProperty(key, {...property.definition, ...{
-                read_only: property.set === undefined
-            }})
-        }
-    }
-
-    async #connect() {
-        this.#socket.connect(23, this.provider.host);
         this.#socket.on('close', hasError => this.#reconnect.retry(hasError ? this.#lastError : undefined))
         this.#socket.on('error', e => this.#lastError = e)
         this.#socket.on('data', this.#onData.bind(this));
@@ -58,6 +49,15 @@ class DenonService extends Service<DenonProvider> {
 
             this.requestInfo()
         });
+
+        for (const [key, property] of Object.entries(DENON_PROPERTIES)) {
+            if (!property)
+                continue
+
+            this.registerProperty(key, {...property.definition, ...{
+                read_only: property.set === undefined
+            }})
+        }
     }
 
     #onData(buffer: Buffer) {
