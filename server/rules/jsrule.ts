@@ -5,7 +5,9 @@ import type Rules from "../rules";
 import { Rule } from "../rule";
 import { Action } from "../constraints";
 import { ServiceFilter } from "../filters";
-import { NullItem, RuleDevice, RuleService, itemProxyHandler, setActiveRule } from "./api";
+import { NullItem, RuleDevice, RuleProperty, RuleService, itemProxyHandler, setActiveRule } from "./api";
+
+import { Property } from "../../shared/definitions";
 
 export type JSRuleConfig = {
     script: string
@@ -108,6 +110,10 @@ export default class JSRule extends Rule {
                 this.subRules.push(subRule)
                 this.provider.scheduleRule(subRule)
                 setImmediate(subRule.execute.bind(subRule))
+            },
+            registerProperty: (key: string, property: Property) => {
+                this.registerProperty(key, property)
+                return new RuleProperty(this, key, property)
             },
             registerIdentifier: (type: string, id: string) => {
                 if (!this.identifiers.has(`${type}:${id}`))

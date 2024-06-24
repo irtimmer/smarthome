@@ -1,3 +1,4 @@
+import { Property } from "../../shared/definitions"
 import { Service } from "../../shared/service"
 
 import Controller from "../controller"
@@ -233,5 +234,26 @@ export class RuleDevice extends Item {
 
         this.#controller.handlers.add(service, key, handler)
         activeRule?.handlers.set(`${service.uniqueId}/${key}`, handler)
+    }
+}
+
+export class RuleProperty {
+    readonly description: Property
+    readonly key: string
+    #rule: Rule
+
+    constructor(rule: Rule, key: string, description: Property) {
+        this.#rule = rule
+        this.description = description
+        this.key = key
+    }
+
+    set value(value: any) {
+        this.#rule.updateValue(this.key, value)
+    }
+
+    get value() {
+        activeRule?.watchProperties.add(`${this.#rule.uniqueId}/${this.key}`)
+        return this.#rule.values.get(this.key)
     }
 }
