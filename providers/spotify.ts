@@ -1,4 +1,4 @@
-import Provider from "../shared/provider";
+import Provider, { ProviderManager } from "../shared/provider";
 import Service from "../shared/service";
 import Poll from "../shared/utils/poll";
 
@@ -16,8 +16,8 @@ export default class SpotifyProvider extends Provider<SpotifyService> {
         expires_in: number
     }
 
-    constructor(id: string, config: any) {
-        super(id)
+    constructor(manager: ProviderManager, config: any) {
+        super(manager)
         this.#token_expiration = 0
         this.#config = config
 

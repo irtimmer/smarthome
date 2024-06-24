@@ -1,6 +1,6 @@
 import { Socket } from "net";
 
-import Provider from "../shared/provider";
+import Provider, { ProviderManager } from "../shared/provider";
 import Service from "../shared/service";
 
 import { DENON_PROPERTIES } from "./denon_constants";
@@ -14,8 +14,8 @@ interface DenonConfig {
 export default class DenonProvider extends Provider<DenonService> {
     readonly host: string
 
-    constructor(id: string, config: DenonConfig) {
-        super(id)
+    constructor(manager: ProviderManager, config: DenonConfig) {
+        super(manager)
         this.host = config.host
 
         this.registerService(new DenonService(this, this.id))

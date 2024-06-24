@@ -1,7 +1,7 @@
 import { HttpClient, RequestOptions, request } from 'urllib'
 
 import Poll from "../shared/utils/poll"
-import Provider from "../shared/provider"
+import Provider, { ProviderManager } from "../shared/provider"
 import Service from "../shared/service"
 
 import { PHILIPS_TV_ACTIONS, PHILIPS_TV_PROPERTIES } from "./philipstv_constants"
@@ -17,8 +17,8 @@ export default class PhilipsTVProvider extends Provider<Service<PhilipsTVProvide
     #client: HttpClient
     #currentState: any
 
-    constructor(id: string, config: PhilipsTvConfig) {
-        super(id)
+    constructor(manager: ProviderManager, config: PhilipsTvConfig) {
+        super(manager)
         this.#config = config
 
         this.#currentState = {}

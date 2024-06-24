@@ -5,8 +5,7 @@ import Server from './server'
 import ClientApi from './api/client'
 import Home from './home'
 import Controller from './controller'
-
-import logging from '../shared/logging'
+import logging from './logging'
 
 const logger = logging({
     transport: {

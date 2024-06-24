@@ -1,25 +1,30 @@
-import logging from "../shared/logging";
+import { Logger } from "pino";
 
-type ProviderHelperConfig = {
-    connections: Record<string, any>
-}
+import { ProviderManager } from "../shared/provider";
+import Store from "../shared/store";
 
-export default class ProviderHelper {
-    #connections: Map<string, Promise<any>> = new Map
-    #logger: ReturnType<typeof logging>
+import Connectors from "./connectors";
+import Storage from "./storage";
+import logging from "./logging";
 
-    constructor(config: ProviderHelperConfig) {
-        this.#logger = logging().child({ module: "providerhelper" })
-        for (const [key, connectionConfig] of Object.entries(config.connections)) {
-            this.#connections.set(key, import(`./connectors/${key}`).then((connectionClass) => {
-                return new connectionClass.default(key, connectionConfig)
-            }).catch(e => {
-                this.#logger.error({ module: key }, "Can't load: %s", e.message)
-            }))
-        }
+export default class ProviderHelper implements ProviderManager {
+    readonly id: string
+    readonly #connectors: Connectors
+
+    constructor(id: string, connectors: Connectors) {
+        this.id = id
+        this.#connectors = connectors
     }
 
-    get connections(): ReadonlyMap<string, any> {
-        return this.#connections
+    getConnection(name: string): Promise<any> {
+        return this.#connectors.connections.get(name)
+    }
+
+    get storage(): Store {
+        return new Storage(this.id)
+    }
+
+    get logger(): Logger {
+        return logging().child({ module: this.id })
     }
 }

@@ -1,4 +1,4 @@
-import Provider from "../shared/provider";
+import Provider, { ProviderManager } from "../shared/provider";
 import Service from "../shared/service";
 import Poll from "../shared/utils/poll";
 
@@ -9,8 +9,8 @@ type HeatBoosterConfig = {
 }
 
 export default class HeatBoosterProvider extends Provider<HeatBoosterService> {
-    constructor(id: string, config: HeatBoosterConfig) {
-        super(id)
+    constructor(manager: ProviderManager, config: HeatBoosterConfig) {
+        super(manager)
 
         const service = this.registerService(new HeatBoosterService(this, config))
         this.registerTask("poll", new Poll(async () => service.update(), {

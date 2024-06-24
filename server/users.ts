@@ -15,7 +15,7 @@ export default class Users extends Provider<User> {
     readonly controller: Controller
 
     constructor(controller: Controller, config: UsersConfig) {
-        super("users")
+        super(controller.providers.getHelper("groups"))
         this.controller = controller
 
         this.setConfig(config)

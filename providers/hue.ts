@@ -5,7 +5,7 @@ import { Agent, request } from "https"
 import { Semaphore } from "../shared/utils/semaphore"
 
 import { Action, Property } from "../shared/definitions"
-import Provider from "../shared/provider"
+import Provider, { ProviderManager } from "../shared/provider"
 import Service from "../shared/service"
 import Poll from "../shared/utils/poll"
 
@@ -38,8 +38,8 @@ export default class HueProvider extends Provider<HueService> {
     #lock: Semaphore
     #bridge?: HueService
 
-    constructor(id: string, options: HueOptions) {
-        super(id)
+    constructor(manager: ProviderManager, options: HueOptions) {
+        super(manager)
         this.#lock = new Semaphore
         this.#url = options.url
         this.#key = options.key

@@ -1,5 +1,6 @@
 import Provider from "../shared/provider";
 import Service from "../shared/service";
+import Controller from "./controller";
 
 type GroupConfig = {
     name: string
@@ -10,8 +11,8 @@ type GroupConfig = {
 export type GroupsConfig = Record<string, GroupConfig>
 
 export default class Groups extends Provider<Group> {
-    constructor(config: GroupsConfig) {
-        super("groups")
+    constructor(controller: Controller, config: GroupsConfig) {
+        super(controller.providers.getHelper("groups"))
         this.setConfig(config)
     }
 

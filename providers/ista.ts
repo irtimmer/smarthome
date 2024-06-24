@@ -2,12 +2,11 @@ import { CookieJar } from 'tough-cookie'
 import { CookieAgent } from 'http-cookie-agent/undici'
 import { HeaderGenerator } from 'header-generator'
 
-import Provider from "../shared/provider"
+import Provider, { ProviderManager } from "../shared/provider"
 import Service from "../shared/service"
 import Poll from "../shared/utils/poll"
 
 import { ISTA_SERVICE_PROPERTIES } from './ista_constants'
-import Store from '../shared/store'
 
 const INTERVAL = 60 * 60 * 24
 const ISTA_BASE_URL = 'https://mijn.ista.nl'
@@ -18,8 +17,9 @@ type IstaConfig = {
 }
 
 export default class Ista extends Provider<IstaService> {
-    constructor(id: string, config: IstaConfig, storage: Store) {
-        super(id)
+    constructor(manager: ProviderManager, config: IstaConfig) {
+        super(manager)
+        const storage = manager.storage
         const generator = new HeaderGenerator({
             httpVersion: '1',
             browsers: ['firefox'],

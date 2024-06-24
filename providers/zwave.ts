@@ -1,7 +1,7 @@
 import { Driver, ZWaveNode, ZWaveNodeValueAddedArgs, ZWaveNodeValueUpdatedArgs, TranslatedValueID, ValueID, ValueMetadataNumeric, NodeStatus, ZWaveController } from "zwave-js";
 
 import { Property } from "../shared/definitions";
-import Provider from "../shared/provider";
+import Provider, { ProviderManager } from "../shared/provider";
 import Service from "../shared/service";
 
 import { ZWAVE_COMMAND_CLASS_PROPERTIES, ZWAVE_COMMAND_CLASS_PROPERTY_TYPE_CLASS, ZWAVE_DEVICE_CLASS_TYPES, ZWAVE_SERVICE_GROUP, ZWAVE_SERVICE_PRIORITIES } from "./zwave_constants";
@@ -21,14 +21,14 @@ const convertValue = (type: string, value: any) => type == 'enum' ? String(value
 export default class ZWaveProvider extends Provider<ZWaveService> {
     readonly driver: Driver
 
-    constructor(id: string, config: ZWaveConfig) {
-        super(id)
+    constructor(manager: ProviderManager, config: ZWaveConfig) {
+        super(manager)
         this.driver = new Driver(config.port, {
             logConfig: {
                 enabled: false
             },
             storage: {
-                "cacheDir": `./cache/${id}`
+                "cacheDir": `./cache/${this.id}`
             },
             securityKeys: {
                 S2_Unauthenticated: Buffer.from(config.keys.s2_unauthenticated, 'hex'),

@@ -15,7 +15,7 @@ export default class Scenes extends Provider<Scene> {
     readonly controller: Controller
 
     constructor(controller: Controller, config: ScenesConfig) {
-        super("scenes")
+        super(controller.providers.getHelper("scenes"))
         this.controller = controller
 
         this.setConfig(config)

@@ -3,9 +3,9 @@ import type { Rule } from "./rule";
 import JSRule, { JSRuleConfig } from "./rules/jsrule";
 import Controller from "./controller";
 import { matchServiceFilter } from "./filters";
+import logging from "./logging";
 
 import Provider from "../shared/provider";
-import logging from "../shared/logging";
 
 export type RulesConfig = JSRuleConfig[]
 
@@ -16,7 +16,7 @@ export default class Rules extends Provider<Rule> {
     controller: Controller
 
     constructor(controller: Controller, config: RulesConfig) {
-        super("rules")
+        super(controller.providers.getHelper("rules"))
         this.logger = logging().child({ module: "rules" })
         this.controller = controller
         this.#rules = []

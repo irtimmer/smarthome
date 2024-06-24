@@ -1,7 +1,8 @@
 import * as fs from 'fs';
 
+import logging from "./logging";
+
 import Store from '../shared/store';
-import logging from "../shared/logging";
 
 export default class Storage implements Store {
     #id: string

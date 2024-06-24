@@ -2,8 +2,16 @@ import { EventEmitter } from "stream";
 import { Logger } from "pino";
 
 import { Service } from "./service";
-import logging from "./logging";
 import Task from "./task";
+import Store from "./store";
+
+export interface ProviderManager {
+    readonly id: string
+    readonly logger: Logger
+    readonly storage: Store
+
+    getConnection(name: string): Promise<any>
+}
 
 export default class Provider<T extends Service> extends EventEmitter {
     readonly id: string
@@ -11,13 +19,12 @@ export default class Provider<T extends Service> extends EventEmitter {
     #tasks: Map<string, Task>
     logger: Logger
 
-    constructor(id: string) {
+    constructor(manager: ProviderManager) {
         super()
-        this.id = id
+        this.id = manager.id
         this.#services = new Map
         this.#tasks = new Map
-
-        this.logger = logging().child({ module: id });
+        this.logger = manager.logger
     }
 
     registerTask(name: string, task: Task) {

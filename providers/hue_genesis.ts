@@ -1,6 +1,6 @@
 import WebSocket from "ws";
 
-import Provider from "../shared/provider";
+import Provider, { ProviderManager } from "../shared/provider";
 import AbstractService from "../shared/service";
 import { Property } from "../shared/definitions";
 
@@ -26,10 +26,10 @@ export default class GenesisProvider extends Provider<GenesisService> {
     #options: GenesisOptions
     #storage: Store
 
-    constructor(id: string, options: GenesisOptions, storage: Store) {
-        super(id);
+    constructor(manager: ProviderManager, options: GenesisOptions) {
+        super(manager)
         this.#options = options;
-        this.#storage = storage;
+        this.#storage = manager.storage
 
         new Poll(async () => {
             let access_token = await this.getAccessToken(undefined)

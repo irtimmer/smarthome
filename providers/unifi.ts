@@ -4,7 +4,7 @@ import { Agent, request } from "https"
 import { CookieJar } from 'tough-cookie';
 import { HttpsCookieAgent } from 'http-cookie-agent/http';
 
-import Provider from "../shared/provider";
+import Provider, { ProviderManager } from "../shared/provider";
 import Service from "../shared/service";
 import Poll from "../shared/utils/poll";
 
@@ -22,8 +22,8 @@ export default class Unifi extends Provider<UnifiService> {
     #username: string
     #password: string
 
-    constructor(id: string, config: UnifiConfig) {
-        super(id)
+    constructor(manager: ProviderManager, config: UnifiConfig) {
+        super(manager)
         this.#url = config.url
         this.#username = config.username
         this.#password = config.password

@@ -6,7 +6,7 @@ import { Handler } from "./handlers"
 import type Rules from "./rules"
 
 import Service from "../shared/service"
-import logging from "../shared/logging"
+import logging from "./logging"
 
 export abstract class Rule extends Service<Rules> {
     readonly controller: Controller

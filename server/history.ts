@@ -1,6 +1,6 @@
 import { Logger } from "../shared/logger";
 import { Service } from "../shared/service";
-import logging from "../shared/logging";
+import logging from "./logging";
 
 import Controller from "./controller";
 

@@ -1,19 +1,21 @@
+import Connectors from "./connectors";
 import ProviderHelper from "./providerhelper";
-import Storage from "./storage";
+import logging from "./logging";
 
 import Provider from "../shared/provider";
 import { Service } from "../shared/service";
-import logging from "../shared/logging";
 
 import EventEmitter from "events";
 
 export default class Providers extends EventEmitter {
+    #connectors: Connectors
     #providers: Map<string, Provider<Service>>
     #services: Map<string, Service>
     #logger: ReturnType<typeof logging>
 
-    constructor(config: { [key: string]: any }, helper: ProviderHelper) {
+    constructor(config: { [key: string]: any }, connectors: Connectors) {
         super()
+        this.#connectors = connectors
         this.#services = new Map
         this.#providers = new Map
         this.#logger = logging().child({ module: "providers" })
@@ -21,8 +23,7 @@ export default class Providers extends EventEmitter {
         setImmediate(() => {
             for (const [key, providerConfig] of Object.entries(config)) {
                 import(`../providers/${key}.js`).then((providerClass) => {
-                    const storage = new Storage(key)
-                    this.registerProvider(new providerClass.default(key, providerConfig, storage, helper))
+                    this.registerProvider(new providerClass.default(this.getHelper(key), providerConfig))
                 }).catch((e: any) => {
                     this.#logger.error({ module: key }, "Can't load provider: %s", e.message)
                 })
@@ -55,6 +56,10 @@ export default class Providers extends EventEmitter {
         })
 
         provider.services.forEach(service => provider.emit("register", service))
+    }
+
+    getHelper(id: string): ProviderHelper {
+        return new ProviderHelper(id, this.#connectors)
     }
 
     get providers(): ReadonlyMap<string, Provider<Service>> {

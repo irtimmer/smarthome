@@ -1,4 +1,4 @@
-import Provider from "../shared/provider";
+import Provider, { ProviderManager } from "../shared/provider";
 import Service from "../shared/service";
 import Poll from "../shared/utils/poll";
 
@@ -12,8 +12,8 @@ type OpenMeteoConfig = {
 }
 
 export default class OpenMeteoProvider extends Provider<OpenMeteoService> {
-    constructor(id: string, config: OpenMeteoConfig) {
-        super(id)
+    constructor(manager: ProviderManager, config: OpenMeteoConfig) {
+        super(manager)
 
         const weather = this.registerService(new OpenMeteoService(this, config))
         this.registerTask("poll", new Poll(async () => weather.update(), {

@@ -5,7 +5,7 @@ import Devices from "./devices"
 import Groups, { GroupsConfig } from "./groups"
 import Handlers from "./handlers"
 import History, { HistoryConfig } from "./history"
-import ProviderHelper from "./providerhelper"
+import Connectors from "./connectors"
 import Providers from "./providers"
 import Rules, { RulesConfig } from "./rules"
 import Scenes, { ScenesConfig } from "./scenes"
@@ -22,7 +22,7 @@ type ControllerConfig = {
 }
 
 export default class Controller {
-    readonly providerHelper: ProviderHelper
+    readonly connectors: Connectors
     readonly providers: Providers
     readonly devices: Devices
     readonly history: History
@@ -34,11 +34,9 @@ export default class Controller {
     readonly users: Users
 
     constructor(config: ControllerConfig) {
-        this.providerHelper = new ProviderHelper({
-            connections: config.connections
-        })
+        this.connectors = new Connectors(config.connections)
 
-        this.providers = new Providers(config.providers, this.providerHelper)
+        this.providers = new Providers(config.providers, this.connectors)
         this.devices = new Devices(this.providers)
         this.history = new History(this, config.history)
 
@@ -46,7 +44,7 @@ export default class Controller {
         this.handlers = new Handlers(this)
         this.rules = new Rules(this, config.rules)
         this.scenes = new Scenes(this, config.scenes)
-        this.groups = new Groups(config.groups)
+        this.groups = new Groups(this, config.groups)
         this.users = new Users(this, config.users)
 
         this.providers.registerProvider(this.rules)

@@ -10,7 +10,7 @@ export default class Home extends Provider<Service<Home>> {
     readonly controller: Controller
 
     constructor(controller: Controller, config: HomeConfig) {
-        super("home")
+        super(controller.providers.getHelper("home"))
         this.controller = controller
 
         this.registerService(new HomeService(this))

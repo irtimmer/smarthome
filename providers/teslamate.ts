@@ -1,8 +1,6 @@
 import Mqtt from "../server/connectors/mqtt";
-import ProviderHelper from "../server/providerhelper";
-import Storage from "../server/storage";
 
-import Provider from "../shared/provider";
+import Provider, { ProviderManager } from "../shared/provider";
 import Service from "../shared/service";
 
 import { TESLAMATE_PROPERTIES } from "./teslamate_constants";
@@ -11,10 +9,10 @@ type TeslaMateConfig = {
 }
 
 export default class TeslaMate extends Provider<Car> {
-    constructor(id: string, _config: TeslaMateConfig, _storage: Storage, providerHelper: ProviderHelper) {
-        super(id)
+    constructor(manager: ProviderManager, _config: TeslaMateConfig) {
+        super(manager)
 
-        let mqtt = providerHelper.connections.get("mqtt")
+        let mqtt = manager.getConnection("mqtt")
         if (!mqtt)
             throw new Error("No MQTT connection")
 

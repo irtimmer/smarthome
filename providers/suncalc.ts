@@ -1,4 +1,4 @@
-import Provider from "../shared/provider";
+import Provider, { ProviderManager } from "../shared/provider";
 import Service from "../shared/service";
 
 import SunCalc from "suncalc"
@@ -9,12 +9,12 @@ type SunCalcConfig = {
 }
 
 export default class SunCalcProvider extends Provider<SunService> {
-    constructor(id: string, config: SunCalcConfig) {
-        super(id)
+    constructor(manager: ProviderManager, config: SunCalcConfig) {
+        super(manager)
         setImmediate(() => {
-            const sun = new SunService(this, id, config)
+            const sun = new SunService(this, this.id, config)
             this.registerService(sun)
-            sun.registerIdentifier('provider', id)
+            sun.registerIdentifier('provider', this.id)
 
             sun.update()
             setInterval(() => sun.update(), 60 * 1000)

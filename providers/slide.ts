@@ -1,5 +1,5 @@
 import { Property } from "../shared/definitions"
-import Provider from "../shared/provider";
+import Provider, { ProviderManager } from "../shared/provider";
 import Service from "../shared/service";
 import Poll, { RetryAfterError } from "../shared/utils/poll";
 
@@ -29,8 +29,8 @@ export default class SlideProvider extends Provider<Slide> {
         expires_in: number
     }
 
-    constructor(id: string, config: SlideConfig) {
-        super(id)
+    constructor(manager: ProviderManager, config: SlideConfig) {
+        super(manager)
         this.#config = config
         this.#token_expiration = 0
 

@@ -3,7 +3,7 @@ import tls from "tls"
 
 import protobufjs from "protobufjs"
 
-import Provider from "../shared/provider"
+import Provider, { ProviderManager } from "../shared/provider"
 import Service from "../shared/service"
 import Poll from "../shared/utils/poll"
 
@@ -19,8 +19,8 @@ export default class AndroidTVProvider extends Provider<AndroidTVService> {
     #config: AndroidTVConfig
     #remoteProto: protobufjs.Root
 
-    constructor(id: string, config: AndroidTVConfig) {
-        super(id)
+    constructor(manager: ProviderManager, config: AndroidTVConfig) {
+        super(manager)
         this.#config = config
         this.#remoteProto = protobufjs.loadSync('providers/androidtv/remote.proto');
 
