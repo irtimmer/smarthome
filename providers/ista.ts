@@ -16,6 +16,10 @@ type IstaConfig = {
     password: string
 }
 
+function unescapeHtml(unsafe: string) {
+    return unsafe.replace(/&amp;/g, '&')
+}
+
 export default class Ista extends Provider<IstaService> {
     constructor(manager: ProviderManager, config: IstaConfig) {
         super(manager)
@@ -36,30 +40,68 @@ export default class Ista extends Provider<IstaService> {
             const jar = new CookieJar()
             const agent = new CookieAgent({ cookies: { jar } })
             
-            await fetch(`${ISTA_BASE_URL}/Identity/Account/Login`, {
+            let usernamePage = await fetch(`${ISTA_BASE_URL}/home/index`, {
                 dispatcher: agent,
                 headers
-            })
-            const cookies = await jar.getCookies(ISTA_BASE_URL)
-            const xsrf_token = cookies.find(cookie => cookie.key.startsWith(".AspNetCore.Antiforgery"))?.value
-            if (!xsrf_token)
-                throw new Error("No XSRF token found")
+            }).then((data: any) => data.text())
 
-            let mainPage = await fetch(`${ISTA_BASE_URL}/Identity/Account/Login`, {
+            let formUrlMatch = usernamePage.match(/action="(https:\/\/login.ista.com\/[^"]*)"/);
+            let formUrl = formUrlMatch ? unescapeHtml(formUrlMatch[1]) : null;
+            if (!formUrl)
+                throw new Error("No username form url found")
+
+            let passwordPage = await fetch(formUrl, {
                 method: "POST",
                 dispatcher: agent,
                 headers: {...headers, ...{
                     "content-type": "application/x-www-form-urlencoded",
                 }},
                 body: new URLSearchParams({
-                    "txtUsername": config.username,
-                    "txtPassword": config.password,
-                    "__RequestVerificationToken": xsrf_token
+                    "username": config.username
+                }).toString()
+            }).then((data: any) => data.text())
+
+            formUrlMatch = passwordPage.match(/action="(https:\/\/login.ista.com\/[^"]*)"/);
+            formUrl = formUrlMatch ? unescapeHtml(formUrlMatch[1]) : null;
+            if (!formUrl)
+                throw new Error("No password form url found")
+
+            let oidcPage = await fetch(formUrl, {
+                method: "POST",
+                dispatcher: agent,
+                headers: {...headers, ...{
+                    "content-type": "application/x-www-form-urlencoded",
+                }},
+                body: new URLSearchParams({
+                    "password": config.password
+                }).toString()
+            }).then((data: any) => data.text())
+
+            let codeMatch = oidcPage.match(/NAME="code" VALUE="([^"]*)"/);
+            let stateMatch = oidcPage.match(/NAME="state" VALUE="([^"]*)"/);
+            let sessionStateMatch = oidcPage.match(/NAME="session_state" VALUE="([^"]*)"/);
+
+            let code = codeMatch ? codeMatch[1] : null;
+            let state = stateMatch ? stateMatch[1] : null;
+            let sessionState = sessionStateMatch ? sessionStateMatch[1] : null;
+            if (!code || !state || !sessionState)
+                throw new Error("No code, state or session state found")
+
+            let signinPage = await fetch(`${ISTA_BASE_URL}/signin-oidc`, {
+                method: "POST",
+                dispatcher: agent,
+                headers: {...headers, ...{
+                    "content-type": "application/x-www-form-urlencoded",
+                }},
+                body: new URLSearchParams({
+                    "code": code,
+                    "state": state,
+                    "session_state": sessionState
                 }).toString()
             }).then((data: any) => data.text())
 
             // Extract JWT token from main page
-            let jwtTokenMatch = mainPage.match(/id="__twj_" value="([^"]*)"/);
+            let jwtTokenMatch = signinPage.match(/id="__twj_" value="([^"]*)"/);
             let jwtToken = jwtTokenMatch ? jwtTokenMatch[1] : null;
             if (!jwtToken)
                 throw new Error("No JWT token found")
