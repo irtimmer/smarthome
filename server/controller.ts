@@ -10,6 +10,7 @@ import Providers from "./providers"
 import Rules, { RulesConfig } from "./rules"
 import Scenes, { ScenesConfig } from "./scenes"
 import Users, { UsersConfig } from "./users"
+import UI, { UIConfig } from "./ui"
 
 type ControllerConfig = {
     connections: Record<string, any>
@@ -19,6 +20,7 @@ type ControllerConfig = {
     history: HistoryConfig
     groups: GroupsConfig
     users: UsersConfig
+    ui: UIConfig
 }
 
 export default class Controller {
@@ -32,6 +34,7 @@ export default class Controller {
     readonly scenes: Scenes
     readonly groups: Groups
     readonly users: Users
+    readonly ui: UI
 
     constructor(config: ControllerConfig) {
         this.connectors = new Connectors(config.connections)
@@ -46,6 +49,7 @@ export default class Controller {
         this.scenes = new Scenes(this, config.scenes)
         this.groups = new Groups(this, config.groups)
         this.users = new Users(this, config.users)
+        this.ui = new UI(config.ui)
 
         this.providers.registerProvider(this.rules)
         this.providers.registerProvider(this.scenes)

@@ -111,6 +111,14 @@ export default class {
             })
         })
 
+        api.get('/layouts', (_, res) => {
+            res.json(Object.keys(controller.ui.config.layouts))
+        })
+
+        api.get('/layout/:id', (req, res) => {
+            res.json(controller.ui.config.layouts[req.params.id])
+        })
+
         server.app.use('/api', api)
 
         providers.on("register", (service: Service) => {
