@@ -1,6 +1,8 @@
 <template>
   <q-list dense>
-    <PropertyItem v-for="(prop, key) in visibleProperties" :property="prop" :modelValue="service.values[key]" @update:modelValue="store.update(id, key as string, $event)" />
+    <template v-for="(prop, key) in visibleProperties">
+      <PropertyItem v-if="!prop.hide_null || (service.values[key] == null)" :property="prop" :modelValue="service.values[key]" @update:modelValue="store.update(id, key as string, $event)" />
+    </template>
     <q-item v-if="Object.keys(visibleActions).length">
       <q-item-section>
         <q-btn-group flat dense spread>

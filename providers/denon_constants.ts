@@ -14,6 +14,7 @@ const channelVolume = (key: string, name: string, request?: boolean) => ({
     definition: {
         type: 'number',
         label: name,
+        hide_null: true,
         min: 38,
         max: 62
     }

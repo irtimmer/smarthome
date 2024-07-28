@@ -6,6 +6,7 @@ export interface Property {
     logical_type?: string
     label: string
     read_only: boolean
+    hide_null?: boolean
     group?: PropertyGroup
     min?: number
     max?: number
