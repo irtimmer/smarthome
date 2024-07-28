@@ -38,4 +38,6 @@ const tabs = computed(() => {
 
   return tabs
 })
+
+const services = deviceHelper.services()
 </script>
