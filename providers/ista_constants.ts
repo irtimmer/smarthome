@@ -10,14 +10,16 @@ export const ISTA_SERVICE_PROPERTIES: Record<string, IstaServiceProperty> = {
         parse: (data: any) => data.MeterNr,
         definition: {
             type: "string",
-            label: "Meter Nr."
+            label: "Meter Nr.",
+            group: "meta"
         }
     },
     "MeterId": {
         parse: (data: any) => data.MeterId,
         definition: {
             type: "string",
-            label: "Meter ID"
+            label: "Meter ID",
+            group: "meta"
         }
     },
     "EndValue": {
@@ -40,7 +42,8 @@ export const ISTA_SERVICE_PROPERTIES: Record<string, IstaServiceProperty> = {
         parse: (data: any) => data.Position,
         definition: {
             type: "string",
-            label: "Position"
+            label: "Position",
+            group: "meta"
         }
     },
     "EsDate": {

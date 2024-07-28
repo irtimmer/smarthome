@@ -27,7 +27,8 @@ export const DENON_PROPERTIES: Record<string, DENON_PROPERTY | undefined> = {
         definition: {
             '@type': "name",
             type: "string",
-            label: "Name"
+            label: "Name",
+            group: "meta"
         }
     },
     PW: {

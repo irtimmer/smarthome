@@ -48,6 +48,7 @@ const HUE_GROUP_PROPERTIES: HueServiceType = {
         definition: {
             type: "string",
             label: "Archetype",
+            group: "meta"
         }
     },
     children: {

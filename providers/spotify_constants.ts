@@ -90,7 +90,8 @@ export const SPOTIFY_DEVICE_PROPERTIES: Record<string, SpotifyServiceProperty> =
         parse: (data: any) => data.type,
         definition: {
             type: 'string',
-            label: 'Type'
+            label: 'Type',
+            group: "meta"
         }
     },
     name: {

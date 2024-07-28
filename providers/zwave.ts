@@ -131,10 +131,12 @@ class ZWaveDeviceService extends ZWaveService {
         }, node.deviceConfig?.manufacturer)
 
         this.registerAction("refreshInfo", {
-            label: 'Refresh Info'
+            label: 'Refresh Info',
+            group: "control"
         })
         this.registerAction("refreshValues", {
-            label: 'Refresh Values'
+            label: 'Refresh Values',
+            group: "control"
         })
 
         if (node.deviceClass) {
@@ -219,7 +221,8 @@ class ZWaveCommandClassService extends ZWaveService {
             let options: Property = {
                 type: metadata.type,
                 label: metadata.label ?? args.propertyName ?? args.property.toString(),
-                read_only: !metadata.writeable
+                read_only: !metadata.writeable,
+                hide_null: !metadata.writeable
             }
 
             if (metadata.type == "number") {
@@ -307,14 +310,16 @@ class ZWaveControllerService extends ZWaveService {
         this.registerProperty("rfRegion", {
             type: 'string',
             label: 'RF Region',
-            read_only: true
+            read_only: true,
+            group: "meta"
         })
         controller.getRFRegion().then(region => this.updateValue("rfRegion", region)).catch(_ => {})
 
         this.registerProperty("homeId", {
             type: 'string',
             label: 'Home Id',
-            read_only: true
+            read_only: true,
+            group: "meta"
         }, controller.homeId)
 
         this.registerProperty("inclusionState", {
@@ -333,24 +338,30 @@ class ZWaveControllerService extends ZWaveService {
         updateInclusion()
 
         this.registerAction("beginInclusion", {
-            label: "Begin Inclusion"
+            label: "Begin Inclusion",
+            group: "control"
         })
         this.registerAction("stopInclusion", {
-            label: "Stop Inclusion"
+            label: "Stop Inclusion",
+            group: "control"
         })
 
         this.registerAction("beginExclusion", {
-            label: "Begin Exclusion"
+            label: "Begin Exclusion",
+            group: "control"
         })
         this.registerAction("stopExclusion", {
-            label: "Stop Exclusion"
+            label: "Stop Exclusion",
+            group: "control"
         })
 
         this.registerAction("rebuildRoutes", {
-            label: "Rebuild Routes"
+            label: "Rebuild Routes",
+            group: "control"
         })
         this.registerAction("softReset", {
-            label: "Soft Reset"
+            label: "Soft Reset",
+            group: "control"
         })
     }
 
