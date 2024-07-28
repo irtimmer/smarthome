@@ -5,20 +5,12 @@
         <div class="text-h6">{{ deviceHelper.name() }}</div>
       </q-card-section>
       <q-tab-panels v-model="tab" animated>
-        <q-tab-panel name="status">
-          <ServicePanel v-for="service in device.services" :id="service" />
-        </q-tab-panel>
-        <q-tab-panel name="config">
-          <ServicePanel v-for="service in device.services" :id="service" group="config" />
-        </q-tab-panel>
-        <q-tab-panel name="meta">
-          <ServicePanel v-for="service in device.services" :id="service" group="meta" />
+        <q-tab-panel v-for="t in tabs" :name="t.name">
+          <ServicePanel v-for="[id, _] in services" :id="id" :group="t.group" />
         </q-tab-panel>
       </q-tab-panels>
       <q-tabs v-model="tab" dense align="justify" narrow-indicator >
-        <q-tab name="status" label="Status" />
-        <q-tab name="config" label="Config" />
-        <q-tab name="meta" label="About" />
+        <q-tab v-for="t in tabs" :name="t.name" :label="t.label" />
       </q-tabs>
     </q-card>
   </q-dialog>
@@ -33,4 +25,17 @@ const props = defineProps<{
 const deviceHelper = useDevice(props.device)
 
 const tab = ref('status')
+const tabs = computed(() => {
+  const tabs = [{ name: 'status', label: 'Status' }]
+  if (deviceHelper.services().find(([_, s]) => s.group === 'control'))
+    tabs.push({ name: 'control', label: 'Control', group: 'control' })
+
+  if (deviceHelper.services().find(([_, s]) => s.group === 'config'))
+    tabs.push({ name: 'config', label: 'Config', group: 'config' })
+
+  if (deviceHelper.services().find(([_, s]) => s.group === 'meta'))
+    tabs.push({ name: 'meta', label: 'About', group: 'meta' })
+
+  return tabs
+})
 </script>

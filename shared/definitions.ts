@@ -1,4 +1,4 @@
-export type PropertyGroup = 'internal' | 'config' | "meta"
+export type PropertyGroup = 'internal' | 'control' | 'config' | "meta"
 
 export interface Property {
     '@type'?: string
