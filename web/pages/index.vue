@@ -22,10 +22,10 @@
       </div>
     </div>
     <div v-else-if="layout == 'cards'" class="row items-start">
-      <DeviceButton class="col-xs-6 col-sm-3 col-md-2 col-lg-1" v-for="[key, device] in store.devices.entries()" :device="device" :key="key" />
+      <DeviceButton class="col-xs-6 col-sm-3 col-md-2 col-lg-1" v-for="[key, device] in devicesUngrouped" :device="device" :key="key" />
     </div>
     <q-list v-else-if="layout == 'list'">
-      <DeviceItem v-for="[key, device] in store.devices.entries()" :device="device" :key="key" />
+      <DeviceItem v-for="[key, device] in devicesUngrouped" :device="device" :key="key" />
     </q-list>
   </q-page>
 </template>
@@ -41,6 +41,21 @@ type DeviceGroup = {
   name: string
   devices: [string, Device][]
 }
+
+const devicesUngrouped = computed(() => {
+  const groupedDevices = new Set
+  for (const device of store.devices.values()) {
+    const { services, value } = useDevice(device)
+    const groupServices = services().filter(([_, service]) => service.types.includes('group'))
+    if (groupServices.length > 0)
+      continue
+
+    const ids = value('children') ?? []
+    const devices = Array.from(store.devices.entries()).filter(([_, dev]) => dev.identifiers.find(x => ids.includes(x)))
+    devices.forEach(([_, dev]) => groupedDevices.add(dev))
+  }
+  return Array.from(store.devices.entries()).filter(([_, dev]) => !groupedDevices.has(dev))
+})
 
 const deviceGroups = computed(() => {
   const groupedDevices = new Set
