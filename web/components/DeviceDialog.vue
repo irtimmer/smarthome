@@ -25,15 +25,21 @@ const props = defineProps<{
 const deviceHelper = useDevice(props.device)
 
 const tab = ref('status')
+
+function hasGroup(service: Service, group: string) {
+  return Object.values(service.properties).find(p => p.group === group) ||
+    Object.values(service.actions).find(p => p.group === group)
+}
+
 const tabs = computed(() => {
   const tabs = [{ name: 'status', label: 'Status' }]
-  if (deviceHelper.services().find(([_, s]) => s.group === 'control'))
+  if (deviceHelper.services().find(([_, s]) => hasGroup(s, 'control')))
     tabs.push({ name: 'control', label: 'Control', group: 'control' })
 
-  if (deviceHelper.services().find(([_, s]) => s.group === 'config'))
+  if (deviceHelper.services().find(([_, s]) => hasGroup(s, 'config')))
     tabs.push({ name: 'config', label: 'Config', group: 'config' })
 
-  if (deviceHelper.services().find(([_, s]) => s.group === 'meta'))
+  if (deviceHelper.services().find(([_, s]) => hasGroup(s, 'meta')))
     tabs.push({ name: 'meta', label: 'About', group: 'meta' })
 
   return tabs
