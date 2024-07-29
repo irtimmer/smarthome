@@ -221,8 +221,7 @@ class ZWaveCommandClassService extends ZWaveService {
             let options: Property = {
                 type: metadata.type,
                 label: metadata.label ?? args.propertyName ?? args.property.toString(),
-                read_only: !metadata.writeable,
-                hide_null: !metadata.writeable
+                read_only: !metadata.writeable
             }
 
             if (metadata.type == "number") {
@@ -245,6 +244,9 @@ class ZWaveCommandClassService extends ZWaveService {
 
             if (propertySettings?.definition)
                 options = {...options, ...propertySettings.definition}
+
+            if (options.hide_null === undefined && options.read_only)
+                options.hide_null = true
 
             if (metadata.type == "boolean" && !metadata.readable)
                 this.registerAction(propertyKey, options)
