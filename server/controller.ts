@@ -68,4 +68,13 @@ export default class Controller {
         if (!await this.handlers.setValue(service, key, value))
             await service.setValue(key, value)
     }
+
+    setConfig(config: ControllerConfig) {
+        this.rules.setConfig(config.rules)
+        this.scenes.setConfig(config.scenes)
+        this.groups.setConfig(config.groups)
+        this.users.setConfig(config.users)
+        this.ui.setConfig(config.ui)
+        this.combiner.setConfig(config.combiner)
+    }
 }

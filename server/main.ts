@@ -1,4 +1,3 @@
-import { YamlInclude } from 'yaml-js-include'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import fs from 'fs'
@@ -8,6 +7,7 @@ import ClientApi from './api/client'
 import Home from './home'
 import Controller from './controller'
 import logging from './logging'
+import { YamlIncludeWatcher } from './utils/yaml'
 
 const args = yargs(hideBin(process.argv))
     .option('config', {
@@ -27,7 +27,7 @@ const logger = logging({
     }
 })
 
-const yamlInclude = new YamlInclude();
+const yamlInclude = new YamlIncludeWatcher()
 const config = yamlInclude.load<any>(args.config)
 
 const controller = new Controller(config)
@@ -38,11 +38,18 @@ new ClientApi(server, controller)
 const home = new Home(controller, config.home)
 controller.providers.registerProvider(home)
 
-fs.watch(args.config, event => {
+let watchers: fs.FSWatcher[] = []
+function reload(event: string) {
     if (event == "change") {
+        yamlInclude.reset()
         const config = yamlInclude.load<any>(args.config)
 
         if (config)
-            controller.rules.setConfig(config.rules)
+            controller.setConfig(config)
+
+        watchers.forEach((watcher) => watcher.close())
+        watchers = yamlInclude.filePaths.map((filePath) => fs.watch(filePath, reload))
     }
-});
+}
+
+watchers = yamlInclude.filePaths.map((filePath) => fs.watch(filePath, reload))
