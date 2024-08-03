@@ -74,9 +74,9 @@ export default class PhilipsTVProvider extends Provider<Service<PhilipsTVProvide
 
             for (const endpoint in PHILIPS_TV_PROPERTIES) {
                 if (!(endpoint in this.#currentState)) {
-                    await this.request(endpoint).then(res => {
-                        this.#updateService(endpoint, res.data)
-                    })
+                    let res: HttpClientResponse<any> = await this.request(endpoint)
+                    const service = this.#updateService(endpoint, res.data)
+                    service.registerIdentifier("ip", res.res?.socket?.remoteAddress)
                 }
             }
         }))
@@ -99,6 +99,8 @@ export default class PhilipsTVProvider extends Provider<Service<PhilipsTVProvide
 
         for (const [key, property] of Object.entries(properties))
             service.updateValue(key, property.parse(data))
+
+        return service
     }
 
     request(path: string, options?: Partial<RequestOptions>) {
