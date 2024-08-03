@@ -39,6 +39,7 @@ export abstract class Item {
     abstract has(key: string): boolean
     abstract get(key: string): any
     abstract set(key: string, value: any): void
+    abstract identifiers: ReadonlySet<string>
 }
 
 export class NullItem extends Item {
@@ -51,6 +52,10 @@ export class NullItem extends Item {
     }
 
     set(_key: string, _value: any) {}
+
+    get identifiers() {
+        return new Set<string>
+    }
 }
 
 export class RuleService extends Item {
@@ -99,6 +104,10 @@ export class RuleService extends Item {
     handle(key: string, handler: Handler) {
         this.#controller.handlers.add(this.#service, key, handler)
         activeRule?.handlers.set(`${this.#service.uniqueId}/${key}`, handler)
+    }
+
+    get identifiers() {
+        return this.#service.identifiers
     }
 }
 
@@ -150,6 +159,10 @@ export class RuleServices extends Item {
     trigger(key: string, args: any): Promise<void> {
         return Promise.all(this.#services.filter(service => service.actions.has(key))
                 .map(service => service.triggerAction(key, args))).then(() => {})
+    }
+
+    get identifiers() {
+        return new Set<string>(this.#services.flatMap(service => Array.from(service.identifiers)))
     }
 }
 
@@ -234,6 +247,10 @@ export class RuleDevice extends Item {
 
         this.#controller.handlers.add(service, key, handler)
         activeRule?.handlers.set(`${service.uniqueId}/${key}`, handler)
+    }
+
+    get identifiers(): ReadonlySet<string> {
+        return this.#device.identifiers
     }
 }
 
