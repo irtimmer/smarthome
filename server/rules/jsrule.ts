@@ -118,6 +118,13 @@ export default class JSRule extends Rule {
             registerIdentifier: (type: string, id: string) => {
                 if (!this.identifiers.has(`${type}:${id}`))
                     this.registerIdentifier(type, id)
+            },
+            assignIdentifier: (key: string) => {
+                key = this.#config.aliases[key] ?? key
+                if (key && key.includes(":")) {
+                    const [type, id] = key.split(":")
+                    this.registerIdentifier(type, id)
+                }
             }
         }, {
             get(target, prop, receiver) {
