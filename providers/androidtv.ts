@@ -42,6 +42,8 @@ export default class AndroidTVProvider extends Provider<AndroidTVService> {
 
         client.setTimeout(10000)
 
+        client.on("secureConnect", () => service.registerIdentifier("ip", client.remoteAddress!))
+
         let chunks: Uint8Array[] = []
         client.on("data", (chunk: Uint8Array) => {
             chunks.push(chunk)
