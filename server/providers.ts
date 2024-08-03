@@ -22,7 +22,8 @@ export default class Providers extends EventEmitter {
 
         setImmediate(() => {
             for (const [key, providerConfig] of Object.entries(config)) {
-                import(`../providers/${key}.js`).then((providerClass) => {
+                const provider = providerConfig && providerConfig.provider || key
+                import(`../providers/${provider}.js`).then((providerClass) => {
                     this.registerProvider(new providerClass.default(this.getHelper(key), providerConfig))
                 }).catch((e: any) => {
                     this.#logger.error({ module: key }, "Can't load provider: %s", e.message)
