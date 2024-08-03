@@ -13,17 +13,9 @@ export const SLIDE_PROPERTIES: Record<string, SlideProperty> = {
             group: "meta"
         }
     },
-    slide_setup: {
-        parse: (data: any) => data.slide_setup,
-        definition: {
-            type: "string",
-            label: "Slide Setup",
-            group: "meta"
-        }
-    },
     pos: {
-        url: "position",
-        parse: (data: any) => data.device_info.pos,
+        url: "Slide.SetPos",
+        parse: (data: any) => data.pos,
         definition: {
             '@type': "level",
             type: "number",

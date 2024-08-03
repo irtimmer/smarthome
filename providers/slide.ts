@@ -1,11 +1,11 @@
+import { HttpClient, RequestOptions } from 'urllib'
+
 import { Property } from "../shared/definitions"
 import Provider, { ProviderManager } from "../shared/provider";
 import Service from "../shared/service";
-import Poll, { RetryAfterError } from "../shared/utils/poll";
+import Poll from "../shared/utils/poll";
 
 import { SLIDE_PROPERTIES } from "./slide_constants";
-
-const SLIDE_URL = 'https://api.goslide.io/api';
 
 export interface SlideProperty {
     url?: string
@@ -16,43 +16,26 @@ export interface SlideProperty {
 }
 
 interface SlideConfig {
-    email: string
-    password: string
+    host: string
+    device_code: string
 }
 
 export default class SlideProvider extends Provider<Slide> {
     #config: SlideConfig
-    #token_expiration: number
-    #token?: {
-        token_type: string
-        access_token: string
-        expires_in: number
-    }
+    #client: HttpClient
 
     constructor(manager: ProviderManager, config: SlideConfig) {
         super(manager)
         this.#config = config
-        this.#token_expiration = 0
+        this.#client = new HttpClient
 
         this.registerTask('poll', new Poll(async () => {
-            const token = await this.getToken()
-            const req = await fetch(`${SLIDE_URL}/slides/overview`, {
-                headers: {
-                    'Authorization': `${token.token_type} ${token.access_token}`
-                }
-            })
-            const data: any = await req.json()
-            if (req.status == 429)
-                throw new RetryAfterError("Rate limited", parseInt(req.headers.get('Retry-After') ?? "60"))
+            const req = await this.request('Slide.GetInfo')
+            const data = req.data
 
-            if (!data.slides)
-                throw new Error(data.message)
-
-            for (const slide of data.slides) {
-                const id = slide.device_id.substring(6).toLowerCase()
-                const device = this.services.get(id) ?? this.registerService(new Slide(this, id, slide.id))
-                device.refresh(slide)
-            }
+            const id = data.slide_id.substring(6).toLowerCase()
+            const device = this.services.get(id) ?? this.registerService(new Slide(this, id))
+            device.refresh(data)
         }, {
             interval: 60,
             retryInterval: 60,
@@ -60,29 +43,19 @@ export default class SlideProvider extends Provider<Slide> {
         }))
     }
 
-    async getToken() {
-        if (this.#token == null || Date.now() > this.#token_expiration) {
-            const req = await fetch(`${SLIDE_URL}/auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(this.#config)
-            })
-            this.#token = await req.json() as any
-            this.#token_expiration = Date.now() + (this.#token!.expires_in * 1000) / 2
-        }
-
-        return this.#token!
+    request(path: string, options?: Partial<RequestOptions>) {
+        return this.#client.request(`http://${this.#config.host}/rpc/${path}`, {...{
+            digestAuth: `user:${this.#config.device_code}`,
+            contentType: 'json',
+            dataType: 'json',
+            method: 'POST'
+        }, ...options})
     }
 }
 
 class Slide extends Service<SlideProvider> {
-    readonly #internalId: number
-
-    constructor(provider: SlideProvider, id: string, internalId: number) {
+     constructor(provider: SlideProvider, id: string) {
         super(provider, id)
-        this.#internalId = internalId
         this.name = 'Slide'
 
         this.registerIdentifier('mac', id)
@@ -100,16 +73,10 @@ class Slide extends Service<SlideProvider> {
 
     async setValue(key: string, value: any) {
         if ('url' in SLIDE_PROPERTIES[key]) {
-            const token = await this.provider.getToken()
-            await fetch(`${SLIDE_URL}/slide/${this.#internalId}/${SLIDE_PROPERTIES[key].url}`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `${token.token_type} ${token.access_token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
+            await this.provider.request(`${SLIDE_PROPERTIES[key].url}`, {
+                data: {
                     [key]: value
-                })
+                }
             })
         } else
             return Promise.reject("Unsupported key")
