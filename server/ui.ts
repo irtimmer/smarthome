@@ -3,9 +3,17 @@ export type UIConfig = {
 }
 
 export default class UI {
-    readonly config: UIConfig
+    #config: UIConfig
 
     constructor(config: UIConfig) {
-        this.config = config
+        this.#config = config
+    }
+
+    setConfig(config: UIConfig) {
+        this.#config = config
+    }
+
+    get config() {
+        return this.#config
     }
 }
