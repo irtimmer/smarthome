@@ -107,8 +107,8 @@ class GenesisService extends AbstractService<GenesisProvider> {
         }
 
         this.#reconnect = new Retry(this.#connect.bind(this), {
-            interval: 60 * 1000,
-            retryInterval: 10 * 1000,
+            interval: 60,
+            retryInterval: 10,
             maxRetries: 5
         })
         this.provider.registerTask(`reconnect-${id}`, this.#reconnect)
