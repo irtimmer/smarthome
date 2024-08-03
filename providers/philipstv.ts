@@ -1,4 +1,4 @@
-import { HttpClient, RequestOptions, request } from 'urllib'
+import { HttpClient, HttpClientResponse, RequestOptions, request } from 'urllib'
 
 import Poll from "../shared/utils/poll"
 import Provider, { ProviderManager } from "../shared/provider"
