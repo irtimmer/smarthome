@@ -81,6 +81,5 @@ export default class Controller {
         this.metadata.setConfig(config.metadata)
         this.users.setConfig(config.users)
         this.ui.setConfig(config.ui)
-        this.combiner.setConfig(config.combiner)
     }
 }
