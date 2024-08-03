@@ -28,6 +28,7 @@ export interface Action {
 
 export interface Service {
     name?: string
+    identifiers: [string]
     properties: { [key: string]: any }
     values: { [key: string]: any }
     actions: { [key: string]: any }
