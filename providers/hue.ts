@@ -142,7 +142,7 @@ class HueService extends Service<HueProvider> {
     constructor(provider: HueProvider, data: any) {
         super(provider, data.id)
         this.#type = data.type
-        this.name = data.type
+        this.name = data.type.replace('_', ' ')
         this.priority = HUE_SERVICE_PRIORITIES[this.#type] ?? 0
         this.#typeDefinition = HUE_SERVICE_TYPES[this.#type]
         if (this.#typeDefinition) {
