@@ -1,5 +1,7 @@
 import mqtt from 'mqtt'
 
+import logging from "../logging";
+
 interface MqttConfig {
     host: string
     topics: string[]
@@ -9,8 +11,10 @@ export default class Mqtt {
     readonly #config: MqttConfig
     #mqtt?: mqtt.MqttClient
     #listeners: Record<string, (topic: string, message: Buffer) => void> = {}
+    #logger: ReturnType<typeof logging>
 
     constructor(id: string, config: MqttConfig) {
+        this.#logger = logging().child({ module: "mqtt" })
         this.#config = config
         this.#connect()
     }
@@ -33,7 +37,7 @@ export default class Mqtt {
             }
         })
         this.#mqtt.on('error', (error) => {
-            console.error("MQTT error", error)
+            this.#logger.error(error.message)
         })
     }
 
