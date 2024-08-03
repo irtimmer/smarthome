@@ -59,6 +59,12 @@ providers: {}
 #      s2_access_control: ZWAVE-S2-ACCESS-CONTROL-KEY-HEX
 #      s0: ZWAVE-S0-KEY-HEX
 
+metadata: {}
+#  example1:
+#    identifiers:
+#      - "uuid:HUE-DEVICE-GUID"
+#      - "ip:IP-ADDRESS"
+
 history:
 #  logger:
 #    type: influxdb

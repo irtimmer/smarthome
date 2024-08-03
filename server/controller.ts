@@ -6,6 +6,7 @@ import Groups, { GroupsConfig } from "./groups"
 import Handlers from "./handlers"
 import History, { HistoryConfig } from "./history"
 import Connectors from "./connectors"
+import MetadataManager, { MetadataConfig } from "./metadata"
 import Providers from "./providers"
 import Rules, { RulesConfig } from "./rules"
 import Scenes, { ScenesConfig } from "./scenes"
@@ -19,6 +20,7 @@ type ControllerConfig = {
     scenes: ScenesConfig
     history: HistoryConfig
     groups: GroupsConfig
+    metadata: MetadataConfig
     users: UsersConfig
     ui: UIConfig
 }
@@ -30,6 +32,7 @@ export default class Controller {
     readonly history: History
     readonly constraints: Constraints
     readonly handlers: Handlers
+    readonly metadata: MetadataManager
     readonly rules: Rules
     readonly scenes: Scenes
     readonly groups: Groups
@@ -45,6 +48,7 @@ export default class Controller {
 
         this.constraints = new Constraints(this)
         this.handlers = new Handlers(this)
+        this.metadata = new MetadataManager(this, config.metadata)
         this.rules = new Rules(this, config.rules)
         this.scenes = new Scenes(this, config.scenes)
         this.groups = new Groups(this, config.groups)
@@ -54,6 +58,7 @@ export default class Controller {
         this.providers.registerProvider(this.rules)
         this.providers.registerProvider(this.scenes)
         this.providers.registerProvider(this.groups)
+        this.providers.registerProvider(this.metadata)
         this.providers.registerProvider(this.users)
     }
 
@@ -73,6 +78,7 @@ export default class Controller {
         this.rules.setConfig(config.rules)
         this.scenes.setConfig(config.scenes)
         this.groups.setConfig(config.groups)
+        this.metadata.setConfig(config.metadata)
         this.users.setConfig(config.users)
         this.ui.setConfig(config.ui)
         this.combiner.setConfig(config.combiner)
