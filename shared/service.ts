@@ -64,7 +64,11 @@ export default abstract class AbstractService<T extends Provider<Service>> exten
         this.#types.add(type)
     }
 
-    registerIdentifier(type: string, id: string) {
+    registerIdentifier(type: string | undefined, id: string | undefined) {
+        // Ignore empty identifiers
+        if (!type || !id)
+            return
+
         if (this.#identifiers.has(`${type}:${id}`))
             return
 
