@@ -5,7 +5,7 @@ export const SERVICE_PROPERTIES: { [type: string]: Omit<Property, '@type'> } = {
         label: "Name",
         type: "string",
         read_only: true,
-        group: "internal"
+        group: "meta"
     },
     icon: {
         label: "Icon",
