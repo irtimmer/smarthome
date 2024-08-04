@@ -49,7 +49,8 @@ export abstract class Rule extends Service<Rules> {
         this.registerProperty("enabled", {
             label: "Enabled",
             read_only: false,
-            type: "boolean"
+            type: "boolean",
+            group: "control"
         }, true)
     }
 

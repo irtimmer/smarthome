@@ -39,7 +39,8 @@ export default class JSRule extends Rule {
         this.registerProperty("file", {
             label: "Filename",
             read_only: true,
-            type: "string"
+            type: "string",
+            group: "control"
         }, this.scriptFile)
     }
 
