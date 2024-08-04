@@ -32,10 +32,11 @@ export const ISTA_SERVICE_PROPERTIES: Record<string, IstaServiceProperty> = {
         })
     },
     "CalcFactor": {
-        parse: (data: any) => data.CalcFactor,
+        parse: (data: any) => data.CalcFactor > 0 ? data.CalcFactor : null,
         definition: {
             type: "number",
-            label: "Calculation Factor"
+            label: "Calculation Factor",
+            hide_null: true
         }
     },
     "Position": {
@@ -43,7 +44,8 @@ export const ISTA_SERVICE_PROPERTIES: Record<string, IstaServiceProperty> = {
         definition: {
             type: "string",
             label: "Position",
-            group: "meta"
+            group: "meta",
+            hide_null: true
         }
     },
     "EsDate": {
