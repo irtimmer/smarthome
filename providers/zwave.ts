@@ -101,7 +101,7 @@ class ZWaveDeviceService extends ZWaveService {
             type: "string",
             label: "Name",
             read_only: false,
-            group: "config"
+            group: "meta"
         })
         this.registerProperty("status", {
             type: "string",

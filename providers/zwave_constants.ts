@@ -88,6 +88,11 @@ export const ZWAVE_COMMAND_CLASS_PROPERTIES: Record<number, Record<string, ZWAVE
             definition: {
                 '@type': "battery"
             }
+        },
+        isLow: {
+            definition: {
+                'group': "internal"
+            }
         }
     }
 }
