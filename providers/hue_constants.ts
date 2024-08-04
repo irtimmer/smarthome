@@ -141,11 +141,7 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
     behavior_script: {
         name: {
             parse: (data: any) => data.metadata?.name,
-            definition: {
-                '@type': 'name',
-                type: "string",
-                label: "Name"
-            }
+            definition: "name"
         }
     },
     zone: HUE_GROUP_PROPERTIES,
@@ -273,6 +269,16 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
                     "streaming": "Streaming",
                 }
             }
+        },
+        _active: {
+            parse: (data: any) => data.mode == "streaming"
+                || (data.effects && data.effects?.status != "no_effect"),
+            definition: {
+                '@type': 'active',
+                type: "boolean",
+                label: "Active",
+                group: "internal"
+            }
         }
     },
     grouped_light: HUE_LIGHT_PROPERTIES,
@@ -345,6 +351,42 @@ export const HUE_SERVICE_TYPES: { [type: string]: HueServiceType } = {
             parse: (data: any) => data.metadata?.name,
             definition: "name"
         },
+        configuration_type: {
+            parse: (data: any) => data.configuration_type,
+            definition: {
+                type: "string",
+                label: "Configuration Type"
+            }
+        },
+        status: {
+            parse: (data: any) => data.status == 'active',
+            definition: {
+                '@type': 'playing',
+                type: "boolean",
+                label: "Status"
+            }
+        },
+        active_streamer: {
+            parse: (data: any) => data.active_streamer?.rid,
+            definition: {
+                type: "string",
+                label: "Active Streamer"
+            }
+        },
+        stream_proxy_mode: {
+            parse: (data: any) => data.stream_proxy?.mode,
+            definition: {
+                type: "string",
+                label: "Stream Proxy Mode"
+            }
+        },
+        stream_proxy_node: {
+            parse: (data: any) => data.stream_proxy?.node?.rid,
+            definition: {
+                type: "string",
+                label: "Stream Proxy Node"
+            }
+        }
     },
     zigbee_connectivity: {
         connected: {
@@ -375,6 +417,16 @@ export const HUE_SERVICE_ACTIONS: { [type: string]: HueServiceActionType } = {
         }
     },
     light: {
+        alert: {
+            trigger: _ => ({
+                alert: {
+                    action: "breathe"
+                }
+            }),
+            definition: {
+                label: "Alert"
+            }
+        },
         identify: {
             trigger: _ => ({
                 identify: {
