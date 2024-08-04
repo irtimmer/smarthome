@@ -1,6 +1,6 @@
 <template>
   <q-page padding class="q-gutter-md">
-    <component v-for="card in config.cards" :is="components[card.type]" :config="card" :components="components" />
+    <component v-for="card in config?.cards" :is="components[card.type]" :config="card" :components="components" />
   </q-page>
 </template>
 
