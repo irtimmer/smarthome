@@ -22,7 +22,8 @@ export const UNIFI_SERVICE_PROPERTIES: Record<string, UnifiServiceProperty> = {
         definition: {
             label: "IP Address",
             type: "string",
-            group: "meta"
+            group: "meta",
+            hide_null: true
         }
     },
     "mac": {
@@ -38,7 +39,8 @@ export const UNIFI_SERVICE_PROPERTIES: Record<string, UnifiServiceProperty> = {
         definition: {
             label: "Manufacturer",
             type: "string",
-            group: "meta"
+            group: "meta",
+            hide_null: true
         }
     }
 }
