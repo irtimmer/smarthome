@@ -15,6 +15,7 @@ export const TESLAMATE_PROPERTIES: Record<string, TeslaServiceProperty> = {
             '@type': 'battery',
             type: 'number',
             label: 'Battery Level',
+            unit: '%'
         }
     },
     speed: {
@@ -31,6 +32,7 @@ export const TESLAMATE_PROPERTIES: Record<string, TeslaServiceProperty> = {
             '@type': 'temperature',
             type: 'number',
             label: 'Outside Temperature',
+            unit: 'C'
         }
     },
     inside_temp: {
@@ -39,6 +41,7 @@ export const TESLAMATE_PROPERTIES: Record<string, TeslaServiceProperty> = {
             '@type': 'temperature',
             type: 'number',
             label: 'Inside Temperature',
+            unit: 'C'
         }
     },
     locked: {
