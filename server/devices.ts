@@ -88,4 +88,9 @@ export default class Devices extends EventEmitter {
     get devices(): ReadonlyMap<string, Device> {
         return this.#devices
     }
+
+    getDeviceByIdentifier(identifier: string): Device | undefined {
+        const key = this.#identifiers.get(identifier)
+        return key ? this.#devices.get(key) : undefined
+    }
 }

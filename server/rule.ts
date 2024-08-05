@@ -15,6 +15,7 @@ export abstract class Rule extends Service<Rules> {
     watchServiceFilters: ServiceFilter[]
     watchServices: Set<string>
     watchTimeEvents: NodeJS.Timeout[]
+    watchIdentifiers: Set<string>
     watchDevices: Set<string>
     watchProperties: Set<string>
     nextRun?: number
@@ -33,6 +34,7 @@ export abstract class Rule extends Service<Rules> {
         this.watchServiceFilters = []
         this.watchServices = new Set()
         this.watchTimeEvents = []
+        this.watchIdentifiers = new Set()
         this.watchDevices = new Set()
         this.watchProperties = new Set()
         this.subRules = []
@@ -96,6 +98,7 @@ export abstract class Rule extends Service<Rules> {
         this.watchServiceEvents.clear()
         this.watchServiceFilters = []
         this.watchServices.clear()
+        this.watchIdentifiers.clear()
         this.watchDevices.clear()
         this.watchProperties.clear()
 

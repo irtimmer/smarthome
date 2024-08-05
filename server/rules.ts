@@ -37,6 +37,11 @@ export default class Rules extends Provider<Rule> {
                 .forEach(x => x.executeListener(ref, args))
         })
 
+        controller.providers.on("identifier", (_: Service, type: string, id: string) => {
+            const key = `${type}:${id}`
+            this.#scheduled.filter(r => r.watchIdentifiers.has(key)).forEach(r => r.execute())
+        })
+
         controller.devices.on("update", (key: string) => {
             this.#scheduled.filter(r => r.watchDevices.has(key)).forEach(r => r.execute())
         })
