@@ -56,6 +56,10 @@ export class NullItem extends Item {
     get identifiers() {
         return new Set<string>
     }
+
+    toString() {
+        return "Placeholder"
+    }
 }
 
 export class RuleService extends Item {
@@ -108,6 +112,10 @@ export class RuleService extends Item {
 
     get identifiers() {
         return this.#service.identifiers
+    }
+
+    toString() {
+        return `Service ${this.#service.uniqueId}`
     }
 }
 
@@ -163,6 +171,10 @@ export class RuleServices extends Item {
 
     get identifiers() {
         return new Set<string>(this.#services.flatMap(service => Array.from(service.identifiers)))
+    }
+
+    toString() {
+        return `Services [${this.#services.map(service => service.uniqueId).join(', ')}]`
     }
 }
 
@@ -252,6 +264,10 @@ export class RuleDevice extends Item {
     get identifiers(): ReadonlySet<string> {
         return this.#device.identifiers
     }
+
+    toString() {
+        return `Device [${Array.from(this.#device.identifiers.values()).join(', ')}]`
+    }
 }
 
 export class RuleProperty {
@@ -272,5 +288,9 @@ export class RuleProperty {
     get value() {
         activeRule?.watchProperties.add(`${this.#rule.uniqueId}/${this.key}`)
         return this.#rule.values.get(this.key)
+    }
+
+    toString() {
+        return `Property ${this.key}`
     }
 }
