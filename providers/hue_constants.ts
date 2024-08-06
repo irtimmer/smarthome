@@ -3,7 +3,7 @@ import { HueServiceActionType, HueServiceType } from "./hue";
 export const HUE_SERVICE_TYPE: { [type: string]: string | string[] } = {
     light: ["light", "switch"],
     grouped_light: ["group", "light", "switch"],
-    button: "remote",
+    button: ["remote", "button"],
     room: ["room", "group"],
     zone: ["zone", "group"],
     motion: ["motion", "presence"],
