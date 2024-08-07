@@ -28,12 +28,13 @@ import PropertyInput from './PropertyInput.vue';
 
 const props = defineProps<{
   device: Device
+  main?: string
 }>()
 const store = useStore()
 
 const helper = useDevice(props.device)
 const main = computed(() => {
-    const [serviceId, propertyId] = helper.main()
+    const [serviceId, propertyId] = helper.main(props.main)
     return {
         service: serviceId,
         key: propertyId,
@@ -43,7 +44,7 @@ const main = computed(() => {
 })
 
 const secondaries = computed(() => {
-  const [_, mainPropertyId] = helper.main()
+  const mainPropertyId = main.value.key
   if (!mainPropertyId) return []
 
   return helper.secondaries().filter(([_, propertyId]) => mainPropertyId != propertyId).map(([serviceId, propertyId]) => ({

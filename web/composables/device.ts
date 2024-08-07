@@ -38,7 +38,10 @@ export const useDevice = (device: Device) => {
         return value("name") ?? device.services.map(id => store.services.get(id)).find(s => s !== undefined && s.name)?.name
     }
 
-    function main() {
+    function main(userProperty?: string) {
+        if (userProperty)
+            return property(userProperty)[0] ?? [null, null]
+
         const types = new Set(device.services.flatMap(id => store.services.get(id)?.types ?? []))
 
         for (const {type, property: prop} of MAIN_PROPERTIES) {

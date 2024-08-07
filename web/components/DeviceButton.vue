@@ -23,6 +23,7 @@ import { type Device, useStore } from '~~/stores/devices';
 
 const props = defineProps<{
   device: Device
+  main?: string
 }>()
 
 const { main: getMain, name: getName, icon: getIcon, badge: getBadge } = useDevice(props.device)
@@ -34,7 +35,7 @@ const icon = computed(() => getIcon())
 const badge = computed(() => getBadge())
 
 const main = computed(() => {
-    const [serviceId, propertyId] = getMain()
+    const [serviceId, propertyId] = getMain(props.main)
     return {
       service: serviceId,
       key: propertyId,

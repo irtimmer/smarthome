@@ -1,6 +1,6 @@
 <template>
   <q-card class="row">
-    <DeviceButton class="col-xs-6 col-sm-3 col-md-2 col-lg-1" v-for="device in entities" :device="device" />
+    <DeviceButton class="col-xs-6 col-sm-3 col-md-2 col-lg-1" v-for="device in entities" :device="device" :main="config.property" />
   </q-card>
 </template>
 

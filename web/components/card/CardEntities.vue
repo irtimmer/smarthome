@@ -4,7 +4,7 @@
       <div class="text-h6">{{ config.title }}</div>
     </q-card-section>
     <q-list>
-      <DeviceItem v-for="device in entities" :device="device" />
+      <DeviceItem v-for="device in entities" :device="device" :main="config.property" />
     </q-list>
   </q-card>
 </template>
