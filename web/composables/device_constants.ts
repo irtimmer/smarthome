@@ -20,6 +20,7 @@ export const SECONDARY_PROPERTIES = [
 export const TYPE_ICONS: TypeIconMapping = {
     _default: "mdi-gauge",
     "endpoint": "mdi-devices",
+    "car": "mdi-car",
     "home": "mdi-home",
     "user": "mdi-account",
     "zone": "mdi-select-group",
