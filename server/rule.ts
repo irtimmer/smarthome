@@ -147,7 +147,9 @@ export abstract class Rule extends Service<Rules> {
             this.updateValue(key, value)
             this.subRules.forEach(r => r.setValue(key, value))
             return Promise.resolve()
-        } else
-            return Promise.reject()
+        } else {
+            this.updateValue(key, value)
+            return Promise.resolve()
+        }
     }
 }
