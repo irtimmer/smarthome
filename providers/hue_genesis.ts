@@ -31,7 +31,7 @@ export default class GenesisProvider extends Provider<GenesisService> {
         this.#options = options;
         this.#storage = manager.storage
 
-        new Poll(async () => {
+        this.registerTask("discover", new Poll(async () => {
             let access_token = await this.getAccessToken(undefined)
             let ret = await fetch("https://api.meethue.com/genesis/api/discover/authentication", {
                 headers: {
@@ -50,7 +50,7 @@ export default class GenesisProvider extends Provider<GenesisService> {
         }, {
             interval: 60 * 60,
             retryInterval: 60,
-        })
+        }))
     }
 
     async getAccessToken(refresh_token: string | undefined): Promise<string> {
