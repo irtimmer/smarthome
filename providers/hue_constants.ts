@@ -416,6 +416,20 @@ export const HUE_SERVICE_ACTIONS: { [type: string]: HueServiceActionType } = {
             }
         }
     },
+    smart_scene: {
+        // Provide hidden activate action to resammble the same behavior as a scene
+        activate: {
+            trigger: _ => ({
+                recall: {
+                    action: "active"
+                }
+            }),
+            definition: {
+                label: "Activate",
+                group: "internal"
+            }
+        }
+    },
     light: {
         alert: {
             trigger: _ => ({
