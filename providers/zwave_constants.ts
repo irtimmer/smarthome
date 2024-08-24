@@ -50,8 +50,16 @@ export const ZWAVE_COMMAND_CLASS_PROPERTIES: Record<number, Record<string, ZWAVE
             }
         },
         targetValue: null,
-        Up: null,
-        Down: null,
+        Up: {
+            definition: {
+                group: "internal"
+            }
+        },
+        Down: {
+            definition: {
+                group: "internal"
+            }
+        },
         restorePrevious: null
     },
     49: { // Multilevel Sensor
