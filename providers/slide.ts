@@ -64,6 +64,15 @@ class Slide extends Service<SlideProvider> {
             this.registerProperty(key, typeof property.definition == "string" ? property.definition : { ...property.definition, ...{
                 read_only: !('url' in property)
             }});
+
+        this.registerAction('calibrate', {
+            label: 'Calibrate',
+            group: 'config',
+        })
+        this.registerAction('stop', {
+            label: 'Stop',
+            group: 'config',
+        })
     }
 
     refresh(data: any) {
@@ -79,6 +88,15 @@ class Slide extends Service<SlideProvider> {
                 }
             })
         } else
+            return Promise.reject("Unsupported key")
+    }
+
+    async triggerAction(key: string, props: any): Promise<void> {
+        if (key == 'calibrate')
+            await this.provider.request('Slide.Calibrate')
+        else if (key == 'stop')
+            await this.provider.request('Slide.Stop')
+        else
             return Promise.reject("Unsupported key")
     }
 }
