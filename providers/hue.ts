@@ -63,6 +63,7 @@ export default class HueProvider extends Provider<HueService> {
     }
 
     async #connect() {
+        const seen_services = new Set
         let json = await this.fetch(`/clip/v2/resource`)
 
         let bridge_data = json.data.filter((serviceData: any) => serviceData.type == "bridge")[0]
@@ -75,6 +76,7 @@ export default class HueProvider extends Provider<HueService> {
         }
 
         for (let serviceData of json.data) {
+            seen_services.add(serviceData.id)
             if (this.services.has(serviceData.id))
                 continue
 
@@ -93,6 +95,12 @@ export default class HueProvider extends Provider<HueService> {
             service.registerIdentifier('uuid', serviceData.id)
             service.update(serviceData, false)
         }
+
+        // Remove services that are no longer present
+        this.services.forEach(service => {
+            if (!seen_services.has(service.id))
+                this.unregisterService(service)
+        })
 
         let services = Array.from(this.services.values())
         this.#bridge.updateValue("_scripts", Array.from(services.filter(s => s.types.has('controller')).map(s => s.identifiers.values().next().value)))
