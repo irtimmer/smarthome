@@ -127,12 +127,22 @@ export default class Ista extends Provider<IstaService> {
     }
 
     update(data: any) {
+        const seen_services = new Set
+
         for (const i in data["Cus"][0]["curConsumption"]["ServicesComp"]) {
             const billing = data["Cus"][0]["curConsumption"]["Billingservices"][i]
             const service = data["Cus"][0]["curConsumption"]["ServicesComp"][i]
-            for (const meter of service["CurMeters"])
+            for (const meter of service["CurMeters"]) {
+                seen_services.add(meter["MeterNr"])
                 this.services.get(meter["MeterNr"])?.refresh(meter) ?? this.registerService(new IstaService(this, meter, billing))
+            }
         }
+
+        // Unregister services that are no longer present
+        this.services.forEach(service => {
+            if (!seen_services.has(service.id))
+                this.unregisterService(service)
+        })
     }
 }
 
