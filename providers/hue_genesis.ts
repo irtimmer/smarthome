@@ -43,10 +43,18 @@ export default class GenesisProvider extends Provider<GenesisService> {
             if (!data.users)
                 throw new Error("No Genesis users")
 
+            const seen_services = new Set
             for (const user of data.users) {
                 const id = user.uuid
+                seen_services.add(id)
                 this.services.get(id) ?? this.registerService(new GenesisService(this, id))
             }
+
+            // Unregister services that are no longer present
+            this.services.forEach(service => {
+                if (service instanceof GenesisService && !seen_services.has(service.id))
+                    this.unregisterService(service)
+            })
         }, {
             interval: 60 * 60,
             retryInterval: 60,
