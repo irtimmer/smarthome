@@ -14,6 +14,7 @@ type UnifiConfig = {
     url: string
     username: string
     password: string
+    keeptimeout: number
 }
 
 export default class Unifi extends Provider<UnifiService> {
@@ -21,12 +22,14 @@ export default class Unifi extends Provider<UnifiService> {
     #url: string
     #username: string
     #password: string
+    #keeptimeout: number
 
     constructor(manager: ProviderManager, config: UnifiConfig) {
         super(manager)
         this.#url = config.url
         this.#username = config.username
         this.#password = config.password
+        this.#keeptimeout = config.keeptimeout ?? 24 * 60 * 60
 
         const jar = new CookieJar();
         this.#agent = new HttpsCookieAgent({
@@ -45,8 +48,13 @@ export default class Unifi extends Provider<UnifiService> {
                 seen_devices.add(device._id)
             }
 
-            for (const service of this.services.values())
-                service.updateValue("_connected", seen_devices.has(service.id))
+            for (const service of this.services.values()) {
+                const seen = seen_devices.has(service.id)
+                if (!seen && (Date.now() - service.lastSeen) > (this.#keeptimeout * 1000))
+                    this.unregisterService(service)
+                else
+                    service.updateValue("_connected", seen)
+            }
         }))
     }
 
@@ -91,10 +99,13 @@ export default class Unifi extends Provider<UnifiService> {
 }
 
 class UnifiService extends Service<Unifi> {
+    lastSeen: number
+
     constructor(provider: Unifi, device: any) {
         super(provider, device._id)
         this.name = "Endpoint"
         this.priority = -10
+        this.lastSeen = Date.now()
         this.registerIdentifier("mac", device.mac.replaceAll(':', ''))
         this.registerIdentifier("ip", device.ip)
         this.registerType("endpoint")
@@ -107,6 +118,8 @@ class UnifiService extends Service<Unifi> {
     }
 
     refresh(data: any) {
+        this.lastSeen = Date.now()
+
         for (const [key, property] of Object.entries(UNIFI_SERVICE_PROPERTIES))
             this.updateValue(key, property.parse(data))
 
