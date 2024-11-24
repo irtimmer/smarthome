@@ -15,7 +15,7 @@ export default class Users extends Provider<User> {
     readonly controller: Controller
 
     constructor(controller: Controller, config: UsersConfig) {
-        super(controller.providers.getHelper("groups"))
+        super(controller.providers.getHelper("users"))
         this.controller = controller
 
         this.setConfig(config)
@@ -27,7 +27,7 @@ export default class Users extends Provider<User> {
             const service = this.services.get(id)
             seen_services.add(id)
             if (service)
-                service.config = config[id]
+                service.updateConfig(config[id])
             else
                 this.registerService(new User(this, id, config[id]))
         }
