@@ -17,13 +17,22 @@ export default class Groups extends Provider<Group> {
     }
 
     setConfig(config: GroupsConfig) {
+        const seen_services = new Set
+
         for (const id in config) {
             const service = this.services.get(id)
+            seen_services.add(id)
             if (service)
                 service.updateConfig(config[id])
             else
                 this.registerService(new Group(this, id, config[id]))
         }
+
+        // Unregister services that are no longer present
+        this.services.forEach(service => {
+            if (service instanceof Group && !seen_services.has(service.id))
+                this.unregisterService(service)
+        })
     }
 }
 

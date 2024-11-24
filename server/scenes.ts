@@ -22,13 +22,22 @@ export default class Scenes extends Provider<Scene> {
     }
 
     setConfig(config: ScenesConfig) {
+        const seen_services = new Set
+
         for (const id in config) {
             const service = this.services.get(id)
+            seen_services.add(id)
             if (service)
                 service.config = config[id]
             else
                 this.registerService(new Scene(this, id, config[id]))
         }
+
+        // Unregister services that are no longer present
+        this.services.forEach(service => {
+            if (service instanceof Scene && !seen_services.has(service.id))
+                this.unregisterService(service)
+        })
     }
 }
 
@@ -39,6 +48,7 @@ class Scene extends Service<Scenes> {
         super(provider, id)
         this.config = config
 
+        this.registerType("scene")
         this.registerIdentifier(...config.id.split(":") as [string, string])
         this.registerAction("activate", {
             label: config.name

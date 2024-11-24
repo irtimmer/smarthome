@@ -22,13 +22,21 @@ export default class Users extends Provider<User> {
     }
 
     setConfig(config: UsersConfig) {
+        const seen_services = new Set
         for (const id in config) {
             const service = this.services.get(id)
+            seen_services.add(id)
             if (service)
                 service.config = config[id]
             else
                 this.registerService(new User(this, id, config[id]))
         }
+
+        // Unregister services that are no longer present
+        this.services.forEach(service => {
+            if (service instanceof User && !seen_services.has(service.id))
+                this.unregisterService(service)
+        })
     }
 }
 
