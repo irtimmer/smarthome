@@ -84,11 +84,15 @@ export default class {
         })
 
         api.get('/constraints', (_, res) => {
-            res.json(Object.fromEntries(Array.from(controller.constraints.constraints.entries()).map(([service, properties]) => [
-                service.id, Object.fromEntries(Array.from(properties).map(([id, constraints]) => [
-                    id, constraints.map(c => this.#constraintToJSON(c))
+            res.json({
+                instance: this.#instance,
+                counter: this.#revision,
+                constraints: Object.fromEntries(Array.from(controller.constraints.constraints.entries()).map(([service, properties]) => [
+                    service.uniqueId, Object.fromEntries(Array.from(properties).map(([id, constraints]) => [
+                        id, constraints.map(c => this.#constraintToJSON(c))
+                    ]))
                 ]))
-            ])))
+            })
         })
 
         api.get('/events', (_, res, next) => {
@@ -157,6 +161,16 @@ export default class {
             this.#notify({
                 action: "deviceDelete",
                 id
+            })
+        })
+
+        controller.constraints.on("update", (service: Service, key: string, constraints: Constraint[]) => {
+            console.log("Constraint update", service.uniqueId, key, constraints)
+            this.#notify({
+                action: "constraintsUpdate",
+                id: service.uniqueId,
+                key,
+                constraints: constraints.map(c => this.#constraintToJSON(c))
             })
         })
     }

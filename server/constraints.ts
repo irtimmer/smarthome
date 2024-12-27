@@ -1,6 +1,7 @@
 import { Service } from "../shared/service"
 import Controller from "./controller"
-import Providers from "./providers"
+
+import EventEmitter from "events";
 
 export enum Action {
     BASE,
@@ -22,12 +23,13 @@ export type Constraint = {
 const NEEDS_RESET = Symbol('RESET')
 const UP_TO_DATE = Symbol('UPTODATE')
 
-export default class Constraints {
+export default class Constraints extends EventEmitter {
     #constraints: Map<Service, Map<string, Constraint[]>>
     #modified: Map<Service, Set<string>>
     readonly controller: Controller
 
     constructor(controller: Controller) {
+        super()
         this.controller = controller
         this.#constraints = new Map
         this.#modified = new Map
@@ -46,8 +48,12 @@ export default class Constraints {
     }
 
     update() {
-        for (const [service, keys] of this.#modified.entries())
-            keys.forEach(key => this.#solveAndSet(service, key))
+        for (const [service, keys] of this.#modified.entries()) {
+            keys.forEach(key => {
+                this.#solveAndSet(service, key)
+                this.emit("update", service, key, this.#constraints.get(service)?.get(key))
+            })
+        }
 
         this.#modified.clear()
     }
