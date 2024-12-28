@@ -17,7 +17,7 @@
     <q-item-section>
       <q-field borderless :label="property.label" :modelValue="modelValue">
         <template v-slot:control>
-          <q-slider :modelValue="modelValue" @update:modelValue="$emit('update:modelValue', $event)" :min="property.min" :max="property.max" :inner-min="constraintProperty.min" :inner-max="constraintProperty.max" :readonly="constraintProperty.read_only"/>
+          <q-slider :modelValue="modelValue" @update:modelValue="$emit('update:modelValue', $event)" :min="property.min" :max="property.max" :step="property.step" :inner-min="constraintProperty.min" :inner-max="constraintProperty.max" :readonly="constraintProperty.read_only"/>
         </template>
       </q-field>
     </q-item-section>

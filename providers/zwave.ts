@@ -229,6 +229,7 @@ class ZWaveCommandClassService extends ZWaveService {
                 options = {...options, ...{
                     min: numericMeta.min,
                     max: numericMeta.max,
+                    step: numericMeta.steps,
                     unit: numericMeta.unit
                 }}
                 if (numericMeta.states) {

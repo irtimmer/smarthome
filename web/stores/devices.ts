@@ -17,6 +17,7 @@ export interface Property {
     group?: PropertyGroup
     min?: number
     max?: number
+    step?: number
     unit?: string
     options?: { [key: string]: string } | { [key: string]: number }
 }
