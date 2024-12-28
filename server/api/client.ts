@@ -219,6 +219,7 @@ export default class {
 
     #constraintToJSON(constraint: Constraint): any {
         return {
+            action: constraint.action,
             handle: constraint.handle,
             priority: constraint.priority,
             keep: constraint.keep,
