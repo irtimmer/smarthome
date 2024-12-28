@@ -35,6 +35,21 @@ export interface Service {
     types: [string]
 }
 
+export enum ConstraintAction {
+    BASE,
+    MINIMUM,
+    MAXIMUM,
+    ADDITION,
+    MULTIPLY
+}
+
+export interface Constraint {
+    priority: number
+    handle: string,
+    action: ConstraintAction,
+    value: any
+}
+
 let events: EventSource | null = null
 let eventQueue: any[] = []
 
@@ -43,7 +58,8 @@ export const useStore = defineStore('main', {
         instance: null,
         revision: 0,
         devices: new Map as Map<string, Device>,
-        services: new Map as Map<string, Service>
+        services: new Map as Map<string, Service>,
+        constraints: new Map as Map<string, Record<string, Constraint[]>>
     }),
     actions: {
         onMessage(data: any) {
@@ -75,6 +91,11 @@ export const useStore = defineStore('main', {
                     break
                 case "deviceDelete":
                     this.devices.delete(data.id)
+                    break
+                case "constraintsUpdate":
+                    const constraints = this.constraints.get(data.id) ?? {}
+                    constraints[data.key] = data.constraints
+                    this.constraints.set(data.id, constraints)
             }
         },
 
@@ -118,13 +139,17 @@ export const useStore = defineStore('main', {
                 $fetch("/api/services").then(async (data: any) => {
                     this.services = new Map(Object.entries(data.services))
                     return [data.instance, data.counter]
+                }),
+                $fetch("/api/constraints").then(async (data: any) => {
+                    this.constraints = new Map(Object.entries(data.constraints))
+                    return [data.instance, data.counter]
                 })
-            ]).then(([[instance1, counter1], [instance2, counter2]]) => {
-                if (instance1 != instance2)
+            ]).then(([[instance1, counter1], [instance2, counter2], [instance3, counter3]]) => {
+                if (instance1 != instance2 || instance2 != instance3)
                     return this.refresh()
 
                 this.instance = instance1
-                this.revision = Math.min(counter1, counter2)
+                this.revision = Math.min(counter1, counter2, counter3)
                 this.processQueue()
             })
         },
