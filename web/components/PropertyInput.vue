@@ -1,6 +1,6 @@
 <template>
-  <PropertyValue v-if="property.read_only" :value="modelValue" :property="property" />
-  <q-input v-else-if="property.type == 'number'" :modelValue="modelValue" borderless :min="property.min" :max="property.max" type="number" dense />
+  <PropertyValue v-if="constraintProperty.read_only" :value="modelValue" :property="property" />
+  <q-input v-else-if="property.type == 'number'" :modelValue="modelValue" borderless :min="constraintProperty.min" :max="constraintProperty.max" type="number" dense />
   <q-toggle dense v-else-if="property.type == 'boolean'" :modelValue="modelValue" @update:modelValue="$emit('update:modelValue', $event)"></q-toggle>
   <span v-else-if="property.type == 'string'">
     <PropertyValue :value="modelValue" :property="property" />
@@ -12,11 +12,27 @@
 </template>
 
 <script setup lang="ts">
-import { type Property } from '~~/stores/devices';
+import { type Constraint, type Property } from '~~/stores/devices';
 
-defineProps<{
+const props = defineProps<{
   modelValue: any,
-  property: Property
+  property: Property,
+  constraints: Constraint[] | undefined
 }>()
 defineEmits(['update:modelValue'])
+
+const constraintProperty = computed(() => props.constraints?.reduce((property, constraint) => {
+  switch(constraint.action) {
+    case ConstraintAction.MINIMUM:
+      property.min = constraint.value
+      break
+    case ConstraintAction.MAXIMUM:
+      property.max = constraint.value
+      break
+    case undefined:
+    case null:
+      property.read_only = true
+  }
+  return property
+}, { ...props.property }) ?? props.property)
 </script>
