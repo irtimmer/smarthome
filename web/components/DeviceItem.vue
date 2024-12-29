@@ -16,7 +16,7 @@
       </q-item-label>
     </q-item-section>
     <q-item-section v-if="main.property" side>
-      <PropertyInput :property="main.property" :modelValue="main.value" @update:modelValue="store.update(main.service, main.key, $event)"/>
+      <PropertyInput :property="main.property" :constraints="main.constraints" :modelValue="main.value" @update:modelValue="store.update(main.service, main.key, $event)"/>
     </q-item-section>
   </q-item>
 </template>
@@ -39,7 +39,8 @@ const main = computed(() => {
         service: serviceId,
         key: propertyId,
         property: store.services.get(serviceId)?.properties[propertyId],
-        value: store.services.get(serviceId)?.values[propertyId]
+        value: store.services.get(serviceId)?.values[propertyId],
+        constraints: store.constraints.get(serviceId)?.[propertyId]
     }
 })
 

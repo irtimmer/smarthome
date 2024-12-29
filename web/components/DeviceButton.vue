@@ -12,7 +12,7 @@
     </q-card-section>
     <q-card-section class="text-center q-pa-sm">
       <div>{{ name }}</div>
-      <PropertyInput v-if="main.property" :property="main.property" :modelValue="main.value" @update:modelValue="store.update(main.service, main.key, $event)"/>
+      <PropertyInput v-if="main.property" :property="main.property" :constraints="main.constraints" :modelValue="main.value" @update:modelValue="store.update(main.service, main.key, $event)"/>
     </q-card-section>
   </q-card>
 </template>
@@ -40,7 +40,8 @@ const main = computed(() => {
       service: serviceId,
       key: propertyId,
       property: store.services.get(serviceId)?.properties[propertyId],
-      value: store.services.get(serviceId)?.values[propertyId]
+      value: store.services.get(serviceId)?.values[propertyId],
+      constraints: store.constraints.get(serviceId)?.[propertyId]
     }
 })
 

@@ -1,7 +1,7 @@
 <template>
   <q-list dense>
     <template v-for="(prop, key) in visibleProperties">
-      <PropertyItem v-if="!prop.hide_null || service.values[key] != null" :property="prop" :modelValue="service.values[key]" @update:modelValue="store.update(id, key as string, $event)" />
+      <PropertyItem v-if="!prop.hide_null || service.values[key] != null" :property="prop" :modelValue="service.values[key]" :constraints="constraints[key]" @update:modelValue="store.update(id, key as string, $event)" />
     </template>
     <q-item v-if="Object.keys(visibleActions).length">
       <q-item-section>
@@ -23,6 +23,7 @@ const props = defineProps<{
 
 const store = useStore()
 const service = computed(() => store.services.get(props.id)!)
+const constraints = computed(() => store.constraints.get(props.id) || {})
 const visibleProperties = computed(() => service.value.properties && Object.fromEntries(Object.entries(service.value.properties).filter(([_, prop]) => prop.group === props.group)))
 const visibleActions = computed(() => service.value.actions && Object.fromEntries(Object.entries(service.value.actions).filter(([_, action]) => action.group === props.group)))
 </script>
