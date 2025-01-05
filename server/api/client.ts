@@ -165,7 +165,6 @@ export default class {
         })
 
         controller.constraints.on("update", (service: Service, key: string, constraints: Constraint[]) => {
-            console.log("Constraint update", service.uniqueId, key, constraints)
             this.#notify({
                 action: "constraintsUpdate",
                 id: service.uniqueId,
