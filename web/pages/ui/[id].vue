@@ -19,6 +19,7 @@ const { data: config } = await useFetch(`/api/layout/${route.params.id}`, {
 const components: Record<string, string | ConcreteComponent> = {
   entities: resolveComponent("CardEntities"),
   glance: resolveComponent("CardGlance"),
-  stack: resolveComponent("CardStack")
+  stack: resolveComponent("CardStack"),
+  'entity-filter': resolveComponent("CardEntityFilter")
 }
 </script>
