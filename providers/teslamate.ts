@@ -43,6 +43,7 @@ class Car extends Service<TeslaMate> {
         super(provider, id)
         this.registerIdentifier("teslamate", id)
         this.registerType("car")
+        this.registerType("battery")
 
         for (const [key, property] of Object.entries(TESLAMATE_PROPERTIES))
             this.registerProperty(key, typeof property.definition === "string" ? property.definition : {...{
