@@ -9,6 +9,7 @@ export const HUE_SERVICE_TYPE: { [type: string]: string | string[] } = {
     motion: ["motion", "presence"],
     temperature: ["temperatureSensor"],
     light_level: ["lightSensor"],
+    battery: "battery",
     behavior_script: "controller",
     bridge: "gateway",
     homekit: "api",
