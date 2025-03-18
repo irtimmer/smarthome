@@ -37,7 +37,7 @@ export default class Rules extends Provider<Rule> {
                 .forEach(x => x.executeListener(ref, args))
         })
 
-        controller.providers.on("identifier", (_: Service, type: string, id: string) => {
+        controller.providers.on("registerIdentifier", (_: Service, type: string, id: string) => {
             const key = `${type}:${id}`
             this.#scheduled.filter(r => r.watchIdentifiers.has(key)).forEach(r => r.execute())
         })

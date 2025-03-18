@@ -34,7 +34,7 @@ export default class Devices extends EventEmitter {
             }
         })
 
-        providers.on("identifier", (service: Service, type: string, id: string) => {
+        providers.on("registerIdentifier", (service: Service, type: string, id: string) => {
             const key = `${type}:${id}`
             if (this.#services.has(service)) {
                 if (this.#identifiers.has(key)) {

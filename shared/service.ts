@@ -50,11 +50,12 @@ export default abstract class AbstractService<T extends Provider<Service>> exten
 
     registerProperty(key: string, prop: Property | string, value?: any) {
         if (typeof prop === "string")
-            this.#properties.set(key, { ...SERVICE_PROPERTIES[prop], ...{
+            prop = { ...SERVICE_PROPERTIES[prop], ...{
                 '@type': prop
-            }})
-        else
-            this.#properties.set(key, prop)
+            }}
+
+        this.#properties.set(key, prop)
+        this.emit("registerProperty", key, prop)
 
         if (value !== undefined)
             this.updateValue(key, value)
@@ -62,6 +63,7 @@ export default abstract class AbstractService<T extends Provider<Service>> exten
 
     registerType(type: string) {
         this.#types.add(type)
+        this.emit("registerType", type)
     }
 
     registerIdentifier(type: string | undefined, id: string | undefined) {
@@ -73,15 +75,17 @@ export default abstract class AbstractService<T extends Provider<Service>> exten
             return
 
         this.#identifiers.add(`${type}:${id}`)
-        this.emit("identifier", type, id)
+        this.emit("registerIdentifier", type, id)
     }
 
     registerAction(key: string, action: Action) {
         this.#actions.set(key, action)
+        this.emit("registerAction", key, action)
     }
 
     registerEvent(key: string, event: ServiceEvent) {
         this.#events.set(key, event)
+        this.emit("registerEvent", key, event)
     }
 
     updateTypes(types: string[] | string) {
