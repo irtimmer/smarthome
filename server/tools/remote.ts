@@ -64,18 +64,19 @@ import(`../../providers/${args.provider}`).then((providerClass) => {
 
     const emitServiceEvents = (service: Service) => {
         sendMessage({
-            type: 'registerService',
-            id: service.id,
-            name: service.name,
-            priority: service.priority
+            method: 'registerService',
+            params: {
+                id: service.id,
+                name: service.name,
+                priority: service.priority
+            }
         })
     
         service.types.forEach(type => service.emit("type", type))
-        service.events.forEach((value, key) => service.emit("event", key, value))
-        service.properties.forEach((value, key) => service.emit("property", key, value))
-        service.actions.forEach((value, key) => service.emit("action", key, value))
-        service.identifiers.forEach(id => service.emit("identifier", ...id.split(':')))
-        service.values.forEach((value, key) => service.emit("update", key, value, undefined))
+        service.events.forEach((value, key) => service.emit("registerEvent", key, value))
+        service.properties.forEach((value, key) => service.emit("registerProperty", key, value))
+        service.actions.forEach((value, key) => service.emit("registerAction", key, value))
+        service.identifiers.forEach(id => service.emit("registerIdentifier", ...id.split(':')))
     }
 
     const connect = async () => {
@@ -86,14 +87,14 @@ import(`../../providers/${args.provider}`).then((providerClass) => {
         socket.on('message', (e: any) => {
             const data = JSON.parse(e.toString())
             try {
-                const service = provider.services.get(data.id)
+                const service = provider.services.get(data.params.id)
                 if (!service)
                     return
 
-                if (data.type === 'setValue')
-                    service.setValue(data.key, data.value)
-                else if (data.type === 'triggerAction')
-                    service.triggerAction(data.key, data.props)
+                if (data.method === 'setValue')
+                    service.setValue(data.params.key, data.params.value)
+                else if (data.method === 'triggerAction')
+                    service.triggerAction(data.params.key, data.params.props)
             } catch (e) {
                 console.error("Error processing message", e);
             }
@@ -108,52 +109,75 @@ import(`../../providers/${args.provider}`).then((providerClass) => {
 
     provider.on("register", (service: Service) => {
         service.on("type", (name: string) => sendMessage({
-            type: 'registerType',
-            id: service.id,
-            name
+            method: 'registerType',
+            params: {
+                id: service.id,
+                name
+            }
         }))
 
         service.on("registerProperty", (key: string, property: any) => sendMessage({
-            type: 'registerProperty',
-            id: service.id,
-            key, property
+            method: 'registerProperty',
+            params: {
+                id: service.id,
+                key,
+                property,
+                value: service.values.get(key)
+            }
         }))
 
         service.on("registerAction", (key: string, action: any) => sendMessage({
-            type: 'registerAction',
-            id: service.id,
-            key, action
+            method: 'registerAction',
+            params: {
+                id: service.id,
+                key,
+                action
+            }
         }))
 
         service.on("registerEvent", (key: string, event: any) => sendMessage({
-            type: 'registerEvent',
-            id: service.id,
-            key, event
+            method: 'registerEvent',
+            params: {
+                id: service.id,
+                key,
+                event
+            }
         }))
 
-        service.on("registerIdentifier", (idType: string, identifier: string) => sendMessage({
-            type: 'registerIdentifier',
-            id: service.id,
-            idType, identifier
+        service.on("registerIdentifier", (type: string, identifier: string) => sendMessage({
+            method: 'registerIdentifier',
+            params: {
+                id: service.id,
+                type,
+                identifier
+            }
         }))
 
         service.on("update", (key: string, value: any, oldValue: any) => sendMessage({
-            type: 'updateValue',
-            id: service.id,
-            key, value
+            method: 'updateValue',
+            params: {
+                id: service.id,
+                key,
+                value
+            }
         }))
 
         service.on("event", (key: string, args: any) => sendMessage({
-            type: 'emitEvent',
-            id: service.id,
-            key, args
+            method: 'emitEvent',
+            params: {
+                id: service.id,
+                key,
+                args
+            }
         }))
 
         emitServiceEvents(service)
     })
     provider.on("unregister", (service: Service) => sendMessage({
-        type: 'unregisterService',
-        id: service.id
+        method: 'unregisterService',
+        params: {
+            id: service.id
+        }
     }))
 
     provider.services.forEach(service => provider.emit("register", service))

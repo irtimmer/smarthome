@@ -30,29 +30,29 @@ class RemoteProvider extends Provider<RemoteService> {
 
         socket.on('message', (message) => {
             const data = JSON.parse(message.toString())
-            if (data.type === 'registerService')
-                return this.registerService(new RemoteService(this, data.id, data.name, data.priority))
+            if (data.method === 'registerService')
+                return this.registerService(new RemoteService(this, data.params.id, data.params.name, data.params.priority))
 
-            const service = this.services.get(data.id)
+            const service = this.services.get(data.params.id)
             if (!service)
                 return
-            
-            if (data.type === 'unregisterService')
+
+            if (data.method === 'unregisterService')
                 this.unregisterService(service)
-            else if (data.type === 'updateValue')
-                service.updateValue(data.key, data.value)
-            else if (data.type === 'emitEvent')
-                service.emitEvent(data.event, data.props)
-            else if (data.type === 'registerProperty')
-                service.registerProperty(data.key, data.property)
-            else if (data.type === 'registerType')
-                service.registerType(data.name)
-            else if (data.type === 'registerAction')
-                service.registerAction(data.key, data.action)
-            else if (data.type === 'registerIdentifier')
-                service.registerIdentifier(data.type, data.id)
-            else if (data.type === 'registerEvent')
-                service.registerEvent(data.key, data.event)
+            else if (data.method === 'updateValue')
+                service.updateValue(data.params.key, data.params.value)
+            else if (data.method === 'emitEvent')
+                service.emitEvent(data.params.event, data.params.props)
+            else if (data.method === 'registerProperty')
+                service.registerProperty(data.params.key, data.params.property, data.params.value)
+            else if (data.method === 'registerType')
+                service.registerType(data.params.name)
+            else if (data.method === 'registerAction')
+                service.registerAction(data.params.key, data.params.action)
+            else if (data.method === 'registerIdentifier')
+                service.registerIdentifier(data.params.type, data.params.identifier)
+            else if (data.method === 'registerEvent')
+                service.registerEvent(data.params.key, data.params.event)
         })
 
         socket.on('close', () => {
@@ -77,19 +77,23 @@ class RemoteService extends Service<RemoteProvider> {
 
     async setValue(key: string, value: any) {
         return this.provider.sendMessage({
-            type: 'setValue',
-            id: this.id,
-            key,
-            value
+            method: 'setValue',
+            params: {
+                id: this.id,
+                key,
+                value
+            }
         })
     }
 
     async triggerAction(key: string, props: any) {
         return this.provider.sendMessage({
-            type: 'triggerAction',
-            id: this.id,
-            key,
-            props
+            method: 'triggerAction',
+            params: {
+                id: this.id,
+                key,
+                props
+            }
         })
     }
 }
