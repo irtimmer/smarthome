@@ -3,8 +3,6 @@ import { hideBin } from 'yargs/helpers'
 import fs from 'fs'
 
 import Server from './server'
-import ClientApi from './api/client'
-import ProviderApi from './api/provider'
 import Home from './home'
 import Controller from './controller'
 import logging from './logging'
@@ -33,10 +31,7 @@ const config = yamlInclude.load<any>(args.config)
 
 const controller = new Controller(config)
 
-const server = new Server(config.server)
-new ClientApi(server, controller)
-new ProviderApi(server, controller)
-
+new Server(controller, config.server)
 const home = new Home(controller, config.home)
 controller.providers.registerProvider(home)
 
