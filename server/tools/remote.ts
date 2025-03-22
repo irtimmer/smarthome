@@ -10,6 +10,7 @@ import ProviderHelper from '../providerhelper'
 import Provider from '../../shared/provider'
 import { Service } from '../../shared/service'
 import { Retry } from '../../shared/utils/poll'
+import Rpc from '../utils/rpc'
 
 logging({
     transport: {
@@ -54,25 +55,16 @@ import(`../../providers/${args.provider}`).then((providerClass) => {
 
     let socket: any = null
     let reconnect: any = null
-
-    const sendMessage = (data: any) => {
-        if (!socket)
-            return
-
-        socket.send(JSON.stringify(data))
-    }
+    let rpc: Rpc | null = null
 
     const emitServiceEvents = (service: Service) => {
-        sendMessage({
-            method: 'registerService',
-            params: {
-                id: service.id,
-                name: service.name,
-                priority: service.priority
-            }
+        rpc?.call('registerService', {
+            id: service.id,
+            name: service.name,
+            priority: service.priority
         })
     
-        service.types.forEach(type => service.emit("type", type))
+        service.types.forEach(type => service.emit("registerType", type))
         service.events.forEach((value, key) => service.emit("registerEvent", key, value))
         service.properties.forEach((value, key) => service.emit("registerProperty", key, value))
         service.actions.forEach((value, key) => service.emit("registerAction", key, value))
@@ -82,23 +74,23 @@ import(`../../providers/${args.provider}`).then((providerClass) => {
     const connect = async () => {
         socket = new WebSocket(`${args.server}/${args.provider}`)
         socket.on('open', () => provider.services.forEach(service => emitServiceEvents(service)))
-        socket.on('close', (e: any) => reconnect.retry(e))
-        socket.on('error', (e: any) => reconnect.retry(e))
-        socket.on('message', (e: any) => {
-            const data = JSON.parse(e.toString())
-            try {
-                const service = provider.services.get(data.params.id)
-                if (!service)
-                    return
+        socket.on('close', (code: number, reason: Buffer) => {
+            rpc = null
+            reconnect.retry(reason.toString)
+        })
+        socket.on('error', (e: Error) => reconnect.retry(e))
+        rpc = new Rpc(socket, async (method: string, params: any) => {
+            const service = provider.services.get(params.id)
+            if (!service)
+                throw new Error(`Service not found ${params.id}`)
 
-                if (data.method === 'setValue')
-                    service.setValue(data.params.key, data.params.value)
-                else if (data.method === 'triggerAction')
-                    service.triggerAction(data.params.key, data.params.props)
-            } catch (e) {
-                console.error("Error processing message", e);
-            }
-        });
+            if (method === 'setValue')
+                return service.setValue(params.key, params.value)
+            else if (method === 'triggerAction')
+                return service.triggerAction(params.key, params.props)
+            else
+                throw new Error(`Unknown method ${method}`)
+        })
     }
 
     reconnect = new Retry(connect, {
@@ -108,76 +100,52 @@ import(`../../providers/${args.provider}`).then((providerClass) => {
     })
 
     provider.on("register", (service: Service) => {
-        service.on("type", (name: string) => sendMessage({
-            method: 'registerType',
-            params: {
-                id: service.id,
-                name
-            }
+        service.on("registerType", (name: string) => rpc?.call('registerType', {
+            id: service.id,
+            name
         }))
 
-        service.on("registerProperty", (key: string, property: any) => sendMessage({
-            method: 'registerProperty',
-            params: {
-                id: service.id,
-                key,
-                property,
-                value: service.values.get(key)
-            }
+        service.on("registerProperty", (key: string, property: any) => rpc?.call('registerProperty', {
+            id: service.id,
+            key,
+            property,
+            value: service.values.get(key)
         }))
 
-        service.on("registerAction", (key: string, action: any) => sendMessage({
-            method: 'registerAction',
-            params: {
-                id: service.id,
-                key,
-                action
-            }
+        service.on("registerAction", (key: string, action: any) => rpc?.call('registerAction', {
+            id: service.id,
+            key,
+            action
         }))
 
-        service.on("registerEvent", (key: string, event: any) => sendMessage({
-            method: 'registerEvent',
-            params: {
-                id: service.id,
-                key,
-                event
-            }
+        service.on("registerEvent", (key: string, event: any) => rpc?.call('registerEvent', {
+            id: service.id,
+            key,
+            event
         }))
 
-        service.on("registerIdentifier", (type: string, identifier: string) => sendMessage({
-            method: 'registerIdentifier',
-            params: {
-                id: service.id,
-                type,
-                identifier
-            }
+        service.on("registerIdentifier", (type: string, identifier: string) => rpc?.call('registerIdentifier', {
+            id: service.id,
+            type,
+            identifier
         }))
 
-        service.on("update", (key: string, value: any, oldValue: any) => sendMessage({
-            method: 'updateValue',
-            params: {
-                id: service.id,
-                key,
-                value
-            }
+        service.on("update", (key: string, value: any) => rpc?.call('updateValue', {
+            id: service.id,
+            key,
+            value
         }))
 
-        service.on("event", (key: string, args: any) => sendMessage({
-            method: 'emitEvent',
-            params: {
-                id: service.id,
-                key,
-                args
-            }
+        service.on("event", (key: string, args: any) => rpc?.call('emitEvent', {
+            id: service.id,
+            key,
+            args
         }))
 
         emitServiceEvents(service)
     })
-    provider.on("unregister", (service: Service) => sendMessage({
-        method: 'unregisterService',
-        params: {
-            id: service.id
-        }
+    provider.on("unregister", (service: Service) => rpc?.call('unregisterService', {
+        id: service.id
     }))
 
     provider.services.forEach(service => provider.emit("register", service))

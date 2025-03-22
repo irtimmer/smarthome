@@ -4,6 +4,7 @@ import Server from '../server'
 import Controller from '../controller'
 import Provider, { ProviderManager } from '../../shared/provider'
 import Service from "../../shared/service"
+import Rpc from '../utils/rpc'
 
 export default class {
     constructor(server: Server, controller: Controller) {
@@ -22,39 +23,12 @@ export default class {
 }
 
 class RemoteProvider extends Provider<RemoteService> {
-    socket: WebSocket
+    rpc: Rpc
 
     constructor(manager: ProviderManager, socket: WebSocket) {
         super(manager)
-        this.socket = socket
 
-        socket.on('message', (message) => {
-            const data = JSON.parse(message.toString())
-            if (data.method === 'registerService')
-                return this.registerService(new RemoteService(this, data.params.id, data.params.name, data.params.priority))
-
-            const service = this.services.get(data.params.id)
-            if (!service)
-                return
-
-            if (data.method === 'unregisterService')
-                this.unregisterService(service)
-            else if (data.method === 'updateValue')
-                service.updateValue(data.params.key, data.params.value)
-            else if (data.method === 'emitEvent')
-                service.emitEvent(data.params.event, data.params.props)
-            else if (data.method === 'registerProperty')
-                service.registerProperty(data.params.key, data.params.property, data.params.value)
-            else if (data.method === 'registerType')
-                service.registerType(data.params.name)
-            else if (data.method === 'registerAction')
-                service.registerAction(data.params.key, data.params.action)
-            else if (data.method === 'registerIdentifier')
-                service.registerIdentifier(data.params.type, data.params.identifier)
-            else if (data.method === 'registerEvent')
-                service.registerEvent(data.params.key, data.params.event)
-        })
-
+        this.rpc = new Rpc(socket, this.#handleCall.bind(this))
         socket.on('close', () => {
             this.services.forEach((service) => {
                 this.unregisterService(service)
@@ -63,8 +37,30 @@ class RemoteProvider extends Provider<RemoteService> {
         })
     }
 
-    sendMessage(data: any) {
-        this.socket.send(JSON.stringify(data))
+    async #handleCall(method: string, params: any) {
+        if (method === 'registerService')
+            return this.registerService(new RemoteService(this, params.id, params.name, params.priority))
+
+        const service = this.services.get(params.id)
+        if (!service)
+            throw new Error(`Service not found ${params.id}`)
+
+        if (method === 'unregisterService')
+            return this.unregisterService(service)
+        else if (method === 'updateValue')
+            return service.updateValue(params.key, params.value)
+        else if (method === 'emitEvent')
+            return service.emitEvent(params.event, params.props)
+        else if (method === 'registerProperty')
+            return service.registerProperty(params.key, params.property, params.value)
+        else if (method === 'registerType')
+            return service.registerType(params.name)
+        else if (method === 'registerAction')
+            return service.registerAction(params.key, params.action)
+        else if (method === 'registerIdentifier')
+            return service.registerIdentifier(params.type, params.identifier)
+        else if (method === 'registerEvent')
+            return service.registerEvent(params.key, params.event)
     }
 }
 
@@ -75,25 +71,19 @@ class RemoteService extends Service<RemoteProvider> {
         this.priority = priority
     }
 
-    async setValue(key: string, value: any) {
-        return this.provider.sendMessage({
-            method: 'setValue',
-            params: {
-                id: this.id,
-                key,
-                value
-            }
-        })
+    async setValue(key: string, value: any): Promise<void> {
+        return await this.provider.rpc.call('setValue', {
+            id: this.id,
+            key,
+            value
+        }) as void
     }
 
     async triggerAction(key: string, props: any) {
-        return this.provider.sendMessage({
-            method: 'triggerAction',
-            params: {
-                id: this.id,
-                key,
-                props
-            }
-        })
+        return await this.provider.rpc.call('triggerAction', {
+            id: this.id,
+            key,
+            props
+        }) as void
     }
 }
