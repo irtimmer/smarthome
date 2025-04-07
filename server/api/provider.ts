@@ -50,7 +50,7 @@ class RemoteProvider extends Provider<RemoteService> {
         else if (method === 'updateValue')
             return service.updateValue(params.key, params.value)
         else if (method === 'emitEvent')
-            return service.emitEvent(params.event, params.props)
+            return service.emitEvent(params.event, params.args)
         else if (method === 'registerProperty')
             return service.registerProperty(params.key, params.property, params.value)
         else if (method === 'registerType')
